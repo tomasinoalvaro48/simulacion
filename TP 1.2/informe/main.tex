@@ -1,0 +1,569 @@
+\documentclass{article}
+
+\usepackage{arxiv}
+
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{cleveref}       % clever references (\cref)
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{lipsum}
+\usepackage{graphicx}
+\usepackage{float}
+\graphicspath{{./images/}{./images/graficos/}}
+
+
+\title{TP 1.1 - SIMULACIÓN DE UNA RULETA}
+
+
+\author{
+    Alvaro Tomasino \\
+    Ingeniería en Sistemas de Información\\
+    Universidad Tecnológica Nacional - FRRO\\
+    Zeballos 1341, S2000, Argentina\\
+    \texttt{atomasino08@gmail.com} \\
+\And
+    Melina Aronson \\
+    Ingeniería en Sistemas de Información\\
+    Universidad Tecnológica Nacional - FRRO\\
+    Zeballos 1341, S2000, Argentina\\
+    \texttt{melinaaronson@gmail.com} \\
+\And
+    Tomas Aguilera \\
+    Ingeniería en Sistemas de Información\\
+    Universidad Tecnológica Nacional - FRRO\\
+    Zeballos 1341, S2000, Argentina\\
+    \texttt{tomas.aguilera.27@gmail.com} \\
+\And
+    Juan Bautista Martinelli \\
+    Ingeniería en Sistemas de Información\\
+    Universidad Tecnológica Nacional - FRRO\\
+    Zeballos 1341, S2000, Argentina\\
+    \texttt{martinellij4@gmail.com} \\
+}
+
+
+
+
+\begin{document}
+
+\maketitle
+
+
+
+
+\begin{abstract}
+  El siguiente documento tiene como objetivo detallar el trabajo de investigación realizado como introducción a la 
+  materia de simulación. El mismo consiste en el desarrollo de un modelo simple del plato de una ruleta, cuyo 
+  funcionamiento es verificado mediante distintos tests rudimentarios.
+\end{abstract}
+
+\keywords{Simulación \and Trabajo de investigación \and Ruleta}
+
+
+
+
+
+
+\section{Introducción}
+\paragraph{Etimología y definición del término ruleta} La ruleta \cite{ruleta_wiki} es un juego de azar típico de 
+los casinos, cuyo nombre viene del término francés \textit{roulette}, que significa «ruedita» o «rueda pequeña». 
+Su uso como elemento de juego de azar, aún en configuraciones distintas de la actual, no está documentado hasta 
+bien entrada la Edad Media. Es de suponer que su referencia más antigua es la llamada Rueda de la Fortuna, de la que 
+hay noticias a lo largo de toda la historia, prácticamente en todos los campos del saber humano.
+
+\paragraph{Popularización y asociaciones}
+La «magia» del movimiento de las ruedas debió impactar a distintas generaciones. La aparente quietud del centro, el 
+aumento de velocidad a medida que nos alejamos de él y la posibilidad de que se detenga en un punto al azar tuvieron 
+que influir en el desarrollo de diversos juegos basados en la rueda.
+
+Las ruedas, y por extensión las ruletas, siempre han estado vinculadas con el mundo mágico y esotérico. Así, una de 
+ellas forma parte del tarot, más precisamente de los denominados arcanos mayores.
+
+\paragraph{Evolución de las reglas de juego a través de la historia} Según los indicios, la creación de una ruleta y 
+sus normas de juego, muy similares a las que conocemos hoy en día, se debe a Blaise Pascal, matemático francés, quien 
+ideó una ruleta con treinta y seis números (sin el cero), en la que hay un extremo equilibrio en la posición en que está 
+colocado cada número. La elección de 36 números da un alcance aún más vinculado a la magia (la suma de los primeros 36 
+números da el número mágico por excelencia: seiscientos sesenta y seis).
+
+Esta ruleta podía usarse como entretenimiento en círculos de amistades. Sin embargo, a nivel de empresa que pone los 
+medios y el personal para el entretenimiento de sus clientes, no era rentable, ya que estadísticamente todo lo que se 
+apostaba se repartía en premios (probabilidad de 1/36 de acertar el número y ganar 36 veces lo apostado).
+
+En 1842, los hermanos Blanc modificaron la ruleta añadiéndole un nuevo número, el 0, y la introdujeron inicialmente 
+en el Casino de Montecarlo. Esta es la ruleta que se conoce hoy en día, con una probabilidad de acertar de 1/37 y ganar
+36 veces lo apostado, consiguiendo un margen para la casa del 2,7\% (1/37).
+
+Más adelante, en algunas ruletas (sobre todo las que se usan en países anglosajones) se añadió un nuevo número 
+(el doble cero), con lo cual el beneficio para el casino resultó ser doble (2/38 o 5,26\%).
+
+\paragraph{Tipos de juegos de ruleta} En la actualidad, existen dos tipos de ruletas: La \textit{ruleta francesa}, también 
+llamada \textit{ruleta europea}, y la \textit{ruleta americana}.
+
+La ruleta europea está compuesta por 37 números: del 1 al 36 y el cero. En cambio, la ruleta americana tiene dos variantes: 
+la ruleta americana de \textit{doble cero} (compuesta por 38 números: los números del 1 al 36, el cero y el doble cero) y la 
+de \textit{un cero} (compuesta por 37 números: del 1 al 36 y el cero, al igual que la europea).
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{ruleta-americana-vs-europea.jpg}
+  \caption{Diferencias entre la ruleta americana y la ruleta europea \cite{tipos_de_ruleta_casino}.}
+  \label{fig:tipos-de-ruleta}
+\end{figure}
+
+En Argentina se juega principalmente la ruleta europea, que es la más común en los casinos del país.
+Debido a ello, este informe se realizó basado en la ruleta europea; por lo tanto, en adelante, cuando
+hablemos de ruleta, nos estaremos refiriendo a este tipo.
+
+\paragraph{Importancia de la simulación}
+La simulación realizada no es simplemente un programa de generación de números al 
+azar: es una implementación computacional de los principios fundamentales de la estadística 
+descriptiva e inferencial \cite{introducción_probabilidad}. Cada variable del código tiene 
+un correlato teórico preciso en la teoría de la probabilidad.
+
+La \textit{distribución uniforme discreta} \cite{distribucion_uniforme_discreta} sobre $\{0,1,2,\dots,36\}$ determina todos los valores teóricos del sistema. 
+Las frecuencias absoluta y relativa son las herramientas empíricas para aproximar la probabilidad desde los datos. 
+El valor promedio, la varianza y el desvío estándar permiten caracterizar globalmente el comportamiento de la variable. 
+Finalmente, el Teorema Central del Límite es el principio que garantiza la coherencia entre la teoría y el experimento simulado.
+
+Comprender estos conceptos es esencial tanto para interpretar correctamente los resultados de cualquier simulación como para 
+diseñar experimentos computacionales que sean estadísticamente significativos.
+
+
+\section{Metodología}
+\label{sec:metodologia}
+
+\subsection{Diseño del modelo}
+El modelo fue construido en el lenguaje \textit{Python 3.x}, siguiendo los requisitos de generación de 
+valores aleatorios enteros y el uso de listas para el almacenamiento de datos.
+
+Se utilizan las siguientes librerías: \textit{argparse}, \textit{numpy} y \textit{matplotlib}.
+
+Estas librerías forman un conjunto de herramientas esenciales para el desarrollo de aplicaciones en \textit{Python}, 
+permitiendo la ejecución del programa y el análisis de los datos. 
+
+\textit{argparse} se encarga de la interacción con el entorno mediante líneas de comandos para capturar argumentos del usuario.
+\textit{numpy} introduce estructuras de datos, generación de números aleatorios y fórmulas de cálculo de probabilidad, como los \textit{arrays} 
+multidimensionales, que permiten realizar operaciones matemáticas complejas de manera mucho más eficiente que 
+las listas estándar de \textit{Python}. 
+Para dar sentido a estos datos, \textit{matplotlib.pyplot} se utiliza para generar gráficos (diagramas de dispersión, 
+histogramas o series temporales), permitiendo la interpretación visual de la información procesada \cite{python_para_impacientes_graficos,probabilidad_estadistica_python}.
+
+Para la ejecución del programa se deberá ejecutar el siguiente comando en la consola de comandos: 
+\begin{center}
+  \textit{python ruleta.py -n XXX -c YYY -e ZZ}
+\end{center}
+
+El programa recibe 3 números enternos en forma de parámetros:
+\begin{itemize}
+  \item \textit{XXX}: la cantidad de tiradas de la ruleta o número de la muestra ($n$).
+  \item \textit{YYY}: la cantidad de corridas o \textit{realization} de la simulación ($c$).
+  \item \textit{ZZ}: el número elegido en la ruleta ($e\in\{0,1,2,\dots,36\}$), al que vamos a apostar nuestro dinero.
+\end{itemize}
+
+\subsection{Procesamiento de datos}
+
+\paragraph{Distribución uniforme discreta}
+La distribución uniforme discreta es el modelo probabilístico que subyace a todo el programa. Su elección es coherente con 
+la naturaleza del experimento: una ruleta ideal (sin sesgos físicos) no favorece ningún número sobre los demás. Es una 
+distribución de probabilidad en la que todos los resultados posibles dentro de un conjunto finito tienen exactamente la misma 
+probabilidad de ocurrir (equiprobables). Se aplica a situaciones con $n$ valores discretos, cada uno con una probabilidad de $1/n$ \cite{distribucion_uniforme_discreta}.
+
+$$X \sim U\{a,b\}$$
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.5\textwidth]{distribucion-uniforme-discreta.jpg}
+  \caption{Distribución uniforme discreta.}
+  \label{fig:distribucion-uniforme-discreta}
+\end{figure}
+
+Donde \(X\) es la variable aleatoria, \(a\) es el valor entero mínimo y \(b\) es el valor entero máximo. Siendo la \textit{función de probabilidad}: 
+$$P(X = x_i) = \frac{1}{n}$$
+
+\paragraph{Generación de números aleatorios} La aleatoriedad de la ruleta se simuló con la función 
+\verb+np.random.randint(0, cant_numeros_ruleta, tiradas)+, 
+donde \verb+cant_numeros_ruleta+ es 37 y \verb+tiradas+ es ingresado por consola por el usuario. 
+
+Esta función usa una distribución uniforme discreta para generar \textit{n} muestras (tiradas) de enteros aleatorios 
+uniformes entre 0 (incluido) y \verb+cant_numeros_ruleta+ (excluido). Es decir, se obtiene un array de longitud \textit{n} 
+con valores de 0 a 36. Esto hace que cada número tenga una probabilidad de ocurrencia $P=1/37$:
+
+$$P(X = k) = \frac{1}{37} \approx 0,027$$
+
+Con $k \in \{0, 1, 2, \dots, 36\}$
+
+La probabilidad de que salga cualquier número específico $k$ es 1 entre 37, ya que todos los resultados son igualmente 
+probables. En el código se representa como \verb+fre = 1 / 37+.
+
+\paragraph{Estructuras de control}
+Para iterar las listas, utilizamos la estructura de control \verb+FOR+. Esto permite obtener el valor de los estadísticos 
+en cada tirada, desde 1 hasta $n$.
+
+\subsection{Funciones estadísticas}
+
+La validación del modelo se realiza comparando los valores simulados con los parámetros esperados. Los estadísticos que 
+se calculan son:
+
+\subsubsection{Frecuencia absoluta}
+Es una medida estadística que indica el número de veces que un valor específico, dato o evento se repite dentro de un 
+conjunto total de datos \cite{frecuencia_absoluta_economipedia}.
+
+\begin{center}
+$f_i =$ número de veces que aparece el valor $x_i$
+\end{center}
+
+La suma de todas las frecuencias absolutas tiene que ser igual al tamaño de la muestra:
+$$n=\sum_{i=1}^{k} n_i = n_1 + n_2 + \cdots + n_k$$
+
+\subsubsection{Frecuencia relativa}
+Es una medida estadística que representa la proporción de cada valor en una muestra de datos. Se calcula dividiendo la 
+frecuencia absoluta (que en este caso sería la cantidad de éxitos del número elegido) por el tamaño de la muestra. 
+La frecuencia relativa siempre va a estar acotada entre 0 y 1, y la suma de todas las muestras va a ser 1 (o 100 si se 
+mide en tanto por ciento).
+
+$$f_i = \frac{n_i}{N}$$
+
+La frecuencia relativa siempre cumple $0 \leq f_r(k) \leq 1$, y la suma de las frecuencias relativas de todos los valores 
+es exactamente 1. A medida que $n \to \infty$ se espera que $f_r(k) \to P(X = k) = 1/37$.
+
+\subsubsection{Medida de Tendencia Central}
+
+\paragraph{Valor promedio (media)}
+Es una medida de tendencia central que representa el valor ``típico'' de un conjunto de datos \cite{promedio_economipedia}. Se calcula sumando todos 
+los valores observados y dividiendo el resultado entre el número total de datos.
+
+$$\bar{x} = \frac{x_1 + x_2 + \cdots + x_n}{N}$$
+
+\subsubsection{Medidas de Dispersión}
+Las medidas de dispersión cuantifican cuánto se alejan los valores individuales del promedio. Indican el grado de 
+variabilidad o heterogeneidad de los datos. El programa calcula dos de ellas: la varianza y el desvío estándar.
+
+\paragraph{Varianza}
+Es una medida de dispersión estadística que indica qué tan alejados están los datos respecto al valor promedio \cite{varianza_economipedia}.
+
+$$\sigma^2 = \frac{\sum_{i=1}^{n}(x_i - \bar{x})^2}{n}$$
+
+\paragraph{Desvío estándar}
+Es la raíz cuadrada de la varianza, indicando qué tan alejados están los valores del promedio en las mismas unidades \cite{desviacion_estandar_questionpro}.
+
+$$\sigma = \sqrt{\frac{\sum_{i=1}^{n}(x_i - \bar{x})^2}{n}}$$
+
+\subsubsection{Propiedades teóricas}
+Sus propiedades teóricas se definen como sigue:
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{lll}
+    \toprule
+    \textbf{Concepto} & \textbf{Variable en código} & \textbf{Valor teórico esperado} \\
+    \midrule
+    Valor Promedio (Media) & \verb+vpe+ & $E[X] = (0 + 36) / 2 = 18$ \\
+    Varianza & \verb+varie+ & $Var(X) = (37^2 - 1) / 12 \approx 114$ \\
+    Desvío Estándar & \verb+desve+ & $\sigma = \sqrt{Var(X)} \approx 10,68$ \\
+    Probabilidad de cada valor & \verb+fre+ & $P(X = k) = 1/37 \approx 0,027$ \\
+    \bottomrule
+  \end{tabular}
+  \label{tab:propiedades-teoricas}
+\end{table}
+
+\subsection{Teorema Central del Límite}
+Vinculamos los resultados obtenidos con el Teorema Central de Límite (TCL), el cual es un principio fundamental que 
+establece que, al aumentar el tamaño de la muestra ($n$), la distribución de las medias muestrales se aproxima a una 
+distribución normal, independientemente de la forma de la distribución de la población original. Generalmente se usa un 
+tamaño de muestra ($n > 30$).
+
+Veremos cómo a medida que se aumenta el tamaño de la muestra, las gráficas formadas con los valores obtenidos de la 
+simulación tienden a distribuirse de manera Normal.
+
+\subsection{Configuración y justificación de parámetros}
+Para los parámetros, elegimos probar con un tamaño de muestra de $n=300$ tiradas por corrida porque es un valor mayor a 30, que es un requisito para que actúe el Teorema Central del Límite y se observe la tendencia a la normalidad. Por otro lado, probamos con $c=3000$ corridas, que permite observar una distribución de promedios lo suficientemente suave para validar la normalidad de los datos y asegurar que los estadísticos obtenidos sean representativos del comportamiento teórico esperado.
+
+\section{Resultados}
+\label{sec:resultados}
+
+\subsection{Gráficos de los resultados}
+
+Utilizamos el paquete \textit{Matplotlib} para graficar los resultados, realizando 12 gráficos. Para cada estadístico, 
+se muestran 2 enfoques:
+
+\begin{itemize}
+  \item \textbf{Primer enfoque (eje x: número de tiradas):} Muestra cómo los estadísticos convergen a lo largo de las tiradas 
+  (en una sola corrida). Permite ver cómo los estadísticos se estabilizan a medida que aumenta el tamaño de la muestra en una 
+  sola realización del experimento. Se representan en el código con \verb+plt.plot+ (gráficos de línea).
+  
+  \item \textbf{Segundo enfoque (eje x: número de corridas):} Muestra la variabilidad de los resultados finales entre distintas 
+  corridas, y permite verificar que cada experimento independiente (corrida) muestra resultados consistentes con la teoría. 
+  Se representan en el código con \verb+plt.scatter+ (gráficos de dispersión).
+\end{itemize}
+
+Además, se usa \verb+plt.stem+ para los gráficos de frecuencia absoluta (gráficos de bastones) y \verb+plt.hist+ para 
+los gráficos de TCL (histogramas).
+
+\subsubsection{Gráfico de frecuencia absoluta en todas las corridas}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.9\textwidth]{f6-bastones-frecuencia-absoluta-de-cada-numero-todas-las-corridas.png}
+  \caption{Frecuencia absoluta de cada número en todas las corridas}
+  \label{fig:frecuencia-absoluta-de-cada-numero-todas-las-corridas}
+\end{figure}
+
+La \cref{fig:frecuencia-absoluta-de-cada-numero-todas-las-corridas} es un gráfico de bastones que representa la cantidad de veces que aparece cada número de la ruleta durante todas las simulaciones
+realizadas. En el eje x se muestran los valores posibles de la ruleta (del 0 al 36), mientras que en el eje y se indica la 
+frecuencia absoluta correspondiente a cada número.
+
+El gráfico muestra cómo se distribuyen los resultados obtenidos en la simulación, para ver si el comportamiento observado se 
+aproxima al esperado. Debido a que todos los números tienen la misma probabilidad de ocurrencia, se espera que los bastones 
+tengan alturas más o menos parecidas, aunque pueden presentarse diferencias debido al azar y la cantidad limitada de tiradas.
+
+A medida que aumenta la cantidad de corridas y tiradas, las frecuencias tienden a estabilizarse y acercarse a una distribución
+uniforme.
+
+\subsubsection{Gráfico de frecuencia absoluta en una corrida}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.9\textwidth]{f1-bastones-frecuencia-absoluta-de-cada-numero.png}
+  \caption{Frecuencia absoluta de cada número en una corrida}
+  \label{fig:frecuencia-absoluta-de-cada-numero-en-una-corridas}
+\end{figure}
+
+La \cref{fig:frecuencia-absoluta-de-cada-numero-en-una-corridas} es un gráfico de bastones que representa la frecuencia con la que aparece cada número de la ruleta en una única corrida específica
+del experimento. En el eje x se muestran los valores posibles de la ruleta (del 0 al 36) y en el eje y la cantidad de veces 
+que sale cada uno.
+
+A diferencia del gráfico de frecuencia absoluta total, este permite ver la gran variabilidad que hay en una sola realización de
+la simulación, debido a la aleatoriedad.
+
+\subsubsection{Gráficos de frecuencia relativa}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{f5-frecuencia-relativa-del-numero-elegido-de-una-corrida.png}
+  \caption{Frecuencia relativa del número elegido en una corrida}
+  \label{fig:frecuencia-relativa-del-numero-elegido-en-una-corrida}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{f7-dispercion-frecuencia-relativa-del-numero-elegido-todas-las-corridas.png}
+  \caption{Frecuencia relativa del número elegido en todas las corridas}
+  \label{fig:frecuencia-relativa-del-numero-elegido-en-todas-las-corridas}
+\end{figure}
+
+Las \cref{fig:frecuencia-relativa-del-numero-elegido-en-una-corrida} y \cref{fig:frecuencia-relativa-del-numero-elegido-en-todas-las-corridas} muestran la evolución de la frecuencia relativa del número elegido durante las distintas tiradas/corridas de la
+simulación. La frecuencia relativa se calcula como la cantidad de veces que apareció el número elegido dividido el total de 
+tiradas/corridas realizadas.
+
+En la \cref{fig:frecuencia-relativa-del-numero-elegido-en-una-corrida}, en el eje x se representa el número de tiradas, mientras que en el eje y se muestra el valor de la
+frecuencia relativa obtenida. El comportamiento esperado es que, a medida que aumenta la cantidad de tiradas, la frecuencia
+relativa tiende a aproximarse a la probabilidad de obtener un número específico en la ruleta ($P(X) = 1/37 \approx 0,027$).
+
+En las primeras tiradas, se pueden observar muchas fluctuaciones debido a la aleatoriedad, pero mientras el tamaño de la muestra
+va aumentando, los valores se empiezan a estabilizar alrededor del valor esperado.
+
+En la \cref{fig:frecuencia-relativa-del-numero-elegido-en-todas-las-corridas}, se usa un gráfico de dispersión, donde el eje x representa cada corrida independiente. Esto permite 
+observar cómo el éxito de la apuesta cambia en cada experimento y cómo cada resultado final se posiciona respecto a la 
+frecuencia relativa esperada.
+
+\subsubsection{Gráficos del promedio}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{f2-valor-promedio-acumulado-de-una-corrida.png}
+  \caption{Valor promedio acumulado en una corrida}
+  \label{fig:valor-promedio-acumulado-en-una-corrida}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{f8-dispercion-valor-promedio-todas-las-corridas.png}
+  \caption{Valor promedio en todas las corridas}
+  \label{fig:valor-promedio-en-todas-las-corridas}
+\end{figure}
+
+Las \cref{fig:valor-promedio-acumulado-en-una-corrida} y \cref{fig:valor-promedio-en-todas-las-corridas} representan el valor promedio de los números obtenidos en cada tirada/corrida de la simulación. El promedio se 
+calcula sumando todos los resultados obtenidos y dividiendo esa suma por la cantidad total de tiradas/corridas.
+
+En la \cref{fig:valor-promedio-acumulado-en-una-corrida}, en el eje x se muestra el número de tiradas realizadas, y el eje y indica el valor promedio calculado.
+Teóricamente, el promedio esperado de una ruleta con números entre 0 y 36 es:
+$$\mu = \frac{0+36}{2} = 18$$
+
+En las primeras etapas de la simulación el promedio puede variar bastante debido a la poca cantidad de datos. Pero mientras la
+cantidad de tiradas va aumentando, el promedio tiende a estabilizarse alrededor del valor esperado.
+
+En la \cref{fig:valor-promedio-en-todas-las-corridas}, se usa un gráfico de dispersión donde el eje x representa la cantidad de corridas y el eje y muestra el
+promedio final obtenido en cada realización.La dispersión de estos bastones alrededor de la línea del valor promedio esperado 
+(18) permite analizar la precisión de cada corrida individual.
+
+\subsubsection{Gráficos del desvío estándar}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{f3-valor-desvio-acumulado-de-una-corrida.png}
+  \caption{Valor desvío acumulado en una corrida}
+  \label{fig:valor-desvio-acumulado-en-una-corrida}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{f9-dispercion-valor-desvio-todas-las-corridas.png}
+  \caption{Valor desvío en todas las corridas}
+  \label{fig:valor-desvio-en-todas-las-corridas}
+\end{figure}
+
+Las \cref{fig:valor-desvio-acumulado-en-una-corrida} y \cref{fig:valor-desvio-en-todas-las-corridas} muestran el comportamiento del desvío estándar de los resultados obtenidos en las distintas tiradas/corridas. 
+El desvío estándar indica cuánto se dispersan los valores respecto al promedio.
+
+En la \cref{fig:valor-desvio-acumulado-en-una-corrida}, en el eje x se representan las tiradas realizadas, y en el eje y se muestra el valor del desvío estándar
+calculado para cada corrida. Un valor alto indica una mayor dispersión de los resultados, mientras que un valor menor indica que
+los números obtenidos están más concentrados alrededor de la media.
+
+A medida que la cantidad de tiradas aumenta, el desvío estándar tiende a estabilizarse cerca del valor desvío esperado.
+
+En la \cref{fig:valor-desvio-en-todas-las-corridas}, se usa un gráfico de dispersión donde el eje x representa la cantidad de corridas y el eje y muestra el
+desvío estándar final en cada una.Este gráfico permite comparar la consistencia de la dispersión de datos entre distintos 
+experimentos independientes.
+
+\subsubsection{Gráficos de la varianza}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{f4-valor-varianza-acumulado-de-una-corrida.png}
+  \caption{Valor varianza acumulado en una corrida}
+  \label{fig:valor-varianza-acumulado-en-una-corrida}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{f10-dispercion-valor-varianza-todas-las-corridas.png}
+  \caption{Valor varianza en todas las corridas}
+  \label{fig:valor-varianza-en-todas-las-corridas}
+\end{figure}
+
+Las \cref{fig:valor-varianza-acumulado-en-una-corrida} y \cref{fig:valor-varianza-en-todas-las-corridas} representan la evolución de la varianza de los resultados obtenidos en la simulación. La varianza cuantifica el 
+grado de dispersión de los datos respecto al promedio, calculando el promedio de las diferencias cuadráticas respecto de la media.
+
+En la \cref{fig:valor-varianza-acumulado-en-una-corrida}, en el eje x se representan las tiradas realizadas, y en el eje y se muestra el valor de la varianza
+calculada para cada corrida. En las primeras tiradas se pueden observar muchas variaciones debido a la baja cantidad de muestras
+analizadas, pero cuando la cantidad de tiradas va aumentando, la varianza tiende a estabilizarse alrededor del valor esperado.
+
+En la \cref{fig:valor-varianza-en-todas-las-corridas}, se usa un gráfico de dispersión donde el eje x representa la cantidad de corridas y el eje y muestra la
+varianza total calculada al finalizar cada una. Sirve para verificar que la variabilidad interna de cada experimento se mantiene 
+dentro de los parámetros esperados de una distribución uniforme.
+
+\subsubsection{Histograma de promedios finales}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{f11-histograma-promedios-finales-de-cada-corrida.png}
+  \caption{Histograma de promedios finales de cada corrida}
+  \label{fig:histograma-de-promedios-finales-de-cada-corrida}
+\end{figure}
+
+La \cref{fig:histograma-de-promedios-finales-de-cada-corrida} representa la distribución de frecuencia de los promedios calculados al terminar cada corrida independiente. En el 
+eje x se muestran los valores de los promedios obtenidos y en el eje y la cantidad de corridas que alcanzaron ese valor promedio.
+
+La \cref{fig:histograma-de-promedios-finales-de-cada-corrida} demuestra el Teorema Central del Límite (TCL), porque permite observar cómo los datos adoptan una forma de campana
+de Gauss centrada cerca del valor promedio esperado (18), demostrando que la media de los resultados tiende a la normalidad al
+aumentar la cantidad de experimentos.
+
+\subsubsection{Histograma de frecuencias relativas finales}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.7\textwidth]{f12-histograma-frecuencia-relativa-final-del-numero-elegido-de-cada-corrida.png}
+  \caption{Histograma de frecuencias relativas finales de cada corrida}
+  \label{fig:histograma-de-frecuencias-relativas-finales-de-cada-corrida}
+\end{figure}
+
+La \cref{fig:histograma-de-frecuencias-relativas-finales-de-cada-corrida} muestra la distribución de las frecuencias relativas finales obtenidas para el número elegido a lo largo de todas las
+corridas de la simulación. En el eje x se representa el valor de la frecuencia relativa alcanzada y en el eje y la frecuencia o 
+cantidad de corridas que obtuvieron ese resultado.
+
+Al igual que la \cref{fig:histograma-de-promedios-finales-de-cada-corrida}, la \cref{fig:histograma-de-frecuencias-relativas-finales-de-cada-corrida} valida el TCL, mostrando cómo los éxitos de la apuesta en varios experimentos
+independientes tienden a agruparse de forma normal alrededor de la probabilidad teórica de $1/37 \approx 0,027$.
+
+\subsection{Comparación entre valores teóricos y simulados}
+
+Con 3000 corridas y 300 tiradas por corrida, los valores obtenidos experimentalmente fueron cercanos a los esperados.
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{lll}
+    \toprule
+    \textbf{Medida} & \textbf{Valor esperado} & \textbf{Valor obtenido} \\
+    \midrule
+    Frecuencia relativa & $1/37 \approx 0,027$ & 0,02804 \\
+    Valor promedio & $(0+36)/2 = 18$ & 17,95176 \\
+    Varianza & $(37^2-1)/12 = 114$ & 114,3933 \\
+    Desvío estándar & $\sqrt{114} \approx 10,68$ & 10,6944 \\
+    \bottomrule
+  \end{tabular}
+  \label{tab:comparacion-teoricos-simulados}
+\end{table}
+
+Las diferencias que se ven son por la variabilidad aleatoria propia del experimento y el tamaño finito de la muestra.
+
+\subsection{Convergencia de los estadísticos}
+
+Se observó que en las primeras tiradas, los estadísticos presentan fluctuaciones por la poca cantidad de datos. Pero cuando la 
+cantidad de tiradas va aumentando, los valores empiezan a estabilizarse y aproximarse a los valores esperados.
+
+\subsection{Relación con el Teorema Central del Límite}
+
+Al hacer varias corridas independientes de la simulación, los promedios obtenidos en cada una se empiezan a distribuir alrededor 
+del valor esperado. A medida que aumenta la cantidad de corridas, esta distribución tiende a adoptar una forma aproximadamente normal.
+
+Esto evidencia el Teorema Central del Límite, que establece que la distribución de las medias muestrales tiende a una distribución 
+normal independientemente de la distribución original, siempre que el tamaño de muestra sea suficientemente grande.
+
+\section{Discusión}
+
+Los resultados obtenidos muestran que el modelo implementado reproduce adecuadamente el comportamiento probabilístico esperado 
+de una ruleta ideal. Las frecuencias relativas observadas para cada número se aproximaron progresivamente al valor esperado 
+$1/37 \approx 0,027$, verificando experimentalmente el comportamiento de una distribución uniforme discreta.
+
+En las primeras tiradas, se observaron fluctuaciones importantes en todos los estadísticos analizados. Este comportamiento es 
+esperable por la alta influencia que tienen los primeros valores cuando el tamaño de la muestra es pequeño. Pero a medida que la 
+cantidad de tiradas aumentaba, las variaciones empezaron a disminuir y los resultados tendieron a estabilizarse.
+
+El promedio acumulado converge hacia el valor esperado (18), y la varianza y el desvío estándar también se aproximan a sus valores 
+esperados. Esto demuestra que el modelo estadístico utilizado es consistente con las propiedades matemáticas de la ruleta.
+
+Además, al comparar varias corridas independientes, se ve que los resultados individuales pueden diferir bastante entre sí, debido 
+al azar del experimento. Sin embargo, el comportamiento global de todas las simulaciones mantiene coherencia con las predicciones teóricas.
+
+\section{Conclusiones}
+
+Esta simulación permitió modelar el funcionamiento probabilístico de una ruleta usando \textit{Python} y herramientas estadísticas 
+básicas, aplicando conceptos de probabilidad y estadística, como la frecuencia relativa, media, varianza, desvío estándar, distribución 
+uniforme discreta y Teorema Central del Límite. También se comprobó que el aumento del tamaño de la muestra reduce la variabilidad de 
+los resultados y mejora la precisión estadística de las estimaciones.
+
+En el código, se usaron estructuras iterativas, listas, generación de números pseudoaleatorios, bibliotecas matemáticas y herramientas 
+de visualización gráfica en Python.
+
+La simulación funcionó para verificar la Ley de los Grandes Números. A través de los gráficos de evolución por tirada, se pudo observar 
+cómo los estadísticos acumulados (frecuencia relativa, promedio, varianza y desvío), que al principio estaban sujetos al azar de las 
+primeras muestras, convergen hacia los valores esperados a medida que el número de tiradas aumenta. Esta estabilización demuestra que, a 
+largo plazo, el comportamiento del sistema es predecible y consistente con la teoría de la probabilidad.
+
+El experimento también permitió visualizar el Teorema Central del Límite. Al ver la distribución de los resultados obtenidos en las 
+distintas corridas independientes, se pudo observar que los promedios de cada una tienden a agruparse alrededor del valor esperado, 
+adoptando una distribución aproximadamente normal (\cref{fig:histograma-de-promedios-finales-de-cada-corrida}).
+
+\nocite{*}
+
+\bibliographystyle{unsrturl}
+\bibliography{references}
+
+\end{document}
+
+
