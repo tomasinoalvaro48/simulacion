@@ -1,5 +1,6 @@
 import numpy as np # pip install matplotlib: libreria con numpy y pyplot
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator 
 import argparse
 '''
 # --------------- Manejo de argumentos de linea de comandos al ejecutar el script ---------------
@@ -22,7 +23,7 @@ tipo_capital = args.tipocapital
 dinero_inicial = 100
 '''
 
-tiradas = 100
+tiradas = 1000
 corridas = 3000
 numero_elegido = 0
 estrategia = 'f' # Estrategia a utilizar: f (fibonacci), m (martingala), d (D’Alembert), o (elegida por el grupo)
@@ -175,29 +176,33 @@ for c in range(corridas):
         print("¡Quedaste en bancarrota!")
 
 
-    # --------------- Estrategia Paroli (opcional) --------------- 
+    # --------------- Estrategia Paroli - Elegida por el Grupo --------------- 
     apuesta_paroli = 1
     dinero_paroli_corrida = []
     dinero_paroli_corrida.append(dinero_inicial)
     bancarrota_paroli = False
     
     acumulador_ganancias_seguidas = 0
+    nro_tirada = 0
 
     while nro_tirada < tiradas and not bancarrota_paroli:
         if valores[nro_tirada] in par:
             dinero_paroli_corrida.append(dinero_paroli_corrida[-1] + apuesta_paroli)
-            apuesta_paroli *= 2
             acumulador_ganancias_seguidas += 1
+            apuesta_paroli *= 2
         else:
             dinero_paroli_corrida.append(dinero_paroli_corrida[-1] - apuesta_paroli)
             apuesta_paroli = 1
             acumulador_ganancias_seguidas = 0
         nro_tirada += 1
-        if (tipo_capital == 'f' and (dinero_paroli_corrida[-1] < 0 or apuesta_paroli > dinero_paroli_corrida[-1])):
-            bancarrota_paroli = True
+        # Reiniciar apuesta cuando se alcanzan 3 ganancias seguidas antes de chequear bancarrota
         if acumulador_ganancias_seguidas == 3:  # Si se alcanzan 3 ganancias seguidas, se reinicia la apuesta
             apuesta_paroli = 1
             acumulador_ganancias_seguidas = 0
+
+        # Comprobación de bancarrota con la apuesta que realmente se usará la próxima ronda
+        if (tipo_capital == 'f' and (dinero_paroli_corrida[-1] < 0 or apuesta_paroli > dinero_paroli_corrida[-1])):
+            bancarrota_paroli = True
 
     dinero_paroli.append(dinero_paroli_corrida[-1])  # Guarda el resultado final de esta corrida en el acumulador general
     print(f"Dinero final después de {tiradas} tiradas: {dinero_paroli_corrida}")
@@ -246,6 +251,7 @@ plt.axhline(y=dinero_inicial, color='r', linestyle='--', label='Capital Inicial'
 plt.title("Flujo de caja 1ra corrida - Martingala") 
 plt.xlabel("Número de tiradas") 
 plt.ylabel("cc (Cantidad de capital)") 
+plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
 plt.legend() 
 plt.show()
 
@@ -257,6 +263,7 @@ plt.axhline(y=dinero_inicial, color='r', linestyle='--', label='Capital Inicial'
 plt.title("Flujo de caja 1ra corrida - Fibonacci") 
 plt.xlabel("Número de tiradas") 
 plt.ylabel("cc (Cantidad de capital)") 
+plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
 plt.legend() 
 plt.show()
 
@@ -268,6 +275,8 @@ plt.axhline(y=dinero_inicial, color='r', linestyle='--', label='Capital Inicial'
 plt.title("Flujo de caja 1ra corrida - D'Alembert") 
 plt.xlabel("Número de tiradas") 
 plt.ylabel("cc (Cantidad de capital)") 
+plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
+
 plt.legend() 
 plt.show()
 
@@ -279,6 +288,7 @@ plt.axhline(y=dinero_inicial, color='r', linestyle='--', label='Capital Inicial'
 plt.title("Flujo de caja 1ra corrida - Paroli")
 plt.xlabel("Número de tiradas")
 plt.ylabel("cc (Cantidad de capital)")
+plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
 plt.legend()
 plt.show()
 
@@ -291,6 +301,7 @@ plt.axhline(y=dinero_inicial, color='r', linestyle='--', linewidth=2, label='Cap
 plt.title("Dispersión - Dinero Final obtenido en CADA Corrida (Martingala)")
 plt.xlabel("N° de Corrida (de 1 a " + str(corridas) + ")")
 plt.ylabel("Dinero Final al terminar las tiradas")
+plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
 plt.legend(loc='best')
 plt.tight_layout()
 plt.show()
@@ -300,6 +311,7 @@ plt.axhline(y=dinero_inicial, color='r', linestyle='--', linewidth=2, label='Cap
 plt.title("Dispersión - Dinero Final obtenido en CADA Corrida (Fibonacci)")
 plt.xlabel("N° de Corrida (de 1 a " + str(corridas) + ")")
 plt.ylabel("Dinero Final al terminar las tiradas")
+plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
 plt.legend(loc='best')
 plt.tight_layout()
 plt.show()
@@ -309,6 +321,7 @@ plt.axhline(y=dinero_inicial, color='r', linestyle='--', linewidth=2, label='Cap
 plt.title("Dispersión - Dinero Final obtenido en CADA Corrida (D'Alembert)")
 plt.xlabel("N° de Corrida (de 1 a " + str(corridas) + ")")
 plt.ylabel("Dinero Final al terminar las tiradas")
+plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
 plt.legend(loc='best')
 plt.tight_layout()
 plt.show()
@@ -318,6 +331,7 @@ plt.axhline(y=dinero_inicial, color='r', linestyle='--', linewidth=2, label='Cap
 plt.title("Dispersión - Dinero Final obtenido en CADA Corrida (Paroli)")
 plt.xlabel("N° de Corrida (de 1 a " + str(corridas) + ")")
 plt.ylabel("Dinero Final al terminar las tiradas")
+plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
 plt.legend(loc='best')
 plt.tight_layout()
 plt.show()
@@ -341,6 +355,7 @@ for i, valor in enumerate(valores):
     plt.text(i, valor + 2, f"${valor:.2f}", ha='center', fontweight='bold')
 plt.title("Rendimiento Promedio de la Estrategia Martingala")
 plt.ylabel("Capital (cc)")
+plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
 plt.legend()
 plt.show()
 
