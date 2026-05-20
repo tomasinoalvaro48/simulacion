@@ -24,10 +24,10 @@ dinero_inicial = 100
 '''
 
 tiradas = 1000
-corridas = 3000
+corridas = 30
 numero_elegido = 0
 estrategia = 'f' # Estrategia a utilizar: f (fibonacci), m (martingala), d (D’Alembert), o (elegida por el grupo)
-tipo_capital = 'f' # Tipo de capital a utilizar: i (infinito) o f (finito)
+tipo_capital = 'i' # Tipo de capital a utilizar: i (infinito) o f (finito)
 dinero_inicial = 100
 
 # Caracteristicas de la ruleta
@@ -73,6 +73,7 @@ for c in range(corridas):
     # ------------ Estrategia Martingala ------------
     #if(estrategia == 'm'):
     dinero_martingala_corrida = []
+    ganancias_martingala_corrida = []
     dinero_martingala_corrida.append(dinero_inicial)
     apuesta_martingala = 1  # Apuesta inicial
     nro_tirada = 0
@@ -81,15 +82,20 @@ for c in range(corridas):
     while nro_tirada < tiradas and not bancarrota_martingala:
         if valores[nro_tirada] in par:
             dinero_martingala_corrida.append(dinero_martingala_corrida[-1] + apuesta_martingala)  # Ganancia
+            ganancias_martingala_corrida.append(apuesta_martingala)
             apuesta_martingala = 1  # Vuelve a la apuesta inicial
         else:
             dinero_martingala_corrida.append(dinero_martingala_corrida[-1] - apuesta_martingala)  # Pérdida
+            ganancias_martingala_corrida.append(-apuesta_martingala)
             apuesta_martingala *= 2  # Dobla la apuesta para la próxima tirada
         nro_tirada += 1
         if (tipo_capital == 'f' and (dinero_martingala_corrida[-1] < 0 or apuesta_martingala > dinero_martingala_corrida[-1])):
             bancarrota_martingala = True
 
-    dinero_martingala.append(dinero_martingala_corrida[-1])  # Guarda el resultado final de esta corrida en el acumulador general
+    if tipo_capital == 'i':
+        dinero_martingala.append(ganancias_martingala_corrida)  # Guarda ganancia/pérdida por tirada en esta corrida
+    else:
+        dinero_martingala.append(dinero_martingala_corrida[-1])  # Guarda el resultado final de esta corrida en el acumulador general
     print(f"Dinero final MARTINGALA después de {tiradas} tiradas: {dinero_martingala_corrida}")
     if dinero_martingala_corrida[-1] > dinero_inicial:
         print("¡Ganancia!")
@@ -110,6 +116,7 @@ for c in range(corridas):
     # ------------ Estrategia Fibonacci ------------
     #if(estrategia == 'f'):
     dinero_fibonacci_corrida = []
+    ganancias_fibonacci_corrida = []
 
     dinero_fibonacci_corrida.append(dinero_inicial)
     posicion_secuencia = 0
@@ -123,16 +130,21 @@ for c in range(corridas):
         ensure_fibonacci(s_fibonacci, posicion_secuencia)
         if valores[nro_tirada] in par:
             dinero_fibonacci_corrida.append(dinero_fibonacci_corrida[-1] + s_fibonacci[posicion_secuencia])  # Ganancia
+            ganancias_fibonacci_corrida.append(s_fibonacci[posicion_secuencia])
             posicion_secuencia = max(posicion_secuencia - 2, 0)  # Retrocede dos posiciones, pero no puede ser menor a 0
         else:
             dinero_fibonacci_corrida.append(dinero_fibonacci_corrida[-1] - s_fibonacci[posicion_secuencia])  # Pérdida
+            ganancias_fibonacci_corrida.append(-s_fibonacci[posicion_secuencia])
             posicion_secuencia = posicion_secuencia + 1 # Avanza un número
         nro_tirada += 1
         ensure_fibonacci(s_fibonacci, posicion_secuencia)
         if (tipo_capital == 'f' and (dinero_fibonacci_corrida[-1] < 0 or s_fibonacci[posicion_secuencia] > dinero_fibonacci_corrida[-1])):
             bancarrota_fibonacci = True
 
-    dinero_fibonacci.append(dinero_fibonacci_corrida[-1])  # Guarda el resultado final de esta corrida en el acumulador general
+    if tipo_capital == 'i':
+        dinero_fibonacci.append(ganancias_fibonacci_corrida)  # Guarda ganancia/pérdida por tirada en esta corrida
+    else:
+        dinero_fibonacci.append(dinero_fibonacci_corrida[-1])  # Guarda el resultado final de esta corrida en el acumulador general
     print(f"Dinero final FIBONACCI después de {tiradas} tiradas: {dinero_fibonacci_corrida}")  
     if dinero_fibonacci_corrida[-1] > dinero_inicial:
         print("¡Ganancia!")
@@ -146,6 +158,7 @@ for c in range(corridas):
     # ------------ Estrategia D’Alembert ------------
     #if(estrategia == 'd'):
     dinero_dalembert_corrida = []
+    ganancias_dalembert_corrida = []
     dinero_dalembert_corrida.append(dinero_inicial)
     nro_tirada = 0
     apuesta = 1  # Apuesta inicial
@@ -159,17 +172,22 @@ for c in range(corridas):
         apuesta = arr_dalembert[0] + arr_dalembert[-1]  # Apuesta actual es la suma del primer y último número de la secuencia
         if valores[nro_tirada] in par:
             dinero_dalembert_corrida.append(dinero_dalembert_corrida[-1] + apuesta)  # Ganancia
+            ganancias_dalembert_corrida.append(apuesta)
             arr_dalembert.pop(0)  # Elimina el primer número de la fila
             if len(arr_dalembert) > 0:
                 arr_dalembert.pop(-1)  # Elimina el último número de la fila
         else:
             dinero_dalembert_corrida.append(dinero_dalembert_corrida[-1] - apuesta)  # Pérdida
+            ganancias_dalembert_corrida.append(-apuesta)
             arr_dalembert.append(apuesta)
         nro_tirada += 1
         if (tipo_capital == 'f' and (dinero_dalembert_corrida[-1] < 0 or apuesta > dinero_dalembert_corrida[-1])):
             bancarrota_dalembert = True
 
-    dinero_dalembert.append(dinero_dalembert_corrida[-1])  # Guarda el resultado final de esta corrida en el acumulador general
+    if tipo_capital == 'i':
+        dinero_dalembert.append(ganancias_dalembert_corrida)  # Guarda ganancia/pérdida por tirada en esta corrida
+    else:
+        dinero_dalembert.append(dinero_dalembert_corrida[-1])  # Guarda el resultado final de esta corrida en el acumulador general
     print(f"Dinero final después de {tiradas} tiradas: {dinero_dalembert_corrida}")
     if dinero_dalembert_corrida[-1] > dinero_inicial:
         print("¡Ganancia!")
@@ -182,6 +200,7 @@ for c in range(corridas):
     # --------------- Estrategia Paroli - Elegida por el Grupo --------------- 
     apuesta_paroli = 1
     dinero_paroli_corrida = []
+    ganancias_paroli_corrida = []
     dinero_paroli_corrida.append(dinero_inicial)
     bancarrota_paroli = False
     
@@ -191,10 +210,12 @@ for c in range(corridas):
     while nro_tirada < tiradas and not bancarrota_paroli:
         if valores[nro_tirada] in par:
             dinero_paroli_corrida.append(dinero_paroli_corrida[-1] + apuesta_paroli)
+            ganancias_paroli_corrida.append(apuesta_paroli)
             acumulador_ganancias_seguidas += 1
             apuesta_paroli *= 2
         else:
             dinero_paroli_corrida.append(dinero_paroli_corrida[-1] - apuesta_paroli)
+            ganancias_paroli_corrida.append(-apuesta_paroli)
             apuesta_paroli = 1
             acumulador_ganancias_seguidas = 0
         nro_tirada += 1
@@ -207,7 +228,10 @@ for c in range(corridas):
         if (tipo_capital == 'f' and (dinero_paroli_corrida[-1] < 0 or apuesta_paroli > dinero_paroli_corrida[-1])):
             bancarrota_paroli = True
 
-    dinero_paroli.append(dinero_paroli_corrida[-1])  # Guarda el resultado final de esta corrida en el acumulador general
+    if tipo_capital == 'i':
+        dinero_paroli.append(ganancias_paroli_corrida)  # Guarda ganancia/pérdida por tirada en esta corrida
+    else:
+        dinero_paroli.append(dinero_paroli_corrida[-1])  # Guarda el resultado final de esta corrida en el acumulador general
     print(f"Dinero final después de {tiradas} tiradas: {dinero_paroli_corrida}")
     if dinero_paroli_corrida[-1] > dinero_inicial:
         print("¡Ganancia!")
@@ -242,183 +266,261 @@ for c in range(corridas):
 
 # Graficos de Resultados (sólo la primera corrida)
 
+if tipo_capital == 'f':
 # Para Fibonacci y D'Alembert, la primera corrida ocupa desde el inicio hasta la cantidad de tiradas que se hicieron antes de terminar/bancarrota.
 # Como en la primera corrida arrancan con el dinero_inicial, podemos tomar el historial hasta encontrar el siguiente 'dinero_inicial' o hasta el final.
 # O más simple: tomamos las tiradas que correspondan a la primera ejecución. Para no alterar tanta lógica, tomamos la porción de la primera corrida,
 # pero en el caso de Martingala, para tener el flujo de la primera necesitamos recuperar la variable (o si `corridas=1` es simplemente la lista que quedó).
 
-plt.plot(range(len(dinero_martingala_corrida)), dinero_martingala_corrida, label='fc (flujo de caja)')
-if len(dinero_martingala_corrida) <= tiradas:
-    plt.scatter(len(dinero_martingala_corrida) - 1, dinero_martingala_corrida[-1], color='black', zorder=5, label='Bancarrota')
-plt.axhline(y=dinero_inicial, color='r', linestyle='--', label='Capital Inicial') 
-plt.title("Flujo de caja 1ra corrida - Martingala") 
-plt.xlabel("Número de tiradas") 
-plt.ylabel("cc (Cantidad de capital)") 
-plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
-plt.legend() 
-plt.show()
+    plt.plot(range(len(dinero_martingala_corrida)), dinero_martingala_corrida, label='fc (flujo de caja)')
+    if len(dinero_martingala_corrida) <= tiradas:
+        plt.scatter(len(dinero_martingala_corrida) - 1, dinero_martingala_corrida[-1], color='black', zorder=5, label='Bancarrota')
+    plt.axhline(y=dinero_inicial, color='r', linestyle='--', label='Capital Inicial') 
+    plt.title("Flujo de caja 1ra corrida - Martingala") 
+    plt.xlabel("Número de tiradas") 
+    plt.ylabel("cc (Cantidad de capital)") 
+    plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
+    plt.legend() 
+    plt.show()
 
-# Para Fibonacci, tomamos el flujo hasta tiradas+1 (o hasta donde haya llegado en la primera corrida)
-plt.plot(range(len(dinero_fibonacci_corrida)), dinero_fibonacci_corrida, label='fc (flujo de caja)')
-if len(dinero_fibonacci_corrida) <= tiradas:
-    plt.scatter(len(dinero_fibonacci_corrida) - 1, dinero_fibonacci_corrida[-1], color='black', zorder=5, label='Bancarrota')
-plt.axhline(y=dinero_inicial, color='r', linestyle='--', label='Capital Inicial') 
-plt.title("Flujo de caja 1ra corrida - Fibonacci") 
-plt.xlabel("Número de tiradas") 
-plt.ylabel("cc (Cantidad de capital)") 
-plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
-plt.legend() 
-plt.show()
+    # Para Fibonacci, tomamos el flujo hasta tiradas+1 (o hasta donde haya llegado en la primera corrida)
+    plt.plot(range(len(dinero_fibonacci_corrida)), dinero_fibonacci_corrida, label='fc (flujo de caja)')
+    if len(dinero_fibonacci_corrida) <= tiradas:
+        plt.scatter(len(dinero_fibonacci_corrida) - 1, dinero_fibonacci_corrida[-1], color='black', zorder=5, label='Bancarrota')
+    plt.axhline(y=dinero_inicial, color='r', linestyle='--', label='Capital Inicial') 
+    plt.title("Flujo de caja 1ra corrida - Fibonacci") 
+    plt.xlabel("Número de tiradas") 
+    plt.ylabel("cc (Cantidad de capital)") 
+    plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
+    plt.legend() 
+    plt.show()
 
-# Para D'Alembert
-plt.plot(range(len(dinero_dalembert_corrida)), dinero_dalembert_corrida, label='fc (flujo de caja)')
-if len(dinero_dalembert_corrida) <= tiradas:
-    plt.scatter(len(dinero_dalembert_corrida) - 1, dinero_dalembert_corrida[-1], color='black', zorder=5, label='Bancarrota')
-plt.axhline(y=dinero_inicial, color='r', linestyle='--', label='Capital Inicial') 
-plt.title("Flujo de caja 1ra corrida - D'Alembert") 
-plt.xlabel("Número de tiradas") 
-plt.ylabel("cc (Cantidad de capital)") 
-plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
+    # Para D'Alembert
+    plt.plot(range(len(dinero_dalembert_corrida)), dinero_dalembert_corrida, label='fc (flujo de caja)')
+    if len(dinero_dalembert_corrida) <= tiradas:
+        plt.scatter(len(dinero_dalembert_corrida) - 1, dinero_dalembert_corrida[-1], color='black', zorder=5, label='Bancarrota')
+    plt.axhline(y=dinero_inicial, color='r', linestyle='--', label='Capital Inicial') 
+    plt.title("Flujo de caja 1ra corrida - D'Alembert") 
+    plt.xlabel("Número de tiradas") 
+    plt.ylabel("cc (Cantidad de capital)") 
+    plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
 
-plt.legend() 
-plt.show()
+    plt.legend() 
+    plt.show()
 
-#Para Paroli
-plt.plot(range(len(dinero_paroli_corrida)), dinero_paroli_corrida, label='fc (flujo de caja)')
-if len(dinero_paroli_corrida) <= tiradas:
-    plt.scatter(len(dinero_paroli_corrida) - 1, dinero_paroli_corrida[-1], color='black', zorder=5, label='Bancarrota') 
-plt.axhline(y=dinero_inicial, color='r', linestyle='--', label='Capital Inicial')
-plt.title("Flujo de caja 1ra corrida - Paroli")
-plt.xlabel("Número de tiradas")
-plt.ylabel("cc (Cantidad de capital)")
-plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
-plt.legend()
-plt.show()
-
-
-
-# Grafico de dispercion de Dinero Final por Corrida (para ver todas las corridas)
-
-plt.scatter(range(1, len(dinero_martingala) + 1), dinero_martingala, color='blue', alpha=0.7, s=20, label='Martingala')
-plt.axhline(y=dinero_inicial, color='r', linestyle='--', linewidth=2, label='Capital Inicial')
-plt.title("Dispersión - Dinero Final obtenido en CADA Corrida (Martingala)")
-plt.xlabel("N° de Corrida (de 1 a " + str(corridas) + ")")
-plt.ylabel("Dinero Final al terminar las tiradas")
-plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
-plt.legend(loc='best')
-plt.tight_layout()
-plt.show()
-
-plt.scatter(range(1, len(dinero_fibonacci) + 1), dinero_fibonacci, color='green', alpha=0.7, s=20, label='Fibonacci', marker='^')
-plt.axhline(y=dinero_inicial, color='r', linestyle='--', linewidth=2, label='Capital Inicial')
-plt.title("Dispersión - Dinero Final obtenido en CADA Corrida (Fibonacci)")
-plt.xlabel("N° de Corrida (de 1 a " + str(corridas) + ")")
-plt.ylabel("Dinero Final al terminar las tiradas")
-plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
-plt.legend(loc='best')
-plt.tight_layout()
-plt.show()
-
-plt.scatter(range(1, len(dinero_dalembert) + 1), dinero_dalembert, color='orange', alpha=0.7, s=20, label='D\'Alembert', marker='s')
-plt.axhline(y=dinero_inicial, color='r', linestyle='--', linewidth=2, label='Capital Inicial')
-plt.title("Dispersión - Dinero Final obtenido en CADA Corrida (D'Alembert)")
-plt.xlabel("N° de Corrida (de 1 a " + str(corridas) + ")")
-plt.ylabel("Dinero Final al terminar las tiradas")
-plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
-plt.legend(loc='best')
-plt.tight_layout()
-plt.show()
-
-plt.scatter(range(1, len(dinero_paroli) + 1), dinero_paroli, color='purple', alpha=0.7, s=20, label='Paroli', marker='D')
-plt.axhline(y=dinero_inicial, color='r', linestyle='--', linewidth=2, label='Capital Inicial')
-plt.title("Dispersión - Dinero Final obtenido en CADA Corrida (Paroli)")
-plt.xlabel("N° de Corrida (de 1 a " + str(corridas) + ")")
-plt.ylabel("Dinero Final al terminar las tiradas")
-plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
-plt.legend(loc='best')
-plt.tight_layout()
-plt.show()
+    #Para Paroli
+    plt.plot(range(len(dinero_paroli_corrida)), dinero_paroli_corrida, label='fc (flujo de caja)')
+    if len(dinero_paroli_corrida) <= tiradas:
+        plt.scatter(len(dinero_paroli_corrida) - 1, dinero_paroli_corrida[-1], color='black', zorder=5, label='Bancarrota') 
+    plt.axhline(y=dinero_inicial, color='r', linestyle='--', label='Capital Inicial')
+    plt.title("Flujo de caja 1ra corrida - Paroli")
+    plt.xlabel("Número de tiradas")
+    plt.ylabel("cc (Cantidad de capital)")
+    plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
+    plt.legend()
+    plt.show()
 
 
 
+    # Grafico de dispercion de Dinero Final por Corrida (para ver todas las corridas)
 
+    plt.scatter(range(1, len(dinero_martingala) + 1), dinero_martingala, color='blue', alpha=0.7, s=20, label='Martingala')
+    plt.axhline(y=dinero_inicial, color='r', linestyle='--', linewidth=2, label='Capital Inicial')
+    plt.title("Dispersión - Dinero Final obtenido en CADA Corrida (Martingala)")
+    plt.xlabel("N° de Corrida (de 1 a " + str(corridas) + ")")
+    plt.ylabel("Dinero Final al terminar las tiradas")
+    plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
+    plt.legend(loc='best')
+    plt.tight_layout()
+    plt.show()
 
-#Promedio de Ganancia/Pérdida para Martingala 
-promedio_final_martingala = np.mean(dinero_martingala)
-ganancia_promedio = promedio_final_martingala - dinero_inicial
+    plt.scatter(range(1, len(dinero_fibonacci) + 1), dinero_fibonacci, color='green', alpha=0.7, s=20, label='Fibonacci', marker='^')
+    plt.axhline(y=dinero_inicial, color='r', linestyle='--', linewidth=2, label='Capital Inicial')
+    plt.title("Dispersión - Dinero Final obtenido en CADA Corrida (Fibonacci)")
+    plt.xlabel("N° de Corrida (de 1 a " + str(corridas) + ")")
+    plt.ylabel("Dinero Final al terminar las tiradas")
+    plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
+    plt.legend(loc='best')
+    plt.tight_layout()
+    plt.show()
 
-print(f"La ganancia/pérdida promedio de la Martingala es: {ganancia_promedio}")
-etiquetas = ['Capital Inicial', 'Promedio Final']
-valores = [dinero_inicial, promedio_final_martingala]
-color_final = 'green' if ganancia_promedio > 0 else 'red'
-colores = ['blue', color_final]
-plt.bar(etiquetas, valores, color=colores, width=0.5)
-plt.axhline(y=dinero_inicial, color='gray', linestyle='--', label='Punto de equilibrio')
-for i, valor in enumerate(valores):
-    plt.text(i, valor + 2, f"${valor:.2f}", ha='center', fontweight='bold')
-plt.title("Rendimiento Promedio de la Estrategia Martingala")
-plt.ylabel("Capital (cc)")
-plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
-plt.legend()
-plt.show()
+    plt.scatter(range(1, len(dinero_dalembert) + 1), dinero_dalembert, color='orange', alpha=0.7, s=20, label='D\'Alembert', marker='s')
+    plt.axhline(y=dinero_inicial, color='r', linestyle='--', linewidth=2, label='Capital Inicial')
+    plt.title("Dispersión - Dinero Final obtenido en CADA Corrida (D'Alembert)")
+    plt.xlabel("N° de Corrida (de 1 a " + str(corridas) + ")")
+    plt.ylabel("Dinero Final al terminar las tiradas")
+    plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
+    plt.legend(loc='best')
+    plt.tight_layout()
+    plt.show()
 
-
-#Promedio de Ganancia/Pérdida para Fibonacci 
-promedio_final_fibonacci = np.mean(dinero_fibonacci)
-ganancia_promedio = promedio_final_fibonacci - dinero_inicial
-
-print(f"La ganancia/pérdida promedio de la Fibonacci es: {ganancia_promedio}")
-etiquetas = ['Capital Inicial', 'Promedio Final']
-valores = [dinero_inicial, promedio_final_fibonacci]
-color_final = 'green' if ganancia_promedio > 0 else 'red'
-colores = ['blue', color_final]
-plt.bar(etiquetas, valores, color=colores, width=0.5)
-plt.axhline(y=dinero_inicial, color='gray', linestyle='--', label='Punto de equilibrio')
-for i, valor in enumerate(valores):
-    plt.text(i, valor + 2, f"${valor:.2f}", ha='center', fontweight='bold')
-plt.title("Rendimiento Promedio de la Estrategia Fibonacci")
-plt.ylabel("Capital (cc)")
-plt.legend()
-plt.show()
-
-#Promedio de Ganancia/Pérdida para D'Alembert
-promedio_final_dalembert = np.mean(dinero_dalembert)
-ganancia_promedio = promedio_final_dalembert - dinero_inicial
-
-print(f"La ganancia/pérdida promedio de la D'Alembert es: {ganancia_promedio}")
-etiquetas = ['Capital Inicial', 'Promedio Final']
-valores = [dinero_inicial, promedio_final_dalembert]
-color_final = 'green' if ganancia_promedio > 0 else 'red'
-colores = ['blue', color_final]
-plt.bar(etiquetas, valores, color=colores, width=0.5)
-plt.axhline(y=dinero_inicial, color='gray', linestyle='--', label='Punto de equilibrio')
-for i, valor in enumerate(valores):
-    plt.text(i, valor + 2, f"${valor:.2f}", ha='center', fontweight='bold')
-plt.title("Rendimiento Promedio de la Estrategia D'Alembert")
-plt.ylabel("Capital (cc)")
-plt.legend()
-plt.show()
-
-#Promedio de Ganancia/Pérdida para Paroli
-promedio_final_paroli = np.mean(dinero_paroli)
-ganancia_promedio = promedio_final_paroli - dinero_inicial
-
-print(f"La ganancia/pérdida promedio de la Paroli es: {ganancia_promedio}")
-etiquetas = ['Capital Inicial', 'Promedio Final']
-valores = [dinero_inicial, promedio_final_paroli]
-color_final = 'green' if ganancia_promedio > 0 else 'red'
-colores = ['blue', color_final]
-plt.bar(etiquetas, valores, color=colores, width=0.5)
-plt.axhline(y=dinero_inicial, color='gray', linestyle='--', label='Punto de equilibrio')
-for i, valor in enumerate(valores):
-    plt.text(i, valor + 2, f"${valor:.2f}", ha='center', fontweight='bold')
-plt.title("Rendimiento Promedio de la Estrategia Paroli ")
-plt.ylabel("Capital (cc)")
-plt.legend()
-plt.show()
+    plt.scatter(range(1, len(dinero_paroli) + 1), dinero_paroli, color='purple', alpha=0.7, s=20, label='Paroli', marker='D')
+    plt.axhline(y=dinero_inicial, color='r', linestyle='--', linewidth=2, label='Capital Inicial')
+    plt.title("Dispersión - Dinero Final obtenido en CADA Corrida (Paroli)")
+    plt.xlabel("N° de Corrida (de 1 a " + str(corridas) + ")")
+    plt.ylabel("Dinero Final al terminar las tiradas")
+    plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
+    plt.legend(loc='best')
+    plt.tight_layout()
+    plt.show()
 
 
 
+
+
+    #Promedio de Ganancia/Pérdida para Martingala 
+    promedio_final_martingala = np.mean(dinero_martingala)
+    ganancia_promedio = promedio_final_martingala - dinero_inicial
+
+    print(f"La ganancia/pérdida promedio de la Martingala es: {ganancia_promedio}")
+    etiquetas = ['Capital Inicial', 'Promedio Final']
+    valores = [dinero_inicial, promedio_final_martingala]
+    color_final = 'green' if ganancia_promedio > 0 else 'red'
+    colores = ['blue', color_final]
+    plt.bar(etiquetas, valores, color=colores, width=0.5)
+    plt.axhline(y=dinero_inicial, color='gray', linestyle='--', label='Punto de equilibrio')
+    for i, valor in enumerate(valores):
+        plt.text(i, valor + 2, f"${valor:.2f}", ha='center', fontweight='bold')
+    plt.title("Rendimiento Promedio de la Estrategia Martingala")
+    plt.ylabel("Capital (cc)")
+    plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
+    plt.legend()
+    plt.show()
+
+
+    #Promedio de Ganancia/Pérdida para Fibonacci 
+    promedio_final_fibonacci = np.mean(dinero_fibonacci)
+    ganancia_promedio = promedio_final_fibonacci - dinero_inicial
+
+    print(f"La ganancia/pérdida promedio de la Fibonacci es: {ganancia_promedio}")
+    etiquetas = ['Capital Inicial', 'Promedio Final']
+    valores = [dinero_inicial, promedio_final_fibonacci]
+    color_final = 'green' if ganancia_promedio > 0 else 'red'
+    colores = ['blue', color_final]
+    plt.bar(etiquetas, valores, color=colores, width=0.5)
+    plt.axhline(y=dinero_inicial, color='gray', linestyle='--', label='Punto de equilibrio')
+    for i, valor in enumerate(valores):
+        plt.text(i, valor + 2, f"${valor:.2f}", ha='center', fontweight='bold')
+    plt.title("Rendimiento Promedio de la Estrategia Fibonacci")
+    plt.ylabel("Capital (cc)")
+    plt.legend()
+    plt.show()
+
+    #Promedio de Ganancia/Pérdida para D'Alembert
+    promedio_final_dalembert = np.mean(dinero_dalembert)
+    ganancia_promedio = promedio_final_dalembert - dinero_inicial
+
+    print(f"La ganancia/pérdida promedio de la D'Alembert es: {ganancia_promedio}")
+    etiquetas = ['Capital Inicial', 'Promedio Final']
+    valores = [dinero_inicial, promedio_final_dalembert]
+    color_final = 'green' if ganancia_promedio > 0 else 'red'
+    colores = ['blue', color_final]
+    plt.bar(etiquetas, valores, color=colores, width=0.5)
+    plt.axhline(y=dinero_inicial, color='gray', linestyle='--', label='Punto de equilibrio')
+    for i, valor in enumerate(valores):
+        plt.text(i, valor + 2, f"${valor:.2f}", ha='center', fontweight='bold')
+    plt.title("Rendimiento Promedio de la Estrategia D'Alembert")
+    plt.ylabel("Capital (cc)")
+    plt.legend()
+    plt.show()
+
+    #Promedio de Ganancia/Pérdida para Paroli
+    promedio_final_paroli = np.mean(dinero_paroli)
+    ganancia_promedio = promedio_final_paroli - dinero_inicial
+
+    print(f"La ganancia/pérdida promedio de la Paroli es: {ganancia_promedio}")
+    etiquetas = ['Capital Inicial', 'Promedio Final']
+    valores = [dinero_inicial, promedio_final_paroli]
+    color_final = 'green' if ganancia_promedio > 0 else 'red'
+    colores = ['blue', color_final]
+    plt.bar(etiquetas, valores, color=colores, width=0.5)
+    plt.axhline(y=dinero_inicial, color='gray', linestyle='--', label='Punto de equilibrio')
+    for i, valor in enumerate(valores):
+        plt.text(i, valor + 2, f"${valor:.2f}", ha='center', fontweight='bold')
+    plt.title("Rendimiento Promedio de la Estrategia Paroli ")
+    plt.ylabel("Capital (cc)")
+    plt.legend()
+    plt.show()
+
+
+
+else:
+    # Convergencia del porcentaje de victorias (capital infinito)
+    victorias_acum = np.cumsum(np.isin(valores, par))
+    n_tiradas = np.arange(1, len(valores) + 1)
+    porcentaje_victorias = victorias_acum / n_tiradas
+
+    plt.plot(n_tiradas, porcentaje_victorias, color="teal", label="Porcentaje observado")
+    plt.axhline(y=len(par) / cant_numeros_ruleta, color="gray", linestyle="--", label="48.6% teorico")
+    plt.title("Convergencia del porcentaje de victorias")
+    plt.xlabel("Numero de tiradas")
+    plt.ylabel("Porcentaje de victorias")
+    plt.gca().yaxis.set_major_locator(MaxNLocator(integer=False))
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+    # Sumatoria de ganancia vs perdida (sin capital inicial) - Fibonacci
+    resultados_corrida = dinero_fibonacci[0] if len(dinero_fibonacci) > 0 else []
+    n_tiradas = np.arange(1, len(resultados_corrida) + 1)
+    ganancia_acum = np.cumsum(np.where(np.array(resultados_corrida) > 0, resultados_corrida, 0))
+    perdida_acum = np.cumsum(np.where(np.array(resultados_corrida) < 0, -np.array(resultados_corrida), 0))
+
+    plt.plot(n_tiradas, ganancia_acum, color="seagreen", label="Ganancia acumulada")
+    plt.plot(n_tiradas, perdida_acum, color="firebrick", label="Perdida acumulada")
+    plt.title("Sumatoria de ganancia vs perdida (Fibonacci, 1 corrida)")
+    plt.xlabel("Numero de tiradas")
+    plt.ylabel("Unidades acumuladas")
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+    # Sumatoria de ganancia vs perdida (sin capital inicial) - Martingala
+    resultados_corrida = dinero_martingala[0] if len(dinero_martingala) > 0 else []
+    n_tiradas = np.arange(1, len(resultados_corrida) + 1)
+    ganancia_acum = np.cumsum(np.where(np.array(resultados_corrida) > 0, resultados_corrida, 0))
+    perdida_acum = np.cumsum(np.where(np.array(resultados_corrida) < 0, -np.array(resultados_corrida), 0))
+
+    plt.plot(n_tiradas, ganancia_acum, color="seagreen", label="Ganancia acumulada")
+    plt.plot(n_tiradas, perdida_acum, color="firebrick", label="Perdida acumulada")
+    plt.title("Sumatoria de ganancia vs perdida (Martingala, 1 corrida)")
+    plt.xlabel("Numero de tiradas")
+    plt.ylabel("Unidades acumuladas")
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+    # Sumatoria de ganancia vs perdida (sin capital inicial) - D'Alembert
+    resultados_corrida = dinero_dalembert[0] if len(dinero_dalembert) > 0 else []
+    n_tiradas = np.arange(1, len(resultados_corrida) + 1)
+    ganancia_acum = np.cumsum(np.where(np.array(resultados_corrida) > 0, resultados_corrida, 0))
+    perdida_acum = np.cumsum(np.where(np.array(resultados_corrida) < 0, -np.array(resultados_corrida), 0))
+
+    plt.plot(n_tiradas, ganancia_acum, color="seagreen", label="Ganancia acumulada")
+    plt.plot(n_tiradas, perdida_acum, color="firebrick", label="Perdida acumulada")
+    plt.title("Sumatoria de ganancia vs perdida (D'Alembert, 1 corrida)")
+    plt.xlabel("Numero de tiradas")
+    plt.ylabel("Unidades acumuladas")
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+    # Sumatoria de ganancia vs perdida (sin capital inicial) - Paroli
+    resultados_corrida = dinero_paroli[0] if len(dinero_paroli) > 0 else []
+    n_tiradas = np.arange(1, len(resultados_corrida) + 1)
+    ganancia_acum = np.cumsum(np.where(np.array(resultados_corrida) > 0, resultados_corrida, 0))
+    perdida_acum = np.cumsum(np.where(np.array(resultados_corrida) < 0, -np.array(resultados_corrida), 0))
+
+    plt.plot(n_tiradas, ganancia_acum, color="seagreen", label="Ganancia acumulada")
+    plt.plot(n_tiradas, perdida_acum, color="firebrick", label="Perdida acumulada")
+    plt.title("Sumatoria de ganancia vs perdida (Paroli, 1 corrida)")
+    plt.xlabel("Numero de tiradas")
+    plt.ylabel("Unidades acumuladas")
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+    
 
 
 
