@@ -57,8 +57,11 @@ vari_e = desv_e**2 # Varianza esperada
 dinero_martingala = []
 dinero_fibonacci = []
 dinero_dalembert = []
-
 dinero_paroli = []
+
+def ensure_fibonacci(seq, index):
+    while index >= len(seq):
+        seq.append(seq[-1] + seq[-2])
 
 print(f"Simulando {corridas} corridas de {tiradas} tiradas con estrategia {estrategia} y tipo de capital {tipo_capital}...")
 print("")
@@ -112,13 +115,12 @@ for c in range(corridas):
     posicion_secuencia = 0
     bancarrota_fibonacci = False
     
-    # Genera la secuencia de Fibonacci hasta que el número más grande sea menor que el dinero disponible
-    s_fibonacci = [1, 1] 
-    while max(s_fibonacci) < dinero_inicial:  
-        s_fibonacci.append(s_fibonacci[-1] + s_fibonacci[-2])
+    # Secuencia Fibonacci base; se expande dinamicamente segun necesidad
+    s_fibonacci = [1, 1]
     
     nro_tirada = 0
     while nro_tirada < tiradas and not bancarrota_fibonacci:
+        ensure_fibonacci(s_fibonacci, posicion_secuencia)
         if valores[nro_tirada] in par:
             dinero_fibonacci_corrida.append(dinero_fibonacci_corrida[-1] + s_fibonacci[posicion_secuencia])  # Ganancia
             posicion_secuencia = max(posicion_secuencia - 2, 0)  # Retrocede dos posiciones, pero no puede ser menor a 0
@@ -126,6 +128,7 @@ for c in range(corridas):
             dinero_fibonacci_corrida.append(dinero_fibonacci_corrida[-1] - s_fibonacci[posicion_secuencia])  # Pérdida
             posicion_secuencia = posicion_secuencia + 1 # Avanza un número
         nro_tirada += 1
+        ensure_fibonacci(s_fibonacci, posicion_secuencia)
         if (tipo_capital == 'f' and (dinero_fibonacci_corrida[-1] < 0 or s_fibonacci[posicion_secuencia] > dinero_fibonacci_corrida[-1])):
             bancarrota_fibonacci = True
 
