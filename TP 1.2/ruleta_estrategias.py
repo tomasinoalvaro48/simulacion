@@ -433,13 +433,25 @@ else:
         n_tiradas = np.arange(1, len(resultados_corrida) + 1)
         ganancia_acum = np.cumsum(np.where(np.array(resultados_corrida) > 0, resultados_corrida, 0))
         perdida_acum = np.cumsum(np.where(np.array(resultados_corrida) < 0, -np.array(resultados_corrida), 0))
+        saldo_neto = ganancia_acum - perdida_acum
 
-        plt.plot(n_tiradas, ganancia_acum, color="seagreen", label="Ganancia acumulada")
-        plt.plot(n_tiradas, perdida_acum, color="firebrick", label="Perdida acumulada")
-        plt.title("Sumatoria de ganancia vs perdida (Fibonacci, 1 corrida)")
-        plt.xlabel("Numero de tiradas")
-        plt.ylabel("Unidades acumuladas")
-        plt.legend()
+        fig, axes = plt.subplots(1, 2, figsize=(12, 4), sharex=True)
+
+        axes[0].plot(n_tiradas, ganancia_acum, color="seagreen", label="Ganancia acumulada")
+        axes[0].plot(n_tiradas, perdida_acum, color="firebrick", label="Perdida acumulada")
+        axes[0].axhline(y=0, color="gray", linestyle="--", linewidth=1)
+        axes[0].set_title("Ganancia vs perdida (Fibonacci, 1 corrida)")
+        axes[0].set_xlabel("Numero de tiradas")
+        axes[0].set_ylabel("Unidades acumuladas")
+        axes[0].legend()
+
+        axes[1].plot(n_tiradas, saldo_neto, color="slateblue", label="Saldo neto")
+        axes[1].axhline(y=0, color="gray", linestyle="--", linewidth=1)
+        axes[1].set_title("Saldo neto (Fibonacci, 1 corrida)")
+        axes[1].set_xlabel("Numero de tiradas")
+        axes[1].set_ylabel("Saldo neto (unidades)")
+        axes[1].legend()
+
         plt.tight_layout()
         plt.show()
 
@@ -449,13 +461,25 @@ else:
         n_tiradas = np.arange(1, len(resultados_corrida) + 1)
         ganancia_acum = np.cumsum(np.where(np.array(resultados_corrida) > 0, resultados_corrida, 0))
         perdida_acum = np.cumsum(np.where(np.array(resultados_corrida) < 0, -np.array(resultados_corrida), 0))
+        saldo_neto = ganancia_acum - perdida_acum
 
-        plt.plot(n_tiradas, ganancia_acum, color="seagreen", label="Ganancia acumulada")
-        plt.plot(n_tiradas, perdida_acum, color="firebrick", label="Perdida acumulada")
-        plt.title("Sumatoria de ganancia vs perdida (Martingala, 1 corrida)")
-        plt.xlabel("Numero de tiradas")
-        plt.ylabel("Unidades acumuladas")
-        plt.legend()
+        fig, axes = plt.subplots(1, 2, figsize=(12, 4), sharex=True)
+
+        axes[0].plot(n_tiradas, ganancia_acum, color="seagreen", label="Ganancia acumulada")
+        axes[0].plot(n_tiradas, perdida_acum, color="firebrick", label="Perdida acumulada")
+        axes[0].axhline(y=0, color="gray", linestyle="--", linewidth=1)
+        axes[0].set_title("Ganancia vs perdida (Martingala, 1 corrida)")
+        axes[0].set_xlabel("Numero de tiradas")
+        axes[0].set_ylabel("Unidades acumuladas")
+        axes[0].legend()
+
+        axes[1].plot(n_tiradas, saldo_neto, color="slateblue", label="Saldo neto")
+        axes[1].axhline(y=0, color="gray", linestyle="--", linewidth=1)
+        axes[1].set_title("Saldo neto (Martingala, 1 corrida)")
+        axes[1].set_xlabel("Numero de tiradas")
+        axes[1].set_ylabel("Saldo neto (unidades)")
+        axes[1].legend()
+
         plt.tight_layout()
         plt.show()
 
@@ -465,13 +489,25 @@ else:
         n_tiradas = np.arange(1, len(resultados_corrida) + 1)
         ganancia_acum = np.cumsum(np.where(np.array(resultados_corrida) > 0, resultados_corrida, 0))
         perdida_acum = np.cumsum(np.where(np.array(resultados_corrida) < 0, -np.array(resultados_corrida), 0))
+        saldo_neto = ganancia_acum - perdida_acum
 
-        plt.plot(n_tiradas, ganancia_acum, color="seagreen", label="Ganancia acumulada")
-        plt.plot(n_tiradas, perdida_acum, color="firebrick", label="Perdida acumulada")
-        plt.title("Sumatoria de ganancia vs perdida (D'Alembert, 1 corrida)")
-        plt.xlabel("Numero de tiradas")
-        plt.ylabel("Unidades acumuladas")
-        plt.legend()
+        fig, axes = plt.subplots(1, 2, figsize=(12, 4), sharex=True)
+
+        axes[0].plot(n_tiradas, ganancia_acum, color="seagreen", label="Ganancia acumulada")
+        axes[0].plot(n_tiradas, perdida_acum, color="firebrick", label="Perdida acumulada")
+        axes[0].axhline(y=0, color="gray", linestyle="--", linewidth=1)
+        axes[0].set_title("Ganancia vs perdida (D'Alembert, 1 corrida)")
+        axes[0].set_xlabel("Numero de tiradas")
+        axes[0].set_ylabel("Unidades acumuladas")
+        axes[0].legend()
+
+        axes[1].plot(n_tiradas, saldo_neto, color="slateblue", label="Saldo neto")
+        axes[1].axhline(y=0, color="gray", linestyle="--", linewidth=1)
+        axes[1].set_title("Saldo neto (D'Alembert, 1 corrida)")
+        axes[1].set_xlabel("Numero de tiradas")
+        axes[1].set_ylabel("Saldo neto (unidades)")
+        axes[1].legend()
+
         plt.tight_layout()
         plt.show()
 
@@ -481,12 +517,24 @@ else:
         n_tiradas = np.arange(1, len(resultados_corrida) + 1)
         ganancia_acum = np.cumsum(np.where(np.array(resultados_corrida) > 0, resultados_corrida, 0))
         perdida_acum = np.cumsum(np.where(np.array(resultados_corrida) < 0, -np.array(resultados_corrida), 0))
+        saldo_neto = ganancia_acum - perdida_acum
 
-        plt.plot(n_tiradas, ganancia_acum, color="seagreen", label="Ganancia acumulada")
-        plt.plot(n_tiradas, perdida_acum, color="firebrick", label="Perdida acumulada")
-        plt.title("Sumatoria de ganancia vs perdida (Paroli, 1 corrida)")
-        plt.xlabel("Numero de tiradas")
-        plt.ylabel("Unidades acumuladas")
-        plt.legend()
+        fig, axes = plt.subplots(1, 2, figsize=(12, 4), sharex=True)
+
+        axes[0].plot(n_tiradas, ganancia_acum, color="seagreen", label="Ganancia acumulada")
+        axes[0].plot(n_tiradas, perdida_acum, color="firebrick", label="Perdida acumulada")
+        axes[0].axhline(y=0, color="gray", linestyle="--", linewidth=1)
+        axes[0].set_title("Ganancia vs perdida (Paroli, 1 corrida)")
+        axes[0].set_xlabel("Numero de tiradas")
+        axes[0].set_ylabel("Unidades acumuladas")
+        axes[0].legend()
+
+        axes[1].plot(n_tiradas, saldo_neto, color="slateblue", label="Saldo neto")
+        axes[1].axhline(y=0, color="gray", linestyle="--", linewidth=1)
+        axes[1].set_title("Saldo neto (Paroli, 1 corrida)")
+        axes[1].set_xlabel("Numero de tiradas")
+        axes[1].set_ylabel("Saldo neto (unidades)")
+        axes[1].legend()
+
         plt.tight_layout()
         plt.show()
