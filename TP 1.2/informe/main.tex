@@ -16,6 +16,8 @@
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{subcaption}
+\crefname{table}{cuadro}{cuadros}
+\Crefname{table}{Cuadro}{Cuadros}
 \graphicspath{{./images/}{./images/graficos/}}
 
 
@@ -186,7 +188,7 @@ Considerando un capital \textbf{infinito}, se muestran 2 gráficos por estrategi
 \subsubsection{Estrategia Martingala}
 
 
-\paragraph{Flujo de caja (1ra corrida)} En el primer gráfico (con 100 tiradas), se observa una serie de tiradas donde el capital fluctúa cerca del valor inicial de \$100 antes de una caída abrupta hacia la bancarrota en la tirada 7. Al comparar con el segundo gráfico (con 1000 tiradas), se ve un periodo de supervivencia más extenso, pero con una pendiente de caída final mucho más pronunciada hacia la tirada 19, evidenciando el riesgo del crecimiento exponencial de la apuesta.
+\paragraph{Flujo de caja (1ra corrida)} En la \cref{fig:f1-flujo-caja-martingala-100}, se observa una serie de tiradas donde el capital fluctúa cerca del valor inicial de \$100 antes de una caída abrupta hacia la bancarrota en la tirada 7. Al comparar con la \cref{fig:f2-flujo-caja-martingala-1000}, se ve un periodo de supervivencia más extenso, pero con una pendiente de caída final mucho más pronunciada hacia la tirada 19, evidenciando el riesgo del crecimiento exponencial de la apuesta.
 
 \begin{figure}[H]
     \centering
@@ -208,7 +210,7 @@ Considerando un capital \textbf{infinito}, se muestran 2 gráficos por estrategi
     \label{fig:flujo-caja-martingala}
 \end{figure}
 
-\paragraph{Dispersión de capital final} El primer gráfico (con 100 tiradas) muestra una concentración de resultados finales entre \$140 y \$160, con una franja significativa de bancarrotas cerca de cero. En el segundo gráfico (con 1000 tiradas), la cantidad de puntos abajo del capital inicial es mucho más densa, confirmando una mayor frecuencia de fallos acumulados a largo plazo.
+\paragraph{Dispersión de capital final} La \cref{fig:f3-dispersion-martingala-100} muestra una concentración de resultados finales entre \$140 y \$160, con una franja significativa de bancarrotas cerca de cero. En la \cref{fig:f4-dispersion-martingala-1000}, la cantidad de puntos abajo del capital inicial es mucho más densa, confirmando una mayor frecuencia de fallos acumulados a largo plazo.
 
 \begin{figure}[H]
     \centering
@@ -230,7 +232,7 @@ Considerando un capital \textbf{infinito}, se muestran 2 gráficos por estrategi
     \label{fig:dispersion-martingala}
 \end{figure}
 
-\paragraph{Rendimiento promedio} El primer gráfico (con 100 tiradas) muestra un promedio final de \$92,43, que es una pérdida moderada respecto al capital inicial. En el segundo gráfico (con 1000 tiradas), el promedio cae drásticamente a \$76,15, validando que cuanto más se juega, más se pierde.
+\paragraph{Rendimiento promedio} La \cref{fig:f5-rendimiento-martingala-100} muestra un promedio final de \$92,43, que es una pérdida moderada respecto al capital inicial. En la \cref{fig:f6-rendimiento-martingala-1000}, el promedio cae drásticamente a \$76,15, validando que cuanto más se juega, más se pierde.
 
 \begin{figure}[H]
     \centering
@@ -275,7 +277,7 @@ Considerando un capital \textbf{infinito}, se muestran 2 gráficos por estrategi
 \end{figure}
 
 \subsubsection{Estrategia Fibonacci}
-\paragraph{Flujo de caja (1ra corrida)} El primer gráfico (con 100 tiradas) muestra una volatilidad controlada, donde el flujo de caja se recupera parcialmente retrocediendo 2 posiciones en la secuencia después de cada acierto. En el segundo gráfico (con 1000 tiradas), la racha negativa prolongada termina superando la capacidad de recuperación, resultando en bancarrota en la tirada 40.
+\paragraph{Flujo de caja (1ra corrida)} La \cref{fig:f9-flujo-caja-fibonacci-100} muestra una volatilidad controlada, donde el flujo de caja se recupera parcialmente retrocediendo 2 posiciones en la secuencia después de cada acierto. En la \cref{fig:f10-flujo-caja-fibonacci-1000}, la racha negativa prolongada termina superando la capacidad de recuperación, resultando en bancarrota en la tirada 40.
 
 \begin{figure}[H]
     \centering
@@ -297,7 +299,7 @@ Considerando un capital \textbf{infinito}, se muestran 2 gráficos por estrategi
     \label{fig:flujo-caja-fibonacci}
 \end{figure}
 
-\paragraph{Dispersión de capital final} En el primer gráfico (con 100 tiradas), los resultados finales están más dispersos, con bastantes casos por arriba de la línea del capital inicial. En cambio, el segundo gráfico (con 1000 tiradas) muestra cómo la mayoría de las corridas terminan con un capital residual mínimo, agotado por la progresión de la secuencia.
+\paragraph{Dispersión de capital final} En la \cref{fig:f11-dispersion-fibonacci-100}, los resultados finales están más dispersos, con bastantes casos por arriba de la línea del capital inicial. En cambio, la \cref{fig:f12-dispersion-fibonacci-1000} muestra cómo la mayoría de las corridas terminan con un capital residual mínimo, agotado por la progresión de la secuencia.
 
 \begin{figure}[H]
     \centering
@@ -319,7 +321,7 @@ Considerando un capital \textbf{infinito}, se muestran 2 gráficos por estrategi
     \label{fig:dispersion-fibonacci}
 \end{figure}
 
-\paragraph{Rendimiento promedio} En el primer gráfico (con 100 tiradas), se ve un capital promedio final de \$94,39. En el segundo gráfico (con 1000 tiradas), el rendimiento disminuye a \$72,07, demostrando que la progresión negativa de Fibonacci no compensa el margen de la casa en sesiones extensas.
+\paragraph{Rendimiento promedio} En la \cref{fig:f13-rendimiento-fibonacci-100}, se ve un capital promedio final de \$94,39. En la \cref{fig:f14-rendimiento-fibonacci-1000}, el rendimiento disminuye a \$72,07, demostrando que la progresión negativa de Fibonacci no compensa el margen de la casa en sesiones extensas.
 
 \begin{figure}[H]
     \centering
@@ -364,7 +366,7 @@ Considerando un capital \textbf{infinito}, se muestran 2 gráficos por estrategi
 \end{figure}
 
 \subsubsection{Estrategia D’Alembert}
-\paragraph{Flujo de caja (1ra corrida)} El primer gráfico (con 100 tiradas) refleja una pérdida lineal constante hasta la bancarrota en la tirada 30. El segundo gráfico (con 1000 tiradas) muestra un comportamiento parecido, donde pequeñas recuperaciones no logran revertir la tendencia negativa, llegando a la bancarrota en la tirada 38.
+\paragraph{Flujo de caja (1ra corrida)} La \cref{fig:f17-flujo-caja-dalembert-100} refleja una pérdida lineal constante hasta la bancarrota en la tirada 30. La \cref{fig:f18-flujo-caja-dalembert-1000} muestra un comportamiento parecido, donde pequeñas recuperaciones no logran revertir la tendencia negativa, llegando a la bancarrota en la tirada 38.
 
 \begin{figure}[H]
     \centering
@@ -386,7 +388,7 @@ Considerando un capital \textbf{infinito}, se muestran 2 gráficos por estrategi
     \label{fig:flujo-caja-dalembert}
 \end{figure}
 
-\paragraph{Dispersión de capital final} El primer gráfico (con 100 tiradas) muestra resultados muy variados, con una gran cantidad de corridas terminando en saldo negativo. En el segundo gráfico (con 1000 tiradas), la dispersión se concentra casi exclusivamente en valores cercanos a cero o negativos.
+\paragraph{Dispersión de capital final} La \cref{fig:f19-dispersion-dalembert-100} muestra resultados muy variados, con una gran cantidad de corridas terminando en saldo negativo. En la \cref{fig:f20-dispersion-dalembert-1000}, la dispersión se concentra casi exclusivamente en valores cercanos a cero o negativos.
 
 \begin{figure}[H]
     \centering
@@ -408,7 +410,7 @@ Considerando un capital \textbf{infinito}, se muestran 2 gráficos por estrategi
     \label{fig:dispersion-dalembert}
 \end{figure}
 
-\paragraph{Rendimiento promedio} En el primer gráfico (con 100 tiradas) muestra un promedio final de \$87,17. En el segundo gráfico (con 1000 tiradas), ese valor disminuye a \$51,15, siendo la caída más agresiva entre las estrategias analizadas.
+\paragraph{Rendimiento promedio} En la \cref{fig:f21-rendimiento-dalembert-100}, se muestra un promedio final de \$87,17. En la \cref{fig:f22-rendimiento-dalembert-1000}, ese valor disminuye a \$51,15, siendo la caída más agresiva entre las estrategias analizadas.
 
 \begin{figure}[H]
     \centering
@@ -430,7 +432,7 @@ Considerando un capital \textbf{infinito}, se muestran 2 gráficos por estrategi
     \label{fig:rendimiento-dalembert}
 \end{figure}
 
-\paragraph{Análisis con capital infinito} El primer gráfico muestra aumentos importantes después de rachas de fallos, por lo que el segundo gráfico tiene una recuperación constante gracias a la naturaleza aritmética de sumar los dos extremos. Al final, se logra un saldo neto positivo si no hay límites de capital.
+\paragraph{Análisis con capital infinito} La \cref{fig:f23-ganancia-perdida-dalembert}, que corresponde a la ganancia vs pérdida, muestra aumentos importantes después de rachas de fallos; en la \cref{fig:f24-saldo-neto-dalembert}, que corresponde al saldo neto, se observa una recuperación constante gracias a la naturaleza aritmética de sumar los dos extremos. Al final, se logra un saldo neto positivo si no hay límites de capital.
 
 \begin{figure}[H]
     \centering
@@ -453,7 +455,7 @@ Considerando un capital \textbf{infinito}, se muestran 2 gráficos por estrategi
 \end{figure}
 
 \subsubsection{Estrategia Paroli}
-\paragraph{Flujo de caja (1ra corrida)} Al ser una progresión positiva, el primer gráfico (con 100 tiradas) muestra picos de ganancia cuando se encadenan aciertos, pero sin caídas exponenciales ante pérdidas. El segundo gráfico (con 1000 tiradas) muestra que, aunque se logren picos de hasta \$250, la varianza estadística termina erosionando el capital inicial a largo plazo.
+\paragraph{Flujo de caja (1ra corrida)} Al ser una progresión positiva, la \cref{fig:f25-flujo-caja-paroli-100} muestra picos de ganancia cuando se encadenan aciertos, pero sin caídas exponenciales ante pérdidas. La \cref{fig:f26-flujo-caja-paroli-1000} muestra que, aunque se logren picos de hasta \$250, la varianza estadística termina erosionando el capital inicial a largo plazo.
 
 \begin{figure}[H]
     \centering
@@ -475,7 +477,7 @@ Considerando un capital \textbf{infinito}, se muestran 2 gráficos por estrategi
     \label{fig:flujo-caja-paroli}
 \end{figure}
 
-\paragraph{Dispersión de capital final} El primer gráfico (con 100 tiradas) muestra la cantidad de puntos muy equilibrada alrededor de la línea de capital inicial, con pocas bancarrotas inmediatas. En el segundo gráfico (con 1000 tiradas), aunque hay valores altos, se ve una línea densa de corridas en \$0, demostrando que incluso con bajo riesgo por apuesta, el tiempo de juego agota el capital.
+\paragraph{Dispersión de capital final} La \cref{fig:f27-dispersion-paroli-100} muestra la cantidad de puntos muy equilibrada alrededor de la línea de capital inicial, con pocas bancarrotas inmediatas. En la \cref{fig:f28-dispersion-paroli-1000}, aunque hay valores altos, se ve una línea densa de corridas en \$0, demostrando que incluso con bajo riesgo por apuesta, el tiempo de juego agota el capital.
 
 \begin{figure}[H]
     \centering
@@ -497,7 +499,7 @@ Considerando un capital \textbf{infinito}, se muestran 2 gráficos por estrategi
     \label{fig:dispersion-paroli}
 \end{figure}
 
-\paragraph{Rendimiento promedio} En el primer gráfico (con 100 tiradas), el capital promedio final es de \$95,89, el más alto de las 4 estrategias para $n=100$. Pero en el segundo gráfico (con 1000 tiradas), el promedio cae a \$57,89, reforzando que ninguna estrategia supera la ventaja matemática del casino al aumentar la cantidad de ensayos.
+\paragraph{Rendimiento promedio} En la \cref{fig:f29-rendimiento-paroli-100}, el capital promedio final es de \$95,89, el más alto de las 4 estrategias para $n=100$. Pero en la \cref{fig:f30-rendimiento-paroli-1000}, el promedio cae a \$57,89, reforzando que ninguna estrategia supera la ventaja matemática del casino al aumentar la cantidad de ensayos.
 
 \begin{figure}[H]
     \centering
@@ -567,9 +569,10 @@ Para analizar cómo influye la cantidad de tiradas en el resultado económico de
     \bottomrule
   \end{tabular}
   \caption{Comparación de rendimientos finales según la cantidad de tiradas}
+  \label{tab:comparacion-rendimientos}
 \end{table}
 
-Como se ve en la tabla, ninguna de las estrategias pudo mantener el capital inicial de \$100.
+Como se ve en el \cref{tab:comparacion-rendimientos}, ninguna de las estrategias pudo mantener el capital inicial de \$100.
 
 A \textbf{corto plazo (n=100)}, Paroli obtuvo el mejor resultado promedio, por ser una estrategia de progresión positiva, donde las apuestas aumentan después de ganar y no después de perder.
 
@@ -581,7 +584,7 @@ Esto confirma que, aunque algunas estrategias pueden parecer exitosas en pocas t
 \section{Discusión}
 Los resultados obtenidos permiten hacer un análisis más realista de la viabilidad de las estrategias de apuestas. El gráfico de convergencia de victorias (que estabiliza el éxito en el 48,6%) demuestra que los ensayos de Bernoulli representan una ruleta europea ideal, sin sesgos físicos.
 
-Al analizar el impacto de aumentar la cantidad de tiradas, la tabla 1 demuestra la Ley de los Grandes Números. En sesiones de juego cortas (n=100), el capital promedio final se mantiene relativamente cerca del inicial. La estrategia Paroli (de progresión positiva) mostró el mejor desempeño, con la menor tasa de bancarrota. Esto muestra que, a corto plazo, la variabilidad del azar puede favorecer al jugador, o permitirle conservar gran parte de su capital.
+Al analizar el impacto de aumentar la cantidad de tiradas, el \cref{tab:comparacion-rendimientos} demuestra la Ley de los Grandes Números. En sesiones de juego cortas (n=100), el capital promedio final se mantiene relativamente cerca del inicial. La estrategia Paroli (de progresión positiva) mostró el mejor desempeño, con la menor tasa de bancarrota. Esto muestra que, a corto plazo, la variabilidad del azar puede favorecer al jugador, o permitirle conservar gran parte de su capital.
 
 Pero cuando la cantidad de tiradas aumenta (n=1000), todas las estrategias muestran una degradación del capital y un aumento en la tasa de bancarrota, mucho más marcado.
 
