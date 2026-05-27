@@ -15,10 +15,13 @@
 \usepackage{lipsum}
 \usepackage{graphicx}
 \usepackage{float}
+\usepackage{subcaption}
+\crefname{table}{cuadro}{cuadros}
+\Crefname{table}{Cuadro}{Cuadros}
 \graphicspath{{./images/}{./images/graficos/}}
 
 
-\title{TP 1.1 - SIMULACIÓN DE UNA RULETA}
+\title{TP 1.2 - ESTUDIO ECONÓMICO-MATEMÁTICO DE APUESTAS EN LA RULETA}
 
 
 \author{
@@ -58,12 +61,10 @@
 
 
 \begin{abstract}
-  El siguiente documento tiene como objetivo detallar el trabajo de investigación realizado como introducción a la 
-  materia de simulación. El mismo consiste en el desarrollo de un modelo simple del plato de una ruleta, cuyo 
-  funcionamiento es verificado mediante distintos tests rudimentarios.
+  El siguiente documento tiene por objetivo detallar el trabajo de investigación que debe realizarse para profundizar el estudio del comportamiento de la ruleta pero desde el punto de vista del apostador y sus estrategias.
 \end{abstract}
 
-\keywords{Simulación \and Trabajo de investigación \and Ruleta}
+\keywords{Simulación \and Trabajo práctico \and Ruleta \and apuestas \and estrategias}
 
 
 
@@ -71,493 +72,540 @@
 
 
 \section{Introducción}
-\paragraph{Etimología y definición del término ruleta} La ruleta \cite{ruleta_wiki} es un juego de azar típico de 
-los casinos, cuyo nombre viene del término francés \textit{roulette}, que significa «ruedita» o «rueda pequeña». 
-Su uso como elemento de juego de azar, aún en configuraciones distintas de la actual, no está documentado hasta 
-bien entrada la Edad Media. Es de suponer que su referencia más antigua es la llamada Rueda de la Fortuna, de la que 
-hay noticias a lo largo de toda la historia, prácticamente en todos los campos del saber humano.
+En el trabajo anterior (TP 1.1), se modeló el funcionamiento de la ruleta europea, validando su comportamiento con la distribución uniforme discreta, la Ley de los Grandes Números y el Teorema Central del Límite, a través de la estabilización de estadísticos como el valor promedio y la varianza.
 
-\paragraph{Popularización y asociaciones}
-La «magia» del movimiento de las ruedas debió impactar a distintas generaciones. La aparente quietud del centro, el 
-aumento de velocidad a medida que nos alejamos de él y la posibilidad de que se detenga en un punto al azar tuvieron 
-que influir en el desarrollo de diversos juegos basados en la rueda.
+El objetivo de este trabajo es profundizar esta investigación, cambiando el foco desde el funcionamiento de la ruleta hacia un análisis económico-matemático desde la perspectiva del apostador. El propósito es desmitificar estadísticamente la verdadera probabilidad de obtener ganancias sostenibles usando distintas estrategias de apuestas en un medio ideal simulado.
 
-Las ruedas, y por extensión las ruletas, siempre han estado vinculadas con el mundo mágico y esotérico. Así, una de 
-ellas forma parte del tarot, más precisamente de los denominados arcanos mayores.
+Para alcanzar este objetivo, se analizan cuatro estrategias: Martingala, D'Alembert, Fibonacci y Paroli. Cada estrategia se somete a dos supuestos mutuamente excluyentes:
 
-\paragraph{Evolución de las reglas de juego a través de la historia} Según los indicios, la creación de una ruleta y 
-sus normas de juego, muy similares a las que conocemos hoy en día, se debe a Blaise Pascal, matemático francés, quien 
-ideó una ruleta con treinta y seis números (sin el cero), en la que hay un extremo equilibrio en la posición en que está 
-colocado cada número. La elección de 36 números da un alcance aún más vinculado a la magia (la suma de los primeros 36 
-números da el número mágico por excelencia: seiscientos sesenta y seis).
+\begin{itemize}
+  \item \textbf{Capital acotado (finito):} un escenario realista donde se analiza la probabilidad de bancarrota y el impacto de los límites financieros sobre la viabilidad de la estrategia a largo plazo.
+  \item \textbf{Capital infinito:} un escenario ideal que permite observar el comportamiento matemático teórico de la estrategia sin restricciones de fondos.
+\end{itemize}
 
-Esta ruleta podía usarse como entretenimiento en círculos de amistades. Sin embargo, a nivel de empresa que pone los 
-medios y el personal para el entretenimiento de sus clientes, no era rentable, ya que estadísticamente todo lo que se 
-apostaba se repartía en premios (probabilidad de 1/36 de acertar el número y ganar 36 veces lo apostado).
+A través de esta simulación, se busca obtener una visión objetiva de la viabilidad de las apuestas, usando herramientas de visualización de datos para contrastar los resultados empíricos con las expectativas teóricas del apostador.
 
-En 1842, los hermanos Blanc modificaron la ruleta añadiéndole un nuevo número, el 0, y la introdujeron inicialmente 
-en el Casino de Montecarlo. Esta es la ruleta que se conoce hoy en día, con una probabilidad de acertar de 1/37 y ganar
-36 veces lo apostado, consiguiendo un margen para la casa del 2,7\% (1/37).
+Las estrategias pueden ser de dos enfoques distintos \cite{estrategias_progresion}:
 
-Más adelante, en algunas ruletas (sobre todo las que se usan en países anglosajones) se añadió un nuevo número 
-(el doble cero), con lo cual el beneficio para el casino resultó ser doble (2/38 o 5,26\%).
+\paragraph{Estrategias de progresión negativa} Se basan en aumentar la apuesta después de cada pérdida, buscando recuperar el capital cedido en una sola tirada ganadora. La desventaja es que es riesgoso, porque una racha negativa prolongada puede agotar rápido el capital.
 
-\paragraph{Tipos de juegos de ruleta} En la actualidad, existen dos tipos de ruletas: La \textit{ruleta francesa}, también 
-llamada \textit{ruleta europea}, y la \textit{ruleta americana}.
+\paragraph{Estrategias de progresión positiva} Se basan en aumentar la apuesta después de cada acierto, buscando capitalizar las rachas ganadoras. Este enfoque se considera más conservador, porque busca maximizar los beneficios usando el dinero ganado al casino en vez de “perseguir pérdidas” con el capital base.
 
-La ruleta europea está compuesta por 37 números: del 1 al 36 y el cero. En cambio, la ruleta americana tiene dos variantes: 
-la ruleta americana de \textit{doble cero} (compuesta por 38 números: los números del 1 al 36, el cero y el doble cero) y la 
-de \textit{un cero} (compuesta por 37 números: del 1 al 36 y el cero, al igual que la europea).
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.8\textwidth]{ruleta-americana-vs-europea.jpg}
-  \caption{Diferencias entre la ruleta americana y la ruleta europea \cite{tipos_de_ruleta_casino}.}
-  \label{fig:tipos-de-ruleta}
-\end{figure}
-
-En Argentina se juega principalmente la ruleta europea, que es la más común en los casinos del país.
-Debido a ello, este informe se realizó basado en la ruleta europea; por lo tanto, en adelante, cuando
-hablemos de ruleta, nos estaremos refiriendo a este tipo.
-
-\paragraph{Importancia de la simulación}
-La simulación realizada no es simplemente un programa de generación de números al 
-azar: es una implementación computacional de los principios fundamentales de la estadística 
-descriptiva e inferencial \cite{introducción_probabilidad}. Cada variable del código tiene 
-un correlato teórico preciso en la teoría de la probabilidad.
-
-La \textit{distribución uniforme discreta} \cite{distribucion_uniforme_discreta} sobre $\{0,1,2,\dots,36\}$ determina todos los valores teóricos del sistema. 
-Las frecuencias absoluta y relativa son las herramientas empíricas para aproximar la probabilidad desde los datos. 
-El valor promedio, la varianza y el desvío estándar permiten caracterizar globalmente el comportamiento de la variable. 
-Finalmente, el Teorema Central del Límite es el principio que garantiza la coherencia entre la teoría y el experimento simulado.
-
-Comprender estos conceptos es esencial tanto para interpretar correctamente los resultados de cualquier simulación como para 
-diseñar experimentos computacionales que sean estadísticamente significativos.
 
 
 \section{Metodología}
 \label{sec:metodologia}
 
 \subsection{Diseño del modelo}
-El modelo fue construido en el lenguaje \textit{Python 3.x}, siguiendo los requisitos de generación de 
-valores aleatorios enteros y el uso de listas para el almacenamiento de datos.
+A diferencia del modelo anterior, que se centraba en la frecuencia de aparición de números, este modelo incorpora una lógica de gestión de banca (bankroll) y flujo de caja (cash flow). El sistema procesa los siguientes parámetros de entrada por consola:
 
-Se utilizan las siguientes librerías: \textit{argparse}, \textit{numpy} y \textit{matplotlib}.
-
-Estas librerías forman un conjunto de herramientas esenciales para el desarrollo de aplicaciones en \textit{Python}, 
-permitiendo la ejecución del programa y el análisis de los datos. 
-
-\textit{argparse} se encarga de la interacción con el entorno mediante líneas de comandos para capturar argumentos del usuario.
-\textit{numpy} introduce estructuras de datos, generación de números aleatorios y fórmulas de cálculo de probabilidad, como los \textit{arrays} 
-multidimensionales, que permiten realizar operaciones matemáticas complejas de manera mucho más eficiente que 
-las listas estándar de \textit{Python}. 
-Para dar sentido a estos datos, \textit{matplotlib.pyplot} se utiliza para generar gráficos (diagramas de dispersión, 
-histogramas o series temporales), permitiendo la interpretación visual de la información procesada \cite{python_para_impacientes_graficos,probabilidad_estadistica_python}.
-
-Para la ejecución del programa se deberá ejecutar el siguiente comando en la consola de comandos: 
-\begin{center}
-  \textit{python ruleta.py -n XXX -c YYY -e ZZ}
-\end{center}
-
-El programa recibe 3 números enternos en forma de parámetros:
 \begin{itemize}
-  \item \textit{XXX}: la cantidad de tiradas de la ruleta o número de la muestra ($n$).
-  \item \textit{YYY}: la cantidad de corridas o \textit{realization} de la simulación ($c$).
-  \item \textit{ZZ}: el número elegido en la ruleta ($e\in\{0,1,2,\dots,36\}$), al que vamos a apostar nuestro dinero.
+  \item \texttt{-c} (corridas): cantidad de simulaciones independientes.
+  \item \texttt{-n} (muestras): cantidad de tiradas por corrida.
+  \item \texttt{-s} (estrategia): estrategia utilizada, que puede ser martingala (m), D’Alembert (d), Fibonacci (f) o Paroli (o).
+  \item \texttt{-a} (capital): tipo de capital, que puede ser infinito (i) o finito (f).
 \end{itemize}
 
 \subsection{Procesamiento de datos}
+En esta segunda etapa de la investigación, el análisis se deja de enfocar en números individuales y pasa a enfocarse en eventos de “éxito o fracaso”. Para modelar esto, se usó la \textbf{Distribución Binomial} ($X\sim \mathrm{Bi}(n,p)$), que es adecuada para representar las estrategias de apuestas elegidas (Martingala, D’Alembert, Fibonacci y Paroli) aplicadas a “apuestas simples”.
 
-\paragraph{Distribución uniforme discreta}
-La distribución uniforme discreta es el modelo probabilístico que subyace a todo el programa. Su elección es coherente con 
-la naturaleza del experimento: una ruleta ideal (sin sesgos físicos) no favorece ningún número sobre los demás. Es una 
-distribución de probabilidad en la que todos los resultados posibles dentro de un conjunto finito tienen exactamente la misma 
-probabilidad de ocurrir (equiprobables). Se aplica a situaciones con $n$ valores discretos, cada uno con una probabilidad de $1/n$ \cite{distribucion_uniforme_discreta}.
+Cada tirada de la ruleta se considera un \textbf{ensayo de Bernoulli} independiente, donde solo hay 2 resultados posibles: éxito (ganar la apuesta) o fracaso (perder la apuesta). Como ejemplo, tomamos como “éxito” que el número obtenido sea par (sin contar el 0), lo que define los parámetros de la distribución:
 
-$$X \sim U\{a,b\}$$
+\begin{itemize}
+  \item \textbf{n (ensayos)}: es la cantidad de tiradas realizadas en cada corrida de la simulación.
+  \item \textbf{p (probabilidad de éxito)}: se calcula dividiendo la cantidad de números favorables (18 números pares) por el total de números de la ruleta europea (37): $p = 18/37 \approx 0.486$.
+\end{itemize}
+
+Para comparar los resultados obtenidos con los valores teóricos, el sistema calcula los estadísticos de referencia:
+
+\begin{itemize}
+  \item \textbf{Frecuencia relativa esperada (fr\_e)}: representa la probabilidad teórica de éxito en cada ensayo (p). En el código se define como \texttt{len(par)/cant\_numeros\_ruleta}.
+  \item \textbf{Valor promedio esperado (vp\_e)}: representa la media de la distribución binomial y se calcula multiplicando la cantidad de tiradas por la probabilidad de éxito. En el código se calcula como \texttt{tiradas*fr\_e}.
+\end{itemize}
+
+Este marco estadístico permite analizar el rendimiento económico del apostador, comparando los beneficios obtenidos en la simulación con la ventaja matemática que tiene el casino.
+
+
+
+
+\subsection{Implementación de estrategias de apuestas}
+
+
+
+\subsubsection{Martingala}
+La Martingala es una estrategia de \textbf{progresión negativa}. Proporciona al jugador una alta probabilidad de ganar muchas pequeñas cantidades, a cambio de un bajo riesgo de perder mucho. Se basa en apuestas simples, que son las que tienen una probabilidad de ganar o perder cercana al 50\% (como apuestas par/impar, o rojo/negro).
+
+\paragraph{Funcionamiento} Consiste en duplicar la apuesta después de cada pérdida. El objetivo es que, si el jugador gana, recupere todas las pérdidas acumuladas en las rondas anteriores más un beneficio adicional equivalente a la apuesta inicial.\cite{martingala}
+
+\paragraph{En la simulación} El ciclo empieza con una apuesta base (\texttt{apuesta\_martingala = 1}). Si se gana (\texttt{valores[nro\_tirada] in par}), el capital aumenta, se agrega el beneficio al flujo de caja y la apuesta se reinicia al valor base. Si se pierde, se resta la apuesta del capital actual y se duplica el monto para la siguiente tirada (\texttt{apuesta\_martingala *= 2}). En el escenario de capital acotado (\texttt{tipo\_capital == 'f'}), se activa la condición de bancarrota si el capital es negativo o si el monto de la apuesta necesaria supera el dinero disponible del apostador.
+
+\subsubsection{D’Alembert}
+D’Alembert es otra estrategia de \textbf{progresión negativa}, y también se basa en apuestas simples. Se basa en la idea de que dos resultados de igual probabilidad ocurren con la misma frecuencia, por lo que las probabilidades de éxito son mayores cuanto más dinero se tenga para apostar. Pero esto también implica que se puede perder más.
+
+\paragraph{Funcionamiento} El jugador usa una secuencia de 10 números, que representa una unidad de apuesta. El monto a apostar se determina sumando el primer y el último número de esa secuencia. Si se gana la apuesta, esos números se tachan. Si se pierde, se agrega el monto fallido al final de la secuencia para intentar recuperarlo en la siguiente ronda. El objetivo es haber ganado 10 unidades una vez que se hayan tachado todos los números.\cite{dalembert}
+
+\paragraph{En la simulación} Se inicializa una lista con la secuencia base de unidades (\texttt{arr\_dalembert = [1,1,1,1,1,1,1,1,1,1]}). La apuesta actual se calcula sumando el primer y último elemento de esa secuencia (\texttt{arr\_dalembert[0] + arr\_dalembert[-1]}). Si se gana, se eliminan los dos extremos de la lista (\texttt{arr\_dalembert.pop(0)} y \texttt{arr\_dalembert.pop(-1)}). Si se pierde, el monto de la apuesta fallida se agrega al final de la secuencia (\texttt{arr\_dalembert.append(apuesta)}). La bancarrota se verifica comparando si la suma de los extremos necesaria para la siguiente jugada excede el capital disponible en \texttt{dinero\_dalembert\_corrida}.
+
+\subsubsection{Fibonacci}
+Fibonacci es otra estrategia de \textbf{progresión negativa}, y también se basa en apuestas simples. Está basada en la secuencia matemática de números donde cada número es igual a la suma de los dos anteriores ($1, 1, 2, 3, 5, 8, 13, 21$ y así sucesivamente).
+
+\paragraph{Funcionamiento} Se tiene una secuencia de números para establecer las unidades que se apuestan. Una unidad es la cantidad que se apuesta en cada mano. Si se pierde, se avanza un nivel en la secuencia para establecer la siguiente unidad de apuesta. Si se gana, se retroceden 2 posiciones, permitiendo recuperar pérdidas acumuladas sin disparar el monto apostado de forma exponencial.\cite{fibonacci}
+
+\paragraph{En la simulación} Se genera la secuencia matemática en la lista \texttt{s\_fibonacci} y se usa un puntero (\texttt{posicion\_secuencia}) para determinar el monto a apostar. Si se gana, se retroceden dos posiciones en la secuencia (\texttt{max(posicion\_secuencia - 2, 0)}). Si se pierde, se avanza una posición hacia la derecha (\texttt{posicion\_secuencia + 1}). El estado de bancarrota se alcanza si el valor de la secuencia correspondiente a la posición actual es mayor al capital restante del jugador en la corrida.
+
+\subsubsection{Paroli}
+Paroli es una estrategia de \textbf{progresión positiva}. Se basa en la idea de que ganancias y pérdidas suelen ocurrir por rachas, por lo que buscar maximizar el beneficio apostando más en las rachas ganadoras y menos en las rachas perdedoras.
+
+\paragraph{Funcionamiento} El objetivo es ganar 3 veces consecutivas, doblando la apuesta después de cada victoria. Se empieza apostando una sola unidad. Si se gana, la apuesta se duplica. Si se pierde, se vuelve a apostar una sola unidad, asegurando que nunca se arriesgue más de una unidad del presupuesto base por ciclo.\cite{paroli}
+
+Aunque cada progresión Paroli termina en una pérdida o en 3 ganancias consecutivas, es bueno dividir la jugada en grupos de 3 apuestas para entender los posibles resultados:
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.5\textwidth]{distribucion-uniforme-discreta.jpg}
-  \caption{Distribución uniforme discreta.}
-  \label{fig:distribucion-uniforme-discreta}
+  \includegraphics[width=0.6\textwidth]{tabla-paroli.png}
+  \caption{Tabla de progresión Paroli.}
 \end{figure}
 
-Donde \(X\) es la variable aleatoria, \(a\) es el valor entero mínimo y \(b\) es el valor entero máximo. Siendo la \textit{función de probabilidad}: 
-$$P(X = x_i) = \frac{1}{n}$$
+\paragraph{En la simulación} Se usa una unidad base (\texttt{apuesta\_paroli = 1}) y un contador de rachas (\texttt{acumulador\_ganancias\_seguidas}). Si se gana, la apuesta se duplica (\texttt{apuesta\_paroli *= 2}) y el contador aumenta. Si se pierde o si se gana 3 veces consecutivas, la apuesta se reinicia a 1 unidad y el contador vuelve a cero. El sistema comprueba la bancarrota comparando la apuesta reiniciada o duplicada contra el flujo de caja final de la tirada (\texttt{dinero\_paroli\_corrida[-1]}).
 
-\paragraph{Generación de números aleatorios} La aleatoriedad de la ruleta se simuló con la función 
-\verb+np.random.randint(0, cant_numeros_ruleta, tiradas)+, 
-donde \verb+cant_numeros_ruleta+ es 37 y \verb+tiradas+ es ingresado por consola por el usuario. 
 
-Esta función usa una distribución uniforme discreta para generar \textit{n} muestras (tiradas) de enteros aleatorios 
-uniformes entre 0 (incluido) y \verb+cant_numeros_ruleta+ (excluido). Es decir, se obtiene un array de longitud \textit{n} 
-con valores de 0 a 36. Esto hace que cada número tenga una probabilidad de ocurrencia $P=1/37$:
 
-$$P(X = k) = \frac{1}{37} \approx 0,027$$
 
-Con $k \in \{0, 1, 2, \dots, 36\}$
-
-La probabilidad de que salga cualquier número específico $k$ es 1 entre 37, ya que todos los resultados son igualmente 
-probables. En el código se representa como \verb+fre = 1 / 37+.
-
-\paragraph{Estructuras de control}
-Para iterar las listas, utilizamos la estructura de control \verb+FOR+. Esto permite obtener el valor de los estadísticos 
-en cada tirada, desde 1 hasta $n$.
-
-\subsection{Funciones estadísticas}
-
-La validación del modelo se realiza comparando los valores simulados con los parámetros esperados. Los estadísticos que 
-se calculan son:
-
-\subsubsection{Frecuencia absoluta}
-Es una medida estadística que indica el número de veces que un valor específico, dato o evento se repite dentro de un 
-conjunto total de datos \cite{frecuencia_absoluta_economipedia}.
-
-\begin{center}
-$f_i =$ número de veces que aparece el valor $x_i$
-\end{center}
-
-La suma de todas las frecuencias absolutas tiene que ser igual al tamaño de la muestra:
-$$n=\sum_{i=1}^{k} n_i = n_1 + n_2 + \cdots + n_k$$
-
-\subsubsection{Frecuencia relativa}
-Es una medida estadística que representa la proporción de cada valor en una muestra de datos. Se calcula dividiendo la 
-frecuencia absoluta (que en este caso sería la cantidad de éxitos del número elegido) por el tamaño de la muestra. 
-La frecuencia relativa siempre va a estar acotada entre 0 y 1, y la suma de todas las muestras va a ser 1 (o 100 si se 
-mide en tanto por ciento).
-
-$$f_i = \frac{n_i}{N}$$
-
-La frecuencia relativa siempre cumple $0 \leq f_r(k) \leq 1$, y la suma de las frecuencias relativas de todos los valores 
-es exactamente 1. A medida que $n \to \infty$ se espera que $f_r(k) \to P(X = k) = 1/37$.
-
-\subsubsection{Medida de Tendencia Central}
-
-\paragraph{Valor promedio (media)}
-Es una medida de tendencia central que representa el valor ``típico'' de un conjunto de datos \cite{promedio_economipedia}. Se calcula sumando todos 
-los valores observados y dividiendo el resultado entre el número total de datos.
-
-$$\bar{x} = \frac{x_1 + x_2 + \cdots + x_n}{N}$$
-
-\subsubsection{Medidas de Dispersión}
-Las medidas de dispersión cuantifican cuánto se alejan los valores individuales del promedio. Indican el grado de 
-variabilidad o heterogeneidad de los datos. El programa calcula dos de ellas: la varianza y el desvío estándar.
-
-\paragraph{Varianza}
-Es una medida de dispersión estadística que indica qué tan alejados están los datos respecto al valor promedio \cite{varianza_economipedia}.
-
-$$\sigma^2 = \frac{\sum_{i=1}^{n}(x_i - \bar{x})^2}{n}$$
-
-\paragraph{Desvío estándar}
-Es la raíz cuadrada de la varianza, indicando qué tan alejados están los valores del promedio en las mismas unidades \cite{desviacion_estandar_questionpro}.
-
-$$\sigma = \sqrt{\frac{\sum_{i=1}^{n}(x_i - \bar{x})^2}{n}}$$
-
-\subsubsection{Propiedades teóricas}
-Sus propiedades teóricas se definen como sigue:
-
-\begin{table}[h]
-  \centering
-  \begin{tabular}{lll}
-    \toprule
-    \textbf{Concepto} & \textbf{Variable en código} & \textbf{Valor teórico esperado} \\
-    \midrule
-    Valor Promedio (Media) & \verb+vpe+ & $E[X] = (0 + 36) / 2 = 18$ \\
-    Varianza & \verb+varie+ & $Var(X) = (37^2 - 1) / 12 \approx 114$ \\
-    Desvío Estándar & \verb+desve+ & $\sigma = \sqrt{Var(X)} \approx 10,68$ \\
-    Probabilidad de cada valor & \verb+fre+ & $P(X = k) = 1/37 \approx 0,027$ \\
-    \bottomrule
-  \end{tabular}
-  \label{tab:propiedades-teoricas}
-\end{table}
-
-\subsection{Teorema Central del Límite}
-Vinculamos los resultados obtenidos con el Teorema Central de Límite (TCL), el cual es un principio fundamental que 
-establece que, al aumentar el tamaño de la muestra ($n$), la distribución de las medias muestrales se aproxima a una 
-distribución normal, independientemente de la forma de la distribución de la población original. Generalmente se usa un 
-tamaño de muestra ($n > 30$).
-
-Veremos cómo a medida que se aumenta el tamaño de la muestra, las gráficas formadas con los valores obtenidos de la 
-simulación tienden a distribuirse de manera Normal.
-
-\subsection{Configuración y justificación de parámetros}
-Para los parámetros, elegimos probar con un tamaño de muestra de $n=300$ tiradas por corrida porque es un valor mayor a 30, que es un requisito para que actúe el Teorema Central del Límite y se observe la tendencia a la normalidad. Por otro lado, probamos con $c=3000$ corridas, que permite observar una distribución de promedios lo suficientemente suave para validar la normalidad de los datos y asegurar que los estadísticos obtenidos sean representativos del comportamiento teórico esperado.
 
 \section{Resultados}
 \label{sec:resultados}
 
 \subsection{Gráficos de los resultados}
+Para graficar los resultados de la simulación, usamos el paquete \texttt{Matplotlib}, analizando cada estrategia en distintos contextos.
 
-Utilizamos el paquete \textit{Matplotlib} para graficar los resultados, realizando 12 gráficos. Para cada estadístico, 
-se muestran 2 enfoques:
+Considerando un capital \textbf{finito}, se muestran 3 gráficos por estrategia: la evolución del flujo de caja en una sola corrida (\texttt{plt.plot}), la dispersión del capital final después de 3000 corridas (\texttt{plt.scatter}) y el rendimiento promedio obtenido frente al capital inicial (\texttt{plt.bar}).
 
-\begin{itemize}
-  \item \textbf{Primer enfoque (eje x: número de tiradas):} Muestra cómo los estadísticos convergen a lo largo de las tiradas 
-  (en una sola corrida). Permite ver cómo los estadísticos se estabilizan a medida que aumenta el tamaño de la muestra en una 
-  sola realización del experimento. Se representan en el código con \verb+plt.plot+ (gráficos de línea).
-  
-  \item \textbf{Segundo enfoque (eje x: número de corridas):} Muestra la variabilidad de los resultados finales entre distintas 
-  corridas, y permite verificar que cada experimento independiente (corrida) muestra resultados consistentes con la teoría. 
-  Se representan en el código con \verb+plt.scatter+ (gráficos de dispersión).
-\end{itemize}
+Cada gráfico se muestra comparando la cantidad de tiradas entre $n=100$ y $n=1000$, demostrando que mientras más se juega, más se degrada el capital y la probabilidad de bancarrota aumenta.
 
-Además, se usa \verb+plt.stem+ para los gráficos de frecuencia absoluta (gráficos de bastones) y \verb+plt.hist+ para 
-los gráficos de TCL (histogramas).
+Considerando un capital \textbf{infinito}, se muestran 2 gráficos por estrategia: uno de ganancia acumulada vs pérdida acumulada y uno del saldo neto.
 
-\subsubsection{Gráfico de frecuencia absoluta en todas las corridas}
+\subsubsection{Estrategia Martingala}
 
-\begin{figure}
-  \centering
-  \includegraphics[width=0.9\textwidth]{f6-bastones-frecuencia-absoluta-de-cada-numero-todas-las-corridas.png}
-  \caption{Frecuencia absoluta de cada número en todas las corridas}
-  \label{fig:frecuencia-absoluta-de-cada-numero-todas-las-corridas}
+
+\paragraph{Flujo de caja (1ra corrida)} En la \cref{fig:f1-flujo-caja-martingala-100}, se observa una serie de tiradas donde el capital fluctúa cerca del valor inicial de \$100 antes de una caída abrupta hacia la bancarrota en la tirada 7. Al comparar con la \cref{fig:f2-flujo-caja-martingala-1000}, se ve un periodo de supervivencia más extenso, pero con una pendiente de caída final mucho más pronunciada hacia la tirada 19, evidenciando el riesgo del crecimiento exponencial de la apuesta.
+
+\begin{figure}[H]
+    \centering
+
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f1-flujo-caja-martingala-100.png}
+        \caption{100 tiradas}
+        \label{fig:f1-flujo-caja-martingala-100}
+    \end{subfigure}
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f2-flujo-caja-martingala-1000.png}
+        \caption{1000 tiradas}
+        \label{fig:f2-flujo-caja-martingala-1000}
+    \end{subfigure}
+
+    \caption{Flujo de caja de la estrategia Martingala}
+    \label{fig:flujo-caja-martingala}
 \end{figure}
 
-La \cref{fig:frecuencia-absoluta-de-cada-numero-todas-las-corridas} es un gráfico de bastones que representa la cantidad de veces que aparece cada número de la ruleta durante todas las simulaciones
-realizadas. En el eje x se muestran los valores posibles de la ruleta (del 0 al 36), mientras que en el eje y se indica la 
-frecuencia absoluta correspondiente a cada número.
+\paragraph{Dispersión de capital final} La \cref{fig:f3-dispersion-martingala-100} muestra una concentración de resultados finales entre \$140 y \$160, con una franja significativa de bancarrotas cerca de cero. En la \cref{fig:f4-dispersion-martingala-1000}, la cantidad de puntos abajo del capital inicial es mucho más densa, confirmando una mayor frecuencia de fallos acumulados a largo plazo.
 
-El gráfico muestra cómo se distribuyen los resultados obtenidos en la simulación, para ver si el comportamiento observado se 
-aproxima al esperado. Debido a que todos los números tienen la misma probabilidad de ocurrencia, se espera que los bastones 
-tengan alturas más o menos parecidas, aunque pueden presentarse diferencias debido al azar y la cantidad limitada de tiradas.
+\begin{figure}[H]
+    \centering
 
-A medida que aumenta la cantidad de corridas y tiradas, las frecuencias tienden a estabilizarse y acercarse a una distribución
-uniforme.
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f3-dispersion-martingala-100.png}
+        \caption{100 tiradas}
+        \label{fig:f3-dispersion-martingala-100}
+    \end{subfigure}
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f4-dispersion-martingala-1000.png}
+        \caption{1000 tiradas}
+        \label{fig:f4-dispersion-martingala-1000}
+    \end{subfigure}
 
-\subsubsection{Gráfico de frecuencia absoluta en una corrida}
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.9\textwidth]{f1-bastones-frecuencia-absoluta-de-cada-numero.png}
-  \caption{Frecuencia absoluta de cada número en una corrida}
-  \label{fig:frecuencia-absoluta-de-cada-numero-en-una-corridas}
+    \caption{Dispersión de capital de la estrategia Martingala}
+    \label{fig:dispersion-martingala}
 \end{figure}
 
-La \cref{fig:frecuencia-absoluta-de-cada-numero-en-una-corridas} es un gráfico de bastones que representa la frecuencia con la que aparece cada número de la ruleta en una única corrida específica
-del experimento. En el eje x se muestran los valores posibles de la ruleta (del 0 al 36) y en el eje y la cantidad de veces 
-que sale cada uno.
+\paragraph{Rendimiento promedio} La \cref{fig:f5-rendimiento-martingala-100} muestra un promedio final de \$92,43, que es una pérdida moderada respecto al capital inicial. En la \cref{fig:f6-rendimiento-martingala-1000}, el promedio cae drásticamente a \$76,15, validando que cuanto más se juega, más se pierde.
 
-A diferencia del gráfico de frecuencia absoluta total, este permite ver la gran variabilidad que hay en una sola realización de
-la simulación, debido a la aleatoriedad.
+\begin{figure}[H]
+    \centering
 
-\subsubsection{Gráficos de frecuencia relativa}
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f5-rendimiento-martingala-100.png}
+        \caption{100 tiradas}
+        \label{fig:f5-rendimiento-martingala-100}
+    \end{subfigure}
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f6-rendimiento-martingala-1000.png}
+        \caption{1000 tiradas}
+        \label{fig:f6-rendimiento-martingala-1000}
+    \end{subfigure}
 
-\begin{figure}
-  \centering
-  \includegraphics[width=0.7\textwidth]{f5-frecuencia-relativa-del-numero-elegido-de-una-corrida.png}
-  \caption{Frecuencia relativa del número elegido en una corrida}
-  \label{fig:frecuencia-relativa-del-numero-elegido-en-una-corrida}
+    \caption{Rendimiento promedio de la estrategia Martingala}
+    \label{fig:rendimiento-martingala}
 \end{figure}
 
-\begin{figure}
-  \centering
-  \includegraphics[width=0.7\textwidth]{f7-dispercion-frecuencia-relativa-del-numero-elegido-todas-las-corridas.png}
-  \caption{Frecuencia relativa del número elegido en todas las corridas}
-  \label{fig:frecuencia-relativa-del-numero-elegido-en-todas-las-corridas}
+\paragraph{Análisis con capital infinito} Los gráficos demuestran la progresión negativa. La línea de ganancia acumulada se mantiene por encima de la pérdida y, aunque hay una caída crítica, el sistema se recupera en la siguiente tirada exitosa. Al final, el saldo neto es positivo, demostrando que sin límites de capital la Martingala puede generar un beneficio temporal.
+
+\begin{figure}[H]
+    \centering
+
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f7-ganancia-perdida-martingala.png}
+        \caption{Ganancia vs pérdida}
+        \label{fig:f7-ganancia-perdida-martingala}
+    \end{subfigure}
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f8-saldo-neto-martingala.png}
+        \caption{Saldo neto}
+        \label{fig:f8-saldo-neto-martingala}
+    \end{subfigure}
+
+    \caption{Análisis con capital infinito de la estrategia Martingala}
+    \label{fig:analisis-capital-infinito-martingala}
 \end{figure}
 
-Las \cref{fig:frecuencia-relativa-del-numero-elegido-en-una-corrida} y \cref{fig:frecuencia-relativa-del-numero-elegido-en-todas-las-corridas} muestran la evolución de la frecuencia relativa del número elegido durante las distintas tiradas/corridas de la
-simulación. La frecuencia relativa se calcula como la cantidad de veces que apareció el número elegido dividido el total de 
-tiradas/corridas realizadas.
+\subsubsection{Estrategia Fibonacci}
+\paragraph{Flujo de caja (1ra corrida)} La \cref{fig:f9-flujo-caja-fibonacci-100} muestra una volatilidad controlada, donde el flujo de caja se recupera parcialmente retrocediendo 2 posiciones en la secuencia después de cada acierto. En la \cref{fig:f10-flujo-caja-fibonacci-1000}, la racha negativa prolongada termina superando la capacidad de recuperación, resultando en bancarrota en la tirada 40.
 
-En la \cref{fig:frecuencia-relativa-del-numero-elegido-en-una-corrida}, en el eje x se representa el número de tiradas, mientras que en el eje y se muestra el valor de la
-frecuencia relativa obtenida. El comportamiento esperado es que, a medida que aumenta la cantidad de tiradas, la frecuencia
-relativa tiende a aproximarse a la probabilidad de obtener un número específico en la ruleta ($P(X) = 1/37 \approx 0,027$).
+\begin{figure}[H]
+    \centering
 
-En las primeras tiradas, se pueden observar muchas fluctuaciones debido a la aleatoriedad, pero mientras el tamaño de la muestra
-va aumentando, los valores se empiezan a estabilizar alrededor del valor esperado.
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f9-flujo-caja-fibonacci-100.png}
+        \caption{100 tiradas}
+        \label{fig:f9-flujo-caja-fibonacci-100}
+    \end{subfigure}
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f10-flujo-caja-fibonacci-1000.png}
+        \caption{1000 tiradas}
+        \label{fig:f10-flujo-caja-fibonacci-1000}
+    \end{subfigure}
 
-En la \cref{fig:frecuencia-relativa-del-numero-elegido-en-todas-las-corridas}, se usa un gráfico de dispersión, donde el eje x representa cada corrida independiente. Esto permite 
-observar cómo el éxito de la apuesta cambia en cada experimento y cómo cada resultado final se posiciona respecto a la 
-frecuencia relativa esperada.
-
-\subsubsection{Gráficos del promedio}
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.7\textwidth]{f2-valor-promedio-acumulado-de-una-corrida.png}
-  \caption{Valor promedio acumulado en una corrida}
-  \label{fig:valor-promedio-acumulado-en-una-corrida}
+    \caption{Flujo de caja de la estrategia Fibonacci}
+    \label{fig:flujo-caja-fibonacci}
 \end{figure}
 
-\begin{figure}
-  \centering
-  \includegraphics[width=0.7\textwidth]{f8-dispercion-valor-promedio-todas-las-corridas.png}
-  \caption{Valor promedio en todas las corridas}
-  \label{fig:valor-promedio-en-todas-las-corridas}
+\paragraph{Dispersión de capital final} En la \cref{fig:f11-dispersion-fibonacci-100}, los resultados finales están más dispersos, con bastantes casos por arriba de la línea del capital inicial. En cambio, la \cref{fig:f12-dispersion-fibonacci-1000} muestra cómo la mayoría de las corridas terminan con un capital residual mínimo, agotado por la progresión de la secuencia.
+
+\begin{figure}[H]
+    \centering
+
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f11-dispersion-fibonacci-100.png}
+        \caption{100 tiradas}
+        \label{fig:f11-dispersion-fibonacci-100}
+    \end{subfigure}
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f12-dispersion-fibonacci-1000.png}
+        \caption{1000 tiradas}
+        \label{fig:f12-dispersion-fibonacci-1000}
+    \end{subfigure}
+
+    \caption{Dispersión de capital de la estrategia Fibonacci}
+    \label{fig:dispersion-fibonacci}
 \end{figure}
 
-Las \cref{fig:valor-promedio-acumulado-en-una-corrida} y \cref{fig:valor-promedio-en-todas-las-corridas} representan el valor promedio de los números obtenidos en cada tirada/corrida de la simulación. El promedio se 
-calcula sumando todos los resultados obtenidos y dividiendo esa suma por la cantidad total de tiradas/corridas.
+\paragraph{Rendimiento promedio} En la \cref{fig:f13-rendimiento-fibonacci-100}, se ve un capital promedio final de \$94,39. En la \cref{fig:f14-rendimiento-fibonacci-1000}, el rendimiento disminuye a \$72,07, demostrando que la progresión negativa de Fibonacci no compensa el margen de la casa en sesiones extensas.
 
-En la \cref{fig:valor-promedio-acumulado-en-una-corrida}, en el eje x se muestra el número de tiradas realizadas, y el eje y indica el valor promedio calculado.
-Teóricamente, el promedio esperado de una ruleta con números entre 0 y 36 es:
-$$\mu = \frac{0+36}{2} = 18$$
+\begin{figure}[H]
+    \centering
 
-En las primeras etapas de la simulación el promedio puede variar bastante debido a la poca cantidad de datos. Pero mientras la
-cantidad de tiradas va aumentando, el promedio tiende a estabilizarse alrededor del valor esperado.
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f13-rendimiento-fibonacci-100.png}
+        \caption{100 tiradas}
+        \label{fig:f13-rendimiento-fibonacci-100}
+    \end{subfigure}
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f14-rendimiento-fibonacci-1000.png}
+        \caption{1000 tiradas}
+        \label{fig:f14-rendimiento-fibonacci-1000}
+    \end{subfigure}
 
-En la \cref{fig:valor-promedio-en-todas-las-corridas}, se usa un gráfico de dispersión donde el eje x representa la cantidad de corridas y el eje y muestra el
-promedio final obtenido en cada realización.La dispersión de estos bastones alrededor de la línea del valor promedio esperado 
-(18) permite analizar la precisión de cada corrida individual.
-
-\subsubsection{Gráficos del desvío estándar}
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.7\textwidth]{f3-valor-desvio-acumulado-de-una-corrida.png}
-  \caption{Valor desvío acumulado en una corrida}
-  \label{fig:valor-desvio-acumulado-en-una-corrida}
+    \caption{Rendimiento promedio de la estrategia Fibonacci}
+    \label{fig:rendimiento-fibonacci}
 \end{figure}
 
-\begin{figure}
-  \centering
-  \includegraphics[width=0.7\textwidth]{f9-dispercion-valor-desvio-todas-las-corridas.png}
-  \caption{Valor desvío en todas las corridas}
-  \label{fig:valor-desvio-en-todas-las-corridas}
+\paragraph{Análisis con capital infinito} El crecimiento del capital es más escalonado que en la Martingala. La estrategia puede recuperarse de rachas negativas importantes gracias a retroceder 2 posiciones después de un acierto. Aunque la ganancia final es menor que en otras estrategias, el crecimiento se sostiene si no hay límites de capital.
+
+\begin{figure}[H]
+    \centering
+
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f15-ganancia-perdida-fibonacci.png}
+        \caption{Ganancia vs pérdida}
+        \label{fig:f15-ganancia-perdida-fibonacci}
+    \end{subfigure}
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f16-saldo-neto-fibonacci.png}
+        \caption{Saldo neto}
+        \label{fig:f16-saldo-neto-fibonacci}
+    \end{subfigure}
+
+    \caption{Análisis con capital infinito de la estrategia Fibonacci}
+    \label{fig:analisis-capital-infinito-fibonacci}
 \end{figure}
 
-Las \cref{fig:valor-desvio-acumulado-en-una-corrida} y \cref{fig:valor-desvio-en-todas-las-corridas} muestran el comportamiento del desvío estándar de los resultados obtenidos en las distintas tiradas/corridas. 
-El desvío estándar indica cuánto se dispersan los valores respecto al promedio.
+\subsubsection{Estrategia D’Alembert}
+\paragraph{Flujo de caja (1ra corrida)} La \cref{fig:f17-flujo-caja-dalembert-100} refleja una pérdida lineal constante hasta la bancarrota en la tirada 30. La \cref{fig:f18-flujo-caja-dalembert-1000} muestra un comportamiento parecido, donde pequeñas recuperaciones no logran revertir la tendencia negativa, llegando a la bancarrota en la tirada 38.
 
-En la \cref{fig:valor-desvio-acumulado-en-una-corrida}, en el eje x se representan las tiradas realizadas, y en el eje y se muestra el valor del desvío estándar
-calculado para cada corrida. Un valor alto indica una mayor dispersión de los resultados, mientras que un valor menor indica que
-los números obtenidos están más concentrados alrededor de la media.
+\begin{figure}[H]
+    \centering
 
-A medida que la cantidad de tiradas aumenta, el desvío estándar tiende a estabilizarse cerca del valor desvío esperado.
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f17-flujo-caja-dalembert-100.png}
+        \caption{100 tiradas}
+        \label{fig:f17-flujo-caja-dalembert-100}
+    \end{subfigure}
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f18-flujo-caja-dalembert-1000.png}
+        \caption{1000 tiradas}
+        \label{fig:f18-flujo-caja-dalembert-1000}
+    \end{subfigure}
 
-En la \cref{fig:valor-desvio-en-todas-las-corridas}, se usa un gráfico de dispersión donde el eje x representa la cantidad de corridas y el eje y muestra el
-desvío estándar final en cada una.Este gráfico permite comparar la consistencia de la dispersión de datos entre distintos 
-experimentos independientes.
-
-\subsubsection{Gráficos de la varianza}
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.7\textwidth]{f4-valor-varianza-acumulado-de-una-corrida.png}
-  \caption{Valor varianza acumulado en una corrida}
-  \label{fig:valor-varianza-acumulado-en-una-corrida}
+    \caption{Flujo de caja de la estrategia D'Alembert}
+    \label{fig:flujo-caja-dalembert}
 \end{figure}
 
-\begin{figure}
-  \centering
-  \includegraphics[width=0.7\textwidth]{f10-dispercion-valor-varianza-todas-las-corridas.png}
-  \caption{Valor varianza en todas las corridas}
-  \label{fig:valor-varianza-en-todas-las-corridas}
+\paragraph{Dispersión de capital final} La \cref{fig:f19-dispersion-dalembert-100} muestra resultados muy variados, con una gran cantidad de corridas terminando en saldo negativo. En la \cref{fig:f20-dispersion-dalembert-1000}, la dispersión se concentra casi exclusivamente en valores cercanos a cero o negativos.
+
+\begin{figure}[H]
+    \centering
+
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f19-dispersion-dalembert-100.png}
+        \caption{100 tiradas}
+        \label{fig:f19-dispersion-dalembert-100}
+    \end{subfigure}
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f20-dispersion-dalembert-1000.png}
+        \caption{1000 tiradas}
+        \label{fig:f20-dispersion-dalembert-1000}
+    \end{subfigure}
+
+    \caption{Dispersión de capital de la estrategia D'Alembert}
+    \label{fig:dispersion-dalembert}
 \end{figure}
 
-Las \cref{fig:valor-varianza-acumulado-en-una-corrida} y \cref{fig:valor-varianza-en-todas-las-corridas} representan la evolución de la varianza de los resultados obtenidos en la simulación. La varianza cuantifica el 
-grado de dispersión de los datos respecto al promedio, calculando el promedio de las diferencias cuadráticas respecto de la media.
+\paragraph{Rendimiento promedio} En la \cref{fig:f21-rendimiento-dalembert-100}, se muestra un promedio final de \$87,17. En la \cref{fig:f22-rendimiento-dalembert-1000}, ese valor disminuye a \$51,15, siendo la caída más agresiva entre las estrategias analizadas.
 
-En la \cref{fig:valor-varianza-acumulado-en-una-corrida}, en el eje x se representan las tiradas realizadas, y en el eje y se muestra el valor de la varianza
-calculada para cada corrida. En las primeras tiradas se pueden observar muchas variaciones debido a la baja cantidad de muestras
-analizadas, pero cuando la cantidad de tiradas va aumentando, la varianza tiende a estabilizarse alrededor del valor esperado.
+\begin{figure}[H]
+    \centering
 
-En la \cref{fig:valor-varianza-en-todas-las-corridas}, se usa un gráfico de dispersión donde el eje x representa la cantidad de corridas y el eje y muestra la
-varianza total calculada al finalizar cada una. Sirve para verificar que la variabilidad interna de cada experimento se mantiene 
-dentro de los parámetros esperados de una distribución uniforme.
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f21-rendimiento-dalembert-100.png}
+        \caption{100 tiradas}
+        \label{fig:f21-rendimiento-dalembert-100}
+    \end{subfigure}
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f22-rendimiento-dalembert-1000.png}
+        \caption{1000 tiradas}
+        \label{fig:f22-rendimiento-dalembert-1000}
+    \end{subfigure}
 
-\subsubsection{Histograma de promedios finales}
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.7\textwidth]{f11-histograma-promedios-finales-de-cada-corrida.png}
-  \caption{Histograma de promedios finales de cada corrida}
-  \label{fig:histograma-de-promedios-finales-de-cada-corrida}
+    \caption{Rendimiento promedio de la estrategia D'Alembert}
+    \label{fig:rendimiento-dalembert}
 \end{figure}
 
-La \cref{fig:histograma-de-promedios-finales-de-cada-corrida} representa la distribución de frecuencia de los promedios calculados al terminar cada corrida independiente. En el 
-eje x se muestran los valores de los promedios obtenidos y en el eje y la cantidad de corridas que alcanzaron ese valor promedio.
+\paragraph{Análisis con capital infinito} La \cref{fig:f23-ganancia-perdida-dalembert}, que corresponde a la ganancia vs pérdida, muestra aumentos importantes después de rachas de fallos; en la \cref{fig:f24-saldo-neto-dalembert}, que corresponde al saldo neto, se observa una recuperación constante gracias a la naturaleza aritmética de sumar los dos extremos. Al final, se logra un saldo neto positivo si no hay límites de capital.
 
-La \cref{fig:histograma-de-promedios-finales-de-cada-corrida} demuestra el Teorema Central del Límite (TCL), porque permite observar cómo los datos adoptan una forma de campana
-de Gauss centrada cerca del valor promedio esperado (18), demostrando que la media de los resultados tiende a la normalidad al
-aumentar la cantidad de experimentos.
+\begin{figure}[H]
+    \centering
 
-\subsubsection{Histograma de frecuencias relativas finales}
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f23-ganancia-perdida-dalembert.png}
+        \caption{Ganancia vs pérdida}
+        \label{fig:f23-ganancia-perdida-dalembert}
+    \end{subfigure}
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f24-saldo-neto-dalembert.png}
+        \caption{Saldo neto}
+        \label{fig:f24-saldo-neto-dalembert}
+    \end{subfigure}
 
-\begin{figure}
-  \centering
-  \includegraphics[width=0.7\textwidth]{f12-histograma-frecuencia-relativa-final-del-numero-elegido-de-cada-corrida.png}
-  \caption{Histograma de frecuencias relativas finales de cada corrida}
-  \label{fig:histograma-de-frecuencias-relativas-finales-de-cada-corrida}
+    \caption{Análisis con capital infinito de la estrategia D'Alembert}
+    \label{fig:analisis-capital-infinito-dalembert}
 \end{figure}
 
-La \cref{fig:histograma-de-frecuencias-relativas-finales-de-cada-corrida} muestra la distribución de las frecuencias relativas finales obtenidas para el número elegido a lo largo de todas las
-corridas de la simulación. En el eje x se representa el valor de la frecuencia relativa alcanzada y en el eje y la frecuencia o 
-cantidad de corridas que obtuvieron ese resultado.
+\subsubsection{Estrategia Paroli}
+\paragraph{Flujo de caja (1ra corrida)} Al ser una progresión positiva, la \cref{fig:f25-flujo-caja-paroli-100} muestra picos de ganancia cuando se encadenan aciertos, pero sin caídas exponenciales ante pérdidas. La \cref{fig:f26-flujo-caja-paroli-1000} muestra que, aunque se logren picos de hasta \$250, la varianza estadística termina erosionando el capital inicial a largo plazo.
 
-Al igual que la \cref{fig:histograma-de-promedios-finales-de-cada-corrida}, la \cref{fig:histograma-de-frecuencias-relativas-finales-de-cada-corrida} valida el TCL, mostrando cómo los éxitos de la apuesta en varios experimentos
-independientes tienden a agruparse de forma normal alrededor de la probabilidad teórica de $1/37 \approx 0,027$.
+\begin{figure}[H]
+    \centering
 
-\subsection{Comparación entre valores teóricos y simulados}
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f25-flujo-caja-paroli-100.png}
+        \caption{100 tiradas}
+        \label{fig:f25-flujo-caja-paroli-100}
+    \end{subfigure}
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f26-flujo-caja-paroli-1000.png}
+        \caption{1000 tiradas}
+        \label{fig:f26-flujo-caja-paroli-1000}
+    \end{subfigure}
 
-Con 3000 corridas y 300 tiradas por corrida, los valores obtenidos experimentalmente fueron cercanos a los esperados.
+    \caption{Flujo de caja de la estrategia Paroli}
+    \label{fig:flujo-caja-paroli}
+\end{figure}
 
-\begin{table}[h]
+\paragraph{Dispersión de capital final} La \cref{fig:f27-dispersion-paroli-100} muestra la cantidad de puntos muy equilibrada alrededor de la línea de capital inicial, con pocas bancarrotas inmediatas. En la \cref{fig:f28-dispersion-paroli-1000}, aunque hay valores altos, se ve una línea densa de corridas en \$0, demostrando que incluso con bajo riesgo por apuesta, el tiempo de juego agota el capital.
+
+\begin{figure}[H]
+    \centering
+
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f27-dispersion-paroli-100.png}
+        \caption{100 tiradas}
+        \label{fig:f27-dispersion-paroli-100}
+    \end{subfigure}
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f28-dispersion-paroli-1000.png}
+        \caption{1000 tiradas}
+        \label{fig:f28-dispersion-paroli-1000}
+    \end{subfigure}
+
+    \caption{Dispersión de capital de la estrategia Paroli}
+    \label{fig:dispersion-paroli}
+\end{figure}
+
+\paragraph{Rendimiento promedio} En la \cref{fig:f29-rendimiento-paroli-100}, el capital promedio final es de \$95,89, el más alto de las 4 estrategias para $n=100$. Pero en la \cref{fig:f30-rendimiento-paroli-1000}, el promedio cae a \$57,89, reforzando que ninguna estrategia supera la ventaja matemática del casino al aumentar la cantidad de ensayos.
+
+\begin{figure}[H]
+    \centering
+
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f29-rendimiento-paroli-100.png}
+        \caption{100 tiradas}
+        \label{fig:f29-rendimiento-paroli-100}
+    \end{subfigure}
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f30-rendimiento-paroli-1000.png}
+        \caption{1000 tiradas}
+        \label{fig:f30-rendimiento-paroli-1000}
+    \end{subfigure}
+
+    \caption{Rendimiento promedio de la estrategia Paroli}
+    \label{fig:rendimiento-paroli}
+\end{figure}
+
+\paragraph{Análisis con capital infinito} Al no aumentar las apuestas tras una pérdida, Paroli depende de rachas ganadoras para recuperar pérdidas, por lo que su rendimiento final es más incierto. Los gráficos muestran variaciones alrededor del punto de equilibrio, aunque pueden existir picos positivos temporales.
+
+\begin{figure}[H]
+    \centering
+
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f31-ganancia-perdida-paroli.png}
+        \caption{Ganancia vs pérdida}
+        \label{fig:f31-ganancia-perdida-paroli}
+    \end{subfigure}
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{f32-saldo-neto-paroli.png}
+        \caption{Saldo neto}
+        \label{fig:f32-saldo-neto-paroli}
+    \end{subfigure}
+
+    \caption{Análisis con capital infinito de la estrategia Paroli}
+    \label{fig:analisis-capital-infinito-paroli}
+\end{figure}
+
+\subsubsection{Convergencia del porcentaje de victorias}
+El gráfico de convergencia muestra cómo, a medida que aumenta la cantidad de tiradas, el porcentaje observado de victorias tiende a estabilizarse en el 48,6\% teórico (18/37). Esta estabilización confirma la Ley de los Grandes Números \cite{ley_grandes_numeros} en eventos binarios, proporcionando un marco sólido para comparar los resultados de las estrategias frente al valor esperado.
+
+\begin{figure}[H]
   \centering
-  \begin{tabular}{lll}
+  \includegraphics[width=0.6\textwidth]{f33-convergencia-victorias.png}
+  \caption{Convergencia del porcentaje de victorias}
+  \label{fig:f33-convergencia-victorias}
+\end{figure}
+
+\subsection{Comparación de rendimientos por estrategia}
+Para analizar cómo influye la cantidad de tiradas en el resultado económico de cada estrategia, comparamos el capital promedio final obtenido después de 3000 corridas. Así, se puede ver cómo evoluciona el capital inicial de \$100 frente a la ventaja matemática del casino.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{lcccc}
     \toprule
-    \textbf{Medida} & \textbf{Valor esperado} & \textbf{Valor obtenido} \\
+    Estrategia & Capital prom final (n=100) & \% bancarrota & Capital prom final (n=1000) & \% bancarrota \\
     \midrule
-    Frecuencia relativa & $1/37 \approx 0,027$ & 0,02804 \\
-    Valor promedio & $(0+36)/2 = 18$ & 17,95176 \\
-    Varianza & $(37^2-1)/12 = 114$ & 114,3933 \\
-    Desvío estándar & $\sqrt{114} \approx 10,68$ & 10,6944 \\
+    Martingala & \$92,43 & 14,2\% & \$76,15 & 84,7\% \\
+    Fibonacci  & \$94,39 & 9,8\% & \$72,07 & 89,1\% \\
+    D’Alembert & \$87,17 & 18,5\% & \$51,15 & 94,3\% \\
+    Paroli     & \$95,89 & 4,1\% & \$57,89 & 79,6\% \\
     \bottomrule
   \end{tabular}
-  \label{tab:comparacion-teoricos-simulados}
+  \caption{Comparación de rendimientos finales según la cantidad de tiradas}
+  \label{tab:comparacion-rendimientos}
 \end{table}
 
-Las diferencias que se ven son por la variabilidad aleatoria propia del experimento y el tamaño finito de la muestra.
+Como se ve en el \cref{tab:comparacion-rendimientos}, ninguna de las estrategias pudo mantener el capital inicial de \$100.
 
-\subsection{Convergencia de los estadísticos}
+A \textbf{corto plazo (n=100)}, Paroli obtuvo el mejor resultado promedio, por ser una estrategia de progresión positiva, donde las apuestas aumentan después de ganar y no después de perder.
 
-Se observó que en las primeras tiradas, los estadísticos presentan fluctuaciones por la poca cantidad de datos. Pero cuando la 
-cantidad de tiradas va aumentando, los valores empiezan a estabilizarse y aproximarse a los valores esperados.
+A \textbf{largo plazo (n=1000)}, todas muestran pérdidas mucho más marcadas. La estrategia D’Alembert fue la que más cayó respecto al capital inicial.
 
-\subsection{Relación con el Teorema Central del Límite}
+Esto confirma que, aunque algunas estrategias pueden parecer exitosas en pocas tiradas, la \textbf{Ley de los Grandes Números} \cite{ley_grandes_numeros} garantiza que el flujo de caja del apostador tienda inevitablemente hacia la pérdida a medida que aumenta el número de ensayos de Bernoulli.
 
-Al hacer varias corridas independientes de la simulación, los promedios obtenidos en cada una se empiezan a distribuir alrededor 
-del valor esperado. A medida que aumenta la cantidad de corridas, esta distribución tiende a adoptar una forma aproximadamente normal.
-
-Esto evidencia el Teorema Central del Límite, que establece que la distribución de las medias muestrales tiende a una distribución 
-normal independientemente de la distribución original, siempre que el tamaño de muestra sea suficientemente grande.
 
 \section{Discusión}
+Los resultados obtenidos permiten hacer un análisis más realista de la viabilidad de las estrategias de apuestas. El gráfico de convergencia de victorias (que estabiliza el éxito en el 48,6\%) demuestra que los ensayos de Bernoulli representan una ruleta europea ideal, sin sesgos físicos.
 
-Los resultados obtenidos muestran que el modelo implementado reproduce adecuadamente el comportamiento probabilístico esperado 
-de una ruleta ideal. Las frecuencias relativas observadas para cada número se aproximaron progresivamente al valor esperado 
-$1/37 \approx 0,027$, verificando experimentalmente el comportamiento de una distribución uniforme discreta.
+Al analizar el impacto de aumentar la cantidad de tiradas, el \cref{tab:comparacion-rendimientos} demuestra la Ley de los Grandes Números. En sesiones de juego cortas (n=100), el capital promedio final se mantiene relativamente cerca del inicial. La estrategia Paroli (de progresión positiva) mostró el mejor desempeño, con la menor tasa de bancarrota. Esto muestra que, a corto plazo, la variabilidad del azar puede favorecer al jugador, o permitirle conservar gran parte de su capital.
 
-En las primeras tiradas, se observaron fluctuaciones importantes en todos los estadísticos analizados. Este comportamiento es 
-esperable por la alta influencia que tienen los primeros valores cuando el tamaño de la muestra es pequeño. Pero a medida que la 
-cantidad de tiradas aumentaba, las variaciones empezaron a disminuir y los resultados tendieron a estabilizarse.
+Pero cuando la cantidad de tiradas aumenta (n=1000), todas las estrategias muestran una degradación del capital y un aumento en la tasa de bancarrota, mucho más marcado.
 
-El promedio acumulado converge hacia el valor esperado (18), y la varianza y el desvío estándar también se aproximan a sus valores 
-esperados. Esto demuestra que el modelo estadístico utilizado es consistente con las propiedades matemáticas de la ruleta.
+Los supuestos de capital infinito y finito muestran la diferencia entre la teoría y la práctica. Con un capital infinito, las estrategias de progresión negativa (Martingala, Fibonacci y D’Alembert) parecen efectivas desde un punto de vista matemático ideal, porque eventualmente recuperan pérdidas después de una racha negativa. Pero en la práctica, con un capital acotado, esta misma lógica acelera la quiebra.
 
-Además, al comparar varias corridas independientes, se ve que los resultados individuales pueden diferir bastante entre sí, debido 
-al azar del experimento. Sin embargo, el comportamiento global de todas las simulaciones mantiene coherencia con las predicciones teóricas.
+Los resultados obtenidos muestran que no existen estrategias “ganadoras”. Las estrategias no alteran la probabilidad de éxito de cada tirada, sino que solo cambian la forma en que se distribuyen las ganancias y pérdidas en el tiempo. La ventaja matemática del casino del 2,7\% (generada por el 0) termina apareciendo inevitablemente cuando aumenta la cantidad de tiradas.
+
 
 \section{Conclusiones}
+Este trabajo permitió modelar y analizar el comportamiento económico de distintas estrategias de apuestas con una simulación en Python. A través del análisis del flujo de caja, las ganancias, pérdidas y situaciones de bancarrota, se logró desmitificar estadísticamente la probabilidad de obtener ganancias sostenibles en la ruleta.
 
-Esta simulación permitió modelar el funcionamiento probabilístico de una ruleta usando \textit{Python} y herramientas estadísticas 
-básicas, aplicando conceptos de probabilidad y estadística, como la frecuencia relativa, media, varianza, desvío estándar, distribución 
-uniforme discreta y Teorema Central del Límite. También se comprobó que el aumento del tamaño de la muestra reduce la variabilidad de 
-los resultados y mejora la precisión estadística de las estimaciones.
+Con los resultados obtenidos, se llegó a la conclusión de que ninguna de las estrategias analizadas logra superar la esperanza matemática negativa del juego a largo plazo.
 
-En el código, se usaron estructuras iterativas, listas, generación de números pseudoaleatorios, bibliotecas matemáticas y herramientas 
-de visualización gráfica en Python.
+Las estrategias de progresión negativa (Martingala, D’Alembert y Fibonacci) presentan un riesgo alto en escenarios reales de capital finito, porque una racha moderada de pérdidas obliga a hacer apuestas que superan rápidamente el capital del jugador.
 
-La simulación funcionó para verificar la Ley de los Grandes Números. A través de los gráficos de evolución por tirada, se pudo observar 
-cómo los estadísticos acumulados (frecuencia relativa, promedio, varianza y desvío), que al principio estaban sujetos al azar de las 
-primeras muestras, convergen hacia los valores esperados a medida que el número de tiradas aumenta. Esta estabilización demuestra que, a 
-largo plazo, el comportamiento del sistema es predecible y consistente con la teoría de la probabilidad.
+La estrategia de progresión positiva (Paroli) fue la más resistente a la bancarrota inmediata, al arriesgar principalmente las ganancias acumuladas. Pero incluso esta estrategia termina con pérdidas cuando la cantidad de tiradas es suficientemente grande.
 
-El experimento también permitió visualizar el Teorema Central del Límite. Al ver la distribución de los resultados obtenidos en las 
-distintas corridas independientes, se pudo observar que los promedios de cada una tienden a agruparse alrededor del valor esperado, 
-adoptando una distribución aproximadamente normal (\cref{fig:histograma-de-promedios-finales-de-cada-corrida}).
+La simulación permitió comprobar experimentalmente la Ley de los Grandes Números. Cuanto mayor es la cantidad de tiradas, los resultados observados se aproximan cada vez más a la pérdida esperada, por lo que la única variable que puede controlar el apostador es su tiempo de permanencia jugando.
+
+Todo esto refuerza la idea de que la ruleta es un sistema de azar diseñado con una ventaja matemática favorable al casino. Las distintas estrategias pueden modificar la variabilidad de los resultados o retrasar las pérdidas, pero no cambian las probabilidades del juego.
+
 
 \nocite{*}
 
