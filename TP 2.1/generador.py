@@ -1,5 +1,6 @@
 from collections import Counter
 import math
+import random
 import numpy as np
 from scipy.stats import chi2
 import matplotlib.pyplot as plt
@@ -247,8 +248,49 @@ def graficar_mapas_de_bits_bueno_malo():
     plt.tight_layout()
     plt.show()
 
+def graficar_mapas_de_bits_comparacion_generadores():
+    # Generar 40,000 numeros para armar una cuadricula de 200x200 pixeles
+    n_puntos = 40000
+    dimension = 200
+    semilla = 9731
+
+    # 1. Metodo de los cuadrados
+    resultado_cuadrados = mid_square(semilla, n_puntos)
+    u_cuadrados = [v / (10**8) for _, v in resultado_cuadrados]
+
+    # 2. Generador Congruencial Lineal
+    gcl = linear_congruential_generator(semilla, 1664525, 1013904223, 2**32, n_puntos)
+    u_gcl = [x / (2**32) for x in gcl]
+
+    # 3. Generador de Python (random)
+    rng = random.Random(semilla)
+    u_python = [rng.random() for _ in range(n_puntos)]
+
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15, 5))
+
+    grid_cuadrados = np.where(np.array(u_cuadrados) >= 0.5, 1, 0).reshape((dimension, dimension))
+    grid_gcl = np.where(np.array(u_gcl) >= 0.5, 1, 0).reshape((dimension, dimension))
+    grid_python = np.where(np.array(u_python) >= 0.5, 1, 0).reshape((dimension, dimension))
+
+    ax1.imshow(grid_cuadrados, cmap='gray', interpolation='nearest')
+    ax1.set_title("Metodo de los Cuadrados\n(Rapida degeneracion a 0)")
+    ax1.axis('off')
+
+    ax2.imshow(grid_gcl, cmap='gray', interpolation='nearest')
+    ax2.set_title("Congruencia Lineal (GCL)\n(Ruido uniforme)")
+    ax2.axis('off')
+
+    ax3.imshow(grid_python, cmap='gray', interpolation='nearest')
+    ax3.set_title("Python random\n(MT19937)")
+    ax3.axis('off')
+
+    plt.tight_layout()
+    plt.show()
+
 graficar_mapas_de_bits_bueno_malo()
 
 graficar_mapas_de_bits_comparacion()
+
+graficar_mapas_de_bits_comparacion_generadores()
 
 
