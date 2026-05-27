@@ -183,27 +183,27 @@ def graficar_mapas_de_bits_comparacion():
     n_puntos = 40000
     dimension = 200
     
-    # 1. Usar LCG definido arriba (parámetros buenos predeterminados)
-    lcg_bueno = linear_congruential_generator(12345, 1664525, 1013904223, 2**32, n_puntos)
-    u_lcg_bueno = [x / (2**32) for x in lcg_bueno]
+    # 1. Usar GCL definido arriba (parámetros buenos predeterminados)
+    gcl_bueno = linear_congruential_generator(12345, 1664525, 1013904223, 2**32, n_puntos)
+    u_gcl_bueno = [x / (2**32) for x in gcl_bueno]
     
     # 2. Generador deliberadamente "malo" (para notar visualmente los patrones, análogo a rand viejos)
     # Usamos parámetros con un módulo pequeño y multiplicadores inadecuados
-    lcg_malo = linear_congruential_generator(12345, 106, 1283, 6075, n_puntos)
-    u_lcg_malo = [x / 6075 for x in lcg_malo]
+    gcl_malo = linear_congruential_generator(12345, 106, 1283, 6075, n_puntos)
+    u_gcl_malo = [x / 6075 for x in gcl_malo]
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
 
     # Convertir a 0 (negro) o 1 (blanco) usando el umbral de 0.5
-    grid_bueno = np.where(np.array(u_lcg_bueno) >= 0.5, 1, 0).reshape((dimension, dimension))
-    grid_malo = np.where(np.array(u_lcg_malo) >= 0.5, 1, 0).reshape((dimension, dimension))
+    grid_bueno = np.where(np.array(u_gcl_bueno) >= 0.5, 1, 0).reshape((dimension, dimension))
+    grid_malo = np.where(np.array(u_gcl_malo) >= 0.5, 1, 0).reshape((dimension, dimension))
 
     ax1.imshow(grid_bueno, cmap='gray', interpolation='nearest')
-    ax1.set_title("LCG: Parámetros Buenos\n(Ruido uniforme)")
+    ax1.set_title("GCL: Parámetros Buenos\n(Ruido uniforme)")
     ax1.axis('off')
 
     ax2.imshow(grid_malo, cmap='gray', interpolation='nearest')
-    ax2.set_title("LCG: Parámetros Malos\n(Patrones/franjas visibles)")
+    ax2.set_title("GCL: Parámetros Malos\n(Patrones/franjas visibles)")
     ax2.axis('off')
 
     plt.tight_layout()
@@ -222,21 +222,21 @@ def graficar_mapas_de_bits_bueno_malo():
     u_cuadrados = [v / (10**8) for _, v in resultado_cuadrados]
     
     # 2. Generador Congruencial Lineal
-    lcg = linear_congruential_generator(semilla, 1664525, 1013904223, 2**32, n_puntos)
-    u_lcg = [x / (2**32) for x in lcg]
+    gcl = linear_congruential_generator(semilla, 1664525, 1013904223, 2**32, n_puntos)
+    u_gcl = [x / (2**32) for x in gcl]
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
 
     # Convertir a 0 (negro) o 1 (blanco) usando el umbral de 0.5
     grid_cuadrados = np.where(np.array(u_cuadrados) >= 0.5, 1, 0).reshape((dimension, dimension))
-    grid_lcg = np.where(np.array(u_lcg) >= 0.5, 1, 0).reshape((dimension, dimension))
+    grid_gcl = np.where(np.array(u_gcl) >= 0.5, 1, 0).reshape((dimension, dimension))
 
     ax1.imshow(grid_cuadrados, cmap='gray', interpolation='nearest')
     ax1.set_title("Método de los Cuadrados\n(Rápida degeneración a 0)")
     ax1.axis('off')
 
-    ax2.imshow(grid_lcg, cmap='gray', interpolation='nearest')
-    ax2.set_title("Congruencia Lineal (LCG)\n(Ruido uniforme)")
+    ax2.imshow(grid_gcl, cmap='gray', interpolation='nearest')
+    ax2.set_title("Congruencia Lineal (GCL)\n(Ruido uniforme)")
     ax2.axis('off')
 
     plt.tight_layout()
