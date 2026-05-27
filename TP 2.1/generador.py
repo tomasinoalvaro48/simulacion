@@ -5,7 +5,7 @@ from scipy.stats import chi2
 import matplotlib.pyplot as plt
 
 # -------------- Generadores de números aleatorios --------------
-# 1. Metodo de los Cuadrados
+# Test 1. Metodo de los Cuadrados
 def mid_square(seed, n):
     seeds = []
     values = []
@@ -22,15 +22,12 @@ def mid_square(seed, n):
         seeds.append(seed)
     return list(zip(seeds, values))
 
-
-# ejecución del ejemplo
-
+# ejecución de ejemplo
 resultado_mid_square = mid_square(9731, 100)
-
 #normalización de los resultados a (0,1)
-u_mid_square = [v / (10**8) for _, v in resultado_mid_square]
-
-
+u_mid_square = [v / (10 ** len(str(abs(v))))  for _, v in resultado_mid_square]
+#mostramos resultados
+print("METODO DE LOS CUADRADOS")
 print(f"{'Nueva Semilla':<15} | {'Valor (Cuadrado)'}")
 print("-" * 35)
 i=0
@@ -41,17 +38,15 @@ for s, v in resultado_mid_square:
 
 
 
-# 2. Congruencia Lineal
+# Test 2. Congruencia Lineal
 '''
 Los Generadores Congruenciales Lineales (GCL) tienen la forma
 x_{n+1} = (a * x_n + c) mod m
-
-dnd
+Donde
 - a es la multiplicadora
 - c es la incrementadora
 - m es el módulo
 - x_0 es la semilla inicial
-
 '''
 def linear_congruential_generator(seed, a, c, m, n):
     values = []
@@ -63,14 +58,14 @@ def linear_congruential_generator(seed, a, c, m, n):
 # ejecución del ejemplo
 resultado_linear_congruential_generator = linear_congruential_generator(1, 1664525, 1013904223, 2**32, 10)
 print(f"METODO DE CONGRUENCIA LINEAL")
+#mostrar resultados
 for i in range(len(resultado_linear_congruential_generator)):
     print(f"{i+1:03d} | {resultado_linear_congruential_generator[i]:010d}")
-
 #normalizacion de los resultados a (0,1)
-u_rand = [x / (2**32) for x in resultado_linear_congruential_generator]
+u_rand_linear = [x / (10 ** len(str(abs(x)))) for x in resultado_linear_congruential_generator]
+for i in range(len(u_rand_linear)):
+    print(f"{i+1:03d} | {u_rand_linear[i]:.10f}")
 
-for i in range(len(u_rand)):
-    print(f"{i+1:03d} | {u_rand[i]:.10f}")
 
 
 
@@ -79,7 +74,6 @@ for i in range(len(u_rand)):
 # ------------ TESTS --------------
 '''
 H 0 : independencia y uniformidad
-
 Procedimiento:
 1. Seleccionar un subintervalo del (0 , 1).
 2. Calcular la probabilidad del subintervalo.
@@ -89,27 +83,21 @@ Procedimiento:
 6. Aplicar una prueba  χ ^ 2 a los tiempos de espera.
 '''
 
-
 def test_esperas(u_rand, b_inicio, b_fin):
     p_intervalo = b_fin - b_inicio
-    
     # 3. Ubicar posiciones de los elementos en el intervalo (1-based index)
     posiciones_hits = [i for i, x in enumerate(u_rand, start=1) if b_inicio < x < b_fin]
-    
     if not posiciones_hits:
         return {"x2": 0.0, "p_value": 0.0}
-        
     # 4. Calcular los "tiempos de espera" (brecha entre ocurrencias)
     esperas = []
     last_pos = 0
     for pos in posiciones_hits:
         esperas.append(pos - last_pos)
         last_pos = pos
-        
     # 5. y 6. Calcular frecuencias y prueba Chi Cuadrado
     frec_obs = Counter(esperas)
     max_espera = max(esperas)
-    
     x2 = 0.0
     for k in range(1, max_espera + 1):
         obs = frec_obs.get(k, 0)
@@ -117,25 +105,22 @@ def test_esperas(u_rand, b_inicio, b_fin):
         prob_geom = p_intervalo * ((1 - p_intervalo) ** (k - 1))
         # Frecuencia esperada respecto a los N intentos:
         geom_esperado = len(u_rand) * prob_geom
-        
         if geom_esperado > 0:
-            x2 += ((obs - geom_esperado) ** 2) / geom_esperado
-            
+            x2 += ((obs - geom_esperado) ** 2) / geom_esperado   
     df = max_espera - 1
     p_value = 1.0 - chi2.cdf(x2, df=df) if df > 0 else 1.0
-    
-    return {"x2": x2, "p_value": p_value}
+    return {"x2": float(x2), "p_value": float(p_value)}
 
-resultado_esperas_GCL = test_esperas(u_rand, 0.5, 1.0)
-print("Test de esperas:", resultado_esperas_GCL)
-
-resultado_esperas_mid_square = test_esperas(u_mid_square, 0.5, 1.0)
-print("Test de esperas (Mid Square):", resultado_esperas_mid_square)
-
-
-
-def frecuencia_monobit(bits):
-    data = "".join(str(b) for b in bits)
+def frecuencia_monobit(values):
+    # Accepts 0/1 or general integers (uses LSB as the bit).
+    normalized_bits = []
+    bits = [1 if u >= 0.5 else 0 for u in values]
+    for b in bits:
+        if b in (0, 1):
+            normalized_bits.append(int(b))
+        else:
+            normalized_bits.append(int(b) & 1)
+    data = "".join(str(b) for b in normalized_bits)
     if len(data) == 0:
         return {"p_value": 1.0, "pass": True}
     mm_unos = [(2 * int(bit)) - 1 for bit in data]
@@ -164,21 +149,42 @@ def runs_test(values, median=None):
     return {"z": z, "runs": runs, "n1": n1, "n2": n2}
 
 def bondad_ajuste_chi_cuadrado(o_i, bins=10):
-    expected = np.full(bins, len(o_i) / bins)
-    observed = Counter(o_i)
+    # Accepts either class labels 1..bins or raw values in [0, 1).
+    values = []
+    for item in o_i:
+        if isinstance(item, tuple) and len(item) >= 2:
+            values.append(item[1])
+        else:
+            values.append(item)
+    is_class_labels = all(isinstance(v, (int, np.integer)) and 1 <= v <= bins for v in values)
+    if is_class_labels:
+        classes = values
+    else:
+        classes = [min(int(float(v) * bins), bins - 1) + 1 for v in values]
+    expected = np.full(bins, len(classes) / bins)
+    observed = Counter(classes)
     observed_counts = np.array([observed.get(i, 0) for i in range(1, bins + 1)])
     x2 = np.sum((observed_counts - expected) ** 2 / expected)
-    p_value = chi2.cdf(x2, df=bins - 2)
-    return {"x2": x2, "p_value": p_value}
+    p_value = 1.0 - chi2.cdf(x2, df=bins - 1)
+    return {"x2": float(x2), "p_value": float(p_value)}
 
+print("Resultado para Congruencia Lineal:")
+print("-----------------------------")
+print(f"Test de Esperas: {test_esperas(u_rand_linear, 0.5, 1.0)}")
+print(f"Monobit Test: {frecuencia_monobit(u_rand_linear)}")
+print(f"Runs Test: {runs_test(u_rand_linear)}")
+print(f"Test Chi-Cuadrado: {bondad_ajuste_chi_cuadrado(resultado_linear_congruential_generator)}")
 
-# ejecucion de tests con valores
-runs_test(resultado_linear_congruential_generator)
+print("\nResultado para Método de los Cuadrados:")
+print("-----------------------------")
+print(f"Test de Esperas: {test_esperas(u_mid_square, 0.5, 1.0)}")
+print(f"Monobit Test: {frecuencia_monobit(u_mid_square)}")
+print(f"Runs Test: {runs_test(u_mid_square)}")
+print(f"Chi-Squared Test: {bondad_ajuste_chi_cuadrado(resultado_mid_square)}")
 
 
 # ------------ GRAFICOS (MAPAS DE BITS) --------------
 def graficar_mapas_de_bits_comparacion():
-    print("\nGenerando gráficos de ruido (bitmap)...")
     # Generar 40,000 números para armar una cuadrícula de 200x200 pixeles
     n_puntos = 40000
     dimension = 200
@@ -210,7 +216,6 @@ def graficar_mapas_de_bits_comparacion():
     plt.show()
 
 def graficar_mapas_de_bits_bueno_malo():
-    print("\nGenerando gráficos de ruido (bitmap)...")
     # Generar 40,000 números para armar una cuadrícula de 200x200 pixeles
     n_puntos = 40000
     dimension = 200
@@ -243,7 +248,6 @@ def graficar_mapas_de_bits_bueno_malo():
     plt.show()
 
 graficar_mapas_de_bits_bueno_malo()
-
 
 graficar_mapas_de_bits_comparacion()
 
