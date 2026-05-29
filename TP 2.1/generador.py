@@ -1,5 +1,4 @@
 from collections import Counter
-import math
 import random
 import numpy as np
 from scipy.stats import chi2, norm
