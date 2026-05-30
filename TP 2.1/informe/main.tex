@@ -371,9 +371,9 @@ De estos resultados se deduce que este generador produce números con comportami
 
 Se generaron 40.000 números para armar una cuadrícula de $200 \times 200$ píxeles.
 
-\paragraph{GCL con parámetros buenos} Usando $a = 1.664.525$, $c = 1.013.904.223$ y $m = 2^{32}$, el generador produjo un mapa de bits con ruido uniforme, sin patrones geométricos visibles.
+\paragraph{GCL con parámetros buenos} Usando $a = 1.664.525$, $c = 1.013.904.223$ y $m = 2^{32}$, el generador produjo un mapa de bits con ruido uniforme, sin patrones geométricos visibles (figura \ref{fig:imagen-1a} y \ref{fig:imagen-2b}).
 
-\paragraph{GCL con parámetros malos} Usando $a = 106$, $c = 1283$ y $m = 6075$, se observan patrones de franjas y líneas diagonales, demostrando baja calidad.
+\paragraph{GCL con parámetros malos} Usando $a = 106$, $c = 1283$ y $m = 6075$, se observan patrones de franjas y líneas diagonales, demostrando baja calidad (figura \ref{fig:imagen-1b}).
 
 \begin{figure}[H]
     \centering
@@ -395,9 +395,9 @@ Se generaron 40.000 números para armar una cuadrícula de $200 \times 200$ píx
     \label{fig:gcl}
 \end{figure}
 
-\paragraph{Método de los cuadrados} Muestra una degradación hacia el color negro (valor 0), confirmando la tendencia del algoritmo a converger a 0 cuando los dígitos centrales de la semilla se anulan.
+\paragraph{Método de los cuadrados} Muestra una degradación hacia el color negro (valor 0), confirmando la tendencia del algoritmo a converger a 0 cuando los dígitos centrales de la semilla se anulan (figura \ref{fig:imagen-2a}).
 
-\paragraph{Generador de Python} Muestra ruido uniforme sin patrones geométricos ni tendencias de agrupamiento.
+\paragraph{Generador de Python} Muestra ruido uniforme sin patrones geométricos ni tendencias de agrupamiento (figura \ref{fig:imagen-2c}).
 
 \begin{figure}[H]
     \centering
@@ -455,9 +455,9 @@ El generador de Python (MT19937) es el más estable, manteniendo un ruido unifor
 
 \section{Discusión}
 
-Observando los gráficos, se puede ver que, tomando el primer par de resultados, uno presenta un ruido uniforme, simulando casos de secuencias verdaderamente aleatorias, y el otro, con otra selección de parámetros, presenta un patrón claramente visible, por lo que no es una simulación válida.
+Observando los gráficos, se puede ver que, en la figura \ref{fig:gcl}, el gráfico \ref{fig:imagen-1a} presenta un ruido uniforme, simulando casos de secuencias verdaderamente aleatorias, y el \ref{fig:imagen-1b}, con otra selección de parámetros, presenta un patrón claramente visible, por lo que no es una simulación válida.
 
-En el segundo trío de imágenes, lo que cambia no son los parámetros, sino los generadores utilizados. En el primero, usamos el método de los cuadrados, que presenta un patrón visible (por el color negro predominante), mientras que el generador de congruencia lineal y el de Python (MT19937) logran un ruido uniforme, comportándose de forma más cercana a las secuencias aleatorias ideales.
+En la figura \ref{fig:generadores}, lo que cambia no son los parámetros, sino los generadores utilizados. En el gráfico \ref{fig:imagen-2a}, usamos el método de los cuadrados, que presenta un patrón visible (por el color negro predominante), mientras que el generador de congruencia lineal (\ref{fig:imagen-2b}) y el de Python (MT19937) (\ref{fig:imagen-2c}) logran un ruido uniforme, comportándose de forma más cercana a las secuencias aleatorias ideales.
 
 
 
