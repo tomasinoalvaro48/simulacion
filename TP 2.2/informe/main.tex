@@ -1,0 +1,1178 @@
+\documentclass{article}
+
+\usepackage{arxiv}
+
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+\crefname{table}{cuadro}{cuadros}
+\Crefname{table}{Cuadro}{Cuadros}
+
+
+\title{TP 2.2 - GENERADORES PSEUDOALEATORIOS}
+
+
+\author{
+    Alvaro Tomasino \\
+    Ingeniería en Sistemas de Información\\
+    Universidad Tecnológica Nacional - FRRO\\
+    Zeballos 1341, S2000, Argentina\\
+    \texttt{atomasino08@gmail.com} \\
+\And
+    Juan Bautista Martinelli \\
+    Ingeniería en Sistemas de Información\\
+    Universidad Tecnológica Nacional - FRRO\\
+    Zeballos 1341, S2000, Argentina\\
+    \texttt{martinellij4@gmail.com} \\
+\And
+    Tomás Aguilera \\
+    Ingeniería en Sistemas de Información\\
+    Universidad Tecnológica Nacional - FRRO\\
+    Zeballos 1341, S2000, Argentina\\
+    \texttt{tomas.aguilera.27@gmail.com} \\
+\And
+    Melina Aronson \\
+    Ingeniería en Sistemas de Información\\
+    Universidad Tecnológica Nacional - FRRO\\
+    Zeballos 1341, S2000, Argentina\\
+    \texttt{melinaaronson@gmail.com} \\
+}
+
+
+
+
+\begin{document}
+
+\maketitle
+
+
+
+
+\begin{abstract}
+El objetivo de este informe es, con los generadores usados en su anterior parte, empezar a
+utilizarlos en distintos contextos para finalizar con nuestro estudio.
+\end{abstract}
+
+\keywords{Simulación \and generadores pseudoaleatorios \and distribuciones de probabilidad \and transformada inversa \and método de rechazo}
+
+
+
+
+\section{Introducción}
+
+Al emplear los generadores como los programamos anteriormente, estos van a generar
+valores uniformes continuos entre 0 y 1.
+
+Entonces ¿Cómo hacemos para generar valores de distintas distribuciones? La solución es
+apoyarse en un material elaborado por Thomas Naylor para redescubrir el mecanismo de
+los generadores, y poder implementarlo en los casos que se desea y de distintas
+probabilidades.
+
+A continuación, durante todo el informe, se desarrollan las bases teóricas de las siguientes
+distribuciones, con el desarrollo de los diferentes métodos de generación, y su
+implementación y test en código Python según indica la siguiente tabla.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{lccccc}
+        \toprule
+        \textbf{Distribución de Probabilidad} & \textbf{Tipo} & \textbf{T. Inversa} & \textbf{M. Rechazo} & \textbf{Código} & \textbf{Testeo} \\
+        \midrule
+        UNIFORME          & continua & sí & sí & sí & sí \\
+        EXPONENCIAL       & continua & sí & sí & no & sí \\
+        GAMMA             & continua & sí & no & no & no \\
+        NORMAL            & continua & sí & sí & sí & sí \\
+        PASCAL            & discreta & sí & no & no & no \\
+        BINOMIAL          & discreta & sí & no & no & sí \\
+        HIPERGEOMÉTRICA   & discreta & sí & no & no & no \\
+        POISSON           & discreta & sí & no & no & sí \\
+        EMPÍRICA DISCRETA & discreta & sí & no & no & sí \\
+        \bottomrule
+    \end{tabular}
+    \caption{Listado de distribuciones y tareas a realizar con cada una.}
+    \label{tab:distribuciones}
+\end{table}
+
+
+
+
+\section{Metodología}
+\label{sec:metodologia}
+
+\subsection{Distribución de Probabilidades (deducción matemática)}
+
+\subsubsection{Distribución de Probabilidad Uniforme}
+
+Es una familia de distribuciones de probabilidad para variables aleatorias, tales que para
+cada miembro de la familia todos los intervalos de igual longitud en la distribución en su
+rango son igualmente probables. El dominio está definido por dos parámetros,
+\textbf{a} y \textbf{b}, que son sus valores mínimo y máximo respectivamente.
+
+\paragraph{Notación}
+
+Si $X$ es una variable aleatoria continua con distribución uniforme continua se nota como:
+
+\begin{equation}
+    X \sim U(a, b) \quad \text{o} \quad X \sim \mathrm{Uniforme}(a, b)
+\end{equation}
+
+\paragraph{Función de densidad}
+
+Si $X \sim U(a, b)$ entonces la función de densidad es:
+
+\begin{equation}
+    f_X(x) = \frac{1}{b - a} \quad \forall\, x \in [a, b]
+\end{equation}
+
+
+\subsubsection{Distribución de Probabilidad Exponencial}
+
+La distribución exponencial es una distribución continua que se utiliza para modelar
+tiempos de espera para la ocurrencia de un cierto evento, siendo un caso particular de la
+distribución gamma.
+Esta distribución al igual que la distribución geométrica tiene la propiedad de pérdida de
+memoria.
+
+\paragraph{Notación}
+
+Si $X$ es una variable aleatoria continua con distribución exponencial continua, y $\lambda > 0$
+se nota como:
+
+\begin{equation}
+    X \sim \mathrm{Exp}(\lambda) \quad \text{con } \lambda > 0
+\end{equation}
+
+\paragraph{Función de densidad}
+
+Si $X \sim \mathrm{Exp}(\lambda)$ entonces la función de densidad es:
+
+\begin{equation}
+    f_X(x) = \lambda\, e^{-\lambda x} \quad \forall\, x \geq 0
+\end{equation}
+
+
+\subsubsection{Distribución de Probabilidad Gamma}
+
+La distribución Gamma es una distribución continua utilizada para modelar tiempos de
+espera, confiabilidad de sistemas y diversos fenómenos donde se acumulan eventos
+aleatorios.
+
+Su distribución depende de dos parámetros:
+
+\begin{itemize}
+    \item $\boldsymbol{\alpha}$ \textbf{(alfa)}: parámetro de forma (\textit{shape}), $\alpha > 0$.
+    \item $\boldsymbol{\beta}$ \textbf{(beta)}: parámetro de escala (\textit{scale}), $\beta > 0$.
+\end{itemize}
+
+Siendo su denotación:
+
+\begin{equation}
+    X \sim \Gamma(\alpha, \beta)
+\end{equation}
+
+\paragraph{Función de Densidad de Probabilidad}
+
+\begin{equation}
+    f(x) = \frac{1}{\Gamma(\alpha)\,\beta^{\alpha}}\, x^{\alpha - 1}\, e^{-x/\beta}
+\end{equation}
+
+Para $x > 0$, donde:
+
+\begin{equation}
+    \Gamma(\alpha) = \int_0^{\infty} t^{\alpha - 1} e^{-t}\, dt
+\end{equation}
+
+\paragraph{Obtención de la Función Acumulada}
+
+La función acumulada se define como:
+
+\begin{equation}
+    F(x) = P(X \leq x)
+\end{equation}
+
+Por definición: $F(x) = \int f(t)\,dt$.
+
+Sustituyendo la Función de Densidad:
+
+\begin{equation}
+    F(x) = \int_0^{x} \frac{1}{\Gamma(\alpha)\,\beta^{\alpha}}\, t^{\alpha - 1}\, e^{-t/\beta}\, dt
+\end{equation}
+
+Sacando las constantes:
+
+\begin{equation}
+    F(x) = \frac{1}{\Gamma(\alpha)\,\beta^{\alpha}} \int_0^{x} t^{\alpha - 1} e^{-t/\beta}\, dt
+\end{equation}
+
+Realizando el cambio de variables:
+
+\begin{equation}
+    u = \frac{t}{\beta}, \quad t = \beta u, \quad dt = \beta\, du
+\end{equation}
+
+Queda:
+
+\begin{equation}
+    F(x) = \frac{1}{\Gamma(\alpha)} \int_0^{x/\beta} u^{\alpha - 1} e^{-u}\, du
+\end{equation}
+
+Llamando a la integral $\gamma(\alpha, z)$, quedaría finalmente:
+
+\begin{equation}
+    F(x) = \frac{\gamma\!\left(\alpha,\, x/\beta\right)}{\Gamma(\alpha)}
+\end{equation}
+
+
+\subsubsection{Distribución de Probabilidad Normal}
+
+La distribución normal es una distribución continua que aparece con más frecuencia en
+estadística. La gráfica de su función de densidad tiene una forma acampanada y es
+simétrica respecto a un determinado parámetro estadístico. Esta curva se conoce como
+campana de Gauss.
+
+\paragraph{Notación}
+
+Si $X$ es una variable aleatoria continua con distribución normal, se nota como:
+
+\begin{equation}
+    X \sim N(\mu,\, \sigma^2)
+\end{equation}
+
+donde los parámetros de entrada son la media ($\mu$) y la varianza ($\sigma^2$).
+
+\paragraph{Función de densidad}
+
+La función de densidad de probabilidad está dada por la ecuación de la campana de Gauss:
+
+\begin{equation}
+    f(x) = \frac{1}{\sigma\sqrt{2\pi}}\, e^{-\frac{1}{2}\left(\frac{x - \mu}{\sigma}\right)^2}
+\end{equation}
+
+Para el caso de la distribución normal estándar ($\mu = 0$ y $\sigma = 1$), la fórmula se simplifica a:
+
+\begin{equation}
+    f(z) = \frac{1}{\sqrt{2\pi}}\, e^{-z^2/2}
+\end{equation}
+
+\paragraph{Obtención de la función acumulada}
+
+La función de distribución acumulada calcula la probabilidad de que una variable aleatoria
+continua $X$ sea menor o igual a un valor específico $x$:
+
+\begin{equation}
+    F(x) = P(X \leq x)
+\end{equation}
+
+Para una distribución normal, se define a través de la integral de su función de densidad de
+probabilidad:
+
+\begin{equation}
+    F(x) = \frac{1}{\sigma\sqrt{2\pi}} \int_{-\infty}^{x} e^{-\frac{1}{2}\left(\frac{t - \mu}{\sigma}\right)^2} dt
+\end{equation}
+
+
+\subsubsection{Distribución de Probabilidad Pascal}
+
+También conocida como \textbf{distribución binomial negativa}, es una distribución discreta que
+modela el número de fracasos que ocurren antes de obtener un número fijo de éxitos en
+una secuencia de ensayos de Bernoulli independientes.
+
+\paragraph{Parámetros}
+
+La distribución depende de dos parámetros:
+
+\begin{itemize}
+    \item $r$: número fijo de éxitos que se desean obtener ($r > 0$).
+    \item $p$: probabilidad de éxito en cada ensayo ($0 < p < 1$).
+\end{itemize}
+
+Denotada como:
+
+\begin{equation}
+    X \sim \mathrm{Pascal}(r, p)
+\end{equation}
+
+donde $X$ representa el número de fracasos antes de alcanzar el $r$-ésimo éxito.
+
+\paragraph{Función de Probabilidad}
+
+La probabilidad de obtener exactamente $x$ fracasos antes del $r$-ésimo éxito es:
+
+\begin{equation}
+    P(X = x) = \binom{x + r - 1}{r - 1} p^r (1-p)^x \quad \text{para } x = 0, 1, 2, \ldots
+\end{equation}
+
+\paragraph{Obtención de la Función Acumulada}
+
+Se define como: $F(x) = P(X \leq x)$. Por definición:
+
+\begin{equation}
+    F(x) = \sum_{k=0}^{x} \binom{k + r - 1}{r - 1} p^r (1-p)^k
+\end{equation}
+
+Y desarrollando algunos términos:
+
+\begin{equation}
+    F(x) = p^r + r\,p^r(1-p) + \binom{r+1}{r-1} p^r(1-p)^2 + \cdots
+\end{equation}
+
+En forma general:
+
+\begin{equation}
+    F(x) = \sum_{k=0}^{x} \binom{k + r - 1}{r - 1} p^r (1-p)^k
+\end{equation}
+
+\paragraph{Obtención de la Función Inversa}
+
+Partiendo de $u = F(x)$ con $u \sim U(0, 1)$, debemos encontrar el menor valor entero $x$
+tal que:
+
+\begin{equation}
+    F(x) \geq u \qquad \text{es decir:} \quad x = F^{-1}(u)
+\end{equation}
+
+
+\subsubsection{Distribución de Probabilidad Binomial}
+
+La distribución binomial es una distribución de probabilidad discreta que cuenta el número
+de éxitos en una secuencia de $n$ ensayos de Bernoulli independientes entre sí con una
+probabilidad fija $p$ de ocurrencia de éxito entre los ensayos. Un experimento de Bernoulli
+se caracteriza por ser dicotómico, es decir, solo dos resultados son posibles. A uno se lo
+llama ``éxito'' y tiene una probabilidad de ocurrencia $p$, y al otro se lo llama ``fracaso'' y
+tiene una probabilidad $q = 1 - p$.
+
+\paragraph{Notación}
+
+Si una variable aleatoria discreta $X$ tiene una distribución binomial con parámetros
+$n \in \mathbb{N}$ y $p$ con $0 < p < 1$, se nota como:
+
+\begin{equation}
+    X \sim \mathrm{Bin}(n, p)
+\end{equation}
+
+\paragraph{Función de densidad}
+
+Su función de densidad está dada por la función de probabilidad:
+
+\begin{equation}
+    P[X = x] = \binom{n}{x} p^x (1-p)^{n-x} \quad \text{para } x = 0, 1, 2, \ldots, n
+\end{equation}
+
+\paragraph{Obtención de la función acumulada}
+
+La función de distribución acumulada está dada por:
+
+\begin{equation}
+    F_X(x) = P[X \leq x] = \sum_{k=0}^{\lfloor x \rfloor} \binom{n}{k} p^k (1-p)^{n-k}
+    \quad \text{si } 0 \leq x \leq n
+\end{equation}
+
+
+\subsubsection{Distribución de Probabilidad Hipergeométrica}
+
+Es una distribución discreta que modela la probabilidad de obtener una determinada
+cantidad de éxitos al extraer elementos de una población finita sin reemplazo.
+
+\paragraph{Parámetros}
+
+La distribución depende de 3 parámetros:
+
+\begin{itemize}
+    \item $N$: tamaño total de la población.
+    \item $K$: número de elementos considerados éxitos dentro de la población.
+    \item $n$: tamaño de la muestra extraída.
+\end{itemize}
+
+Se denota:
+
+\begin{equation}
+    X \sim H(N, K, n)
+\end{equation}
+
+donde $X$ es el número de éxitos obtenidos en la muestra.
+
+\paragraph{Función de Probabilidad}
+
+Se define como:
+
+\begin{equation}
+    P(X = x) = \frac{\dbinom{K}{x}\dbinom{N-K}{n-x}}{\dbinom{N}{n}}
+\end{equation}
+
+donde $\binom{K}{x}$ representa las formas de elegir $x$ éxitos, $\binom{N-K}{n-x}$ las formas de
+elegir los fracasos y $\binom{N}{n}$ el total de muestras posibles, con:
+
+\begin{equation}
+    \max(0,\, n - (N - K)) \leq x \leq \min(n, K)
+\end{equation}
+
+\paragraph{Obtención de la Función Acumulada}
+
+Se define como: $F(x) = P(X \leq x)$. Por definición:
+
+\begin{equation}
+    F(x) = \sum_{k=0}^{x} P(X = k)
+\end{equation}
+
+Sustituyendo:
+
+\begin{equation}
+    F(x) = \sum_{k=0}^{x} \frac{\dbinom{K}{k}\dbinom{N-K}{n-k}}{\dbinom{N}{n}}
+\end{equation}
+
+Finalmente:
+
+\begin{equation}
+    F(x) = \frac{1}{\dbinom{N}{n}} \sum_{k=0}^{x} \binom{K}{k}\binom{N-K}{n-k}
+\end{equation}
+
+
+\subsubsection{Distribución de Probabilidad Poisson}
+
+La distribución de Poisson es una distribución de probabilidad discreta que expresa, a
+partir de una frecuencia de ocurrencia media, la probabilidad de que ocurra un determinado
+número de eventos durante cierto periodo de tiempo. Se especializa en la probabilidad de
+ocurrencia de sucesos con probabilidades muy pequeñas, o sucesos raros.
+
+\paragraph{Notación}
+
+Sea $\lambda > 0$ y $X$ una variable aleatoria discreta; si $X$ tiene una distribución de Poisson
+con parámetro $\lambda$, se nota como:
+
+\begin{equation}
+    X \sim \mathrm{Poisson}(\lambda) \quad \text{o} \quad X \sim \mathrm{Poi}(\lambda)
+\end{equation}
+
+\paragraph{Función de densidad}
+
+Como la variable aleatoria $X$ es discreta, no usa una función de densidad, sino una función
+de masa de probabilidad:
+
+\begin{equation}
+    P[X = k] = \frac{e^{-\lambda}\,\lambda^k}{k!}
+\end{equation}
+
+donde $k$ es el número de ocurrencias del evento, y $\lambda$ representa el número de veces
+que se espera que ocurra dicho fenómeno durante un intervalo dado.
+
+\paragraph{Obtención de la función acumulada}
+
+La función acumulada calcula la probabilidad de que ocurran $x$ eventos o menos en un
+intervalo dado. Se obtiene sumando las probabilidades puntuales desde 0 hasta el valor
+de $x$:
+
+\begin{equation}
+    P(X \leq x) = \sum_{k=0}^{x} \frac{e^{-\lambda}\,\lambda^k}{k!}
+\end{equation}
+
+
+\subsubsection{Distribución de Probabilidad Empírica Discreta}
+
+En algunas situaciones, ninguna de las distribuciones teóricas conocidas describe bien el
+comportamiento de los datos observados. En esos casos se usan las distribuciones
+empíricas, que permiten aproximar el comportamiento de un fenómeno a partir de
+frecuencias de datos recolectados directamente de la realidad.
+
+\paragraph{Notación}
+
+Sea $X$ una variable aleatoria discreta que puede tomar un conjunto de valores específicos
+$b_1, b_2, \ldots, b_n$. Asociada a cada valor, existe una probabilidad observada $p_i$ tal que:
+
+\begin{equation}
+    P(X = b_i) = p_i
+\end{equation}
+
+\paragraph{Función de probabilidad}
+
+La distribución se define por una tabla de frecuencias donde se listan los posibles
+resultados y sus probabilidades de ocurrencia. La suma de todas las probabilidades debe
+ser igual a la unidad:
+
+\begin{equation}
+    \sum_{i=1}^{n} p_i = 1
+\end{equation}
+
+
+\subsection{Método de la Transformada Inversa (deducción matemática)}
+
+El Método de la Transformada Inversa es una técnica para generar números aleatorios que
+sigan una distribución de probabilidad determinada a partir de números aleatorios uniformes
+en el intervalo $(0,1)$. Es decir, tenemos:
+
+\begin{equation}
+    r \sim U(0, 1)
+\end{equation}
+
+Donde $r$ es un número entre 0 y 1 generado a partir de una distribución Uniforme.
+
+Queremos obtener una variable aleatoria $X$ con una distribución específica arbitraria, cuya
+función de distribución acumulada es $F(x)$. La función acumulada $F(x)$ indica la
+probabilidad de que la variable $X$ tome un valor menor o igual que $x$:
+
+\begin{equation}
+    F(x) = \int_{-\infty}^{x} f(t)\, dt \qquad F(x) = P(X \leq x)
+\end{equation}
+
+Esta función de probabilidad acumulada está definida en el intervalo de 0 a 1.
+
+El método consiste en aplicar la función inversa de la distribución acumulada para que $x$
+tenga un valor dado por la distribución deseada. Esto es, si generamos un valor uniforme
+$r$ entre 0 y 1 y buscamos el valor $x$ tal que:
+
+\begin{equation}
+    r = F(x) = \int_{-\infty}^{x} f(t)\, dt
+\end{equation}
+
+entonces:
+
+\begin{equation}
+    F^{-1}(r) = x
+\end{equation}
+
+$F^{-1}(r)$ es la transformación inversa o mapeo de $r$ sobre el intervalo o dominio de $x$.
+
+Gráficamente, dado el valor $r_0$ en el eje vertical de la función acumulada $F(x) = r$, su
+correspondiente $x_0$ en el eje horizontal es el valor generado con la distribución deseada.
+El criterio $P(X \leq x) = F(x) = P[r \leq F(x)] = P[F^{-1}(r) \leq x]$ equivale a resolver la
+ecuación en $x$ en términos de $r$.
+
+Este método cuenta con varias desventajas que se van a ir presentando a medida que lo
+vayamos aplicando a las diversas distribuciones. La principal desventaja es que no siempre
+existe una inversa analítica de la función de distribución acumulada $F(x)$, por ejemplo la
+distribución Gamma o la distribución normal estándar. Esto se resuelve aplicando métodos
+numéricos. Cuando la inversa no existe en forma explícita, hay que calcularla mediante
+algoritmos iterativos. Esto tiene un costo computacional elevado. Evaluar funciones
+logarítmicas, exponenciales o resolver ecuaciones numéricamente puede ser más lento que
+otros métodos de generación.
+
+A continuación se deduce el método matemático para generar números aleatorios a partir de
+una distribución Uniforme para cada distribución mencionada en la sección anterior.
+
+
+\subsubsection{Distribución de Probabilidad Uniforme}
+
+Dada la función de densidad $f(x)$ de la distribución Uniforme $X \sim U(0, 1)$:
+
+\begin{equation}
+    f(x) = \frac{1}{b - a}, \quad a \leq x \leq b
+\end{equation}
+
+con función de distribución acumulada $F(x)$:
+
+\begin{equation}
+    F(x) = \int_a^x \frac{1}{b-a}\, dt = \frac{x - a}{b - a}
+\end{equation}
+
+Dado un número aleatorio $r$ generado por $r \sim U(0, 1)$, igualamos $F(x) = r$:
+
+\begin{equation}
+    \frac{x - a}{b - a} = r
+\end{equation}
+
+Buscamos $F^{-1}(r) = x$:
+
+\begin{equation}
+    x = a + (b - a)\,r
+\end{equation}
+
+Si $r \sim U(0,1)$, entonces $F^{-1}(r) = a + (b-a)r = x$ tiene exactamente la función de
+distribución $F$. Para la distribución $U(0,1)$, este caso es especialmente limpio porque
+$F(x)$ es lineal y su inversa se obtiene con álgebra directa, sin necesidad de métodos
+numéricos.
+
+
+\subsubsection{Distribución Exponencial}
+
+Dada la función de densidad $f(x)$ de la distribución Exponencial:
+
+\begin{equation}
+    f(x) = \lambda\, e^{-\lambda x}, \quad x \geq 0
+\end{equation}
+
+con función de distribución acumulada $F(x)$:
+
+\begin{equation}
+    F(x) = \int_0^x \lambda\, e^{-\lambda t}\, dt = \left[-e^{-\lambda t}\right]_0^x = 1 - e^{-\lambda x}
+\end{equation}
+
+Despejando $x$ a partir de $F(x) = r$:
+
+\begin{align}
+    1 - e^{-\lambda x} &= r \notag \\
+    e^{-\lambda x}     &= 1 - r \notag \\
+    -\lambda x         &= \ln(1 - r) \notag \\
+    x                  &= -\frac{1}{\lambda}\ln(1 - r)
+\end{align}
+
+Como $r \sim U(0, 1)$, entonces $(1 - r)$ también es $U(0, 1)$. Por lo tanto se puede escribir
+directamente:
+
+\begin{equation}
+    x = -\frac{1}{\lambda}\ln(r)
+\end{equation}
+
+
+\subsubsection{Distribución Gamma}
+
+Dada la función de densidad $f(x)$ de la distribución Gamma:
+
+\begin{equation}
+    f(x) = \frac{1}{\beta^k\,\Gamma(k)}\, x^{k-1}\, e^{-x/\beta}, \quad x \geq 0
+\end{equation}
+
+donde:
+
+\begin{equation}
+    \Gamma(k) = \int_0^{\infty} t^{k-1} e^{-t}\, dt
+\end{equation}
+
+con función de distribución acumulada $F(x)$:
+
+\begin{equation}
+    F(x) = \int_0^x \frac{1}{\beta^k\,\Gamma(k)}\, t^{k-1}\, e^{-t/\beta}\, dt
+\end{equation}
+
+Debido a que para una distribución Gamma no se puede formular explícitamente una
+función de distribución acumulada, debemos considerar un método alternativo para generar
+valores de variable aleatoria con esta distribución.
+
+Igualar $F(x) = r$ y despejar $x$ \textbf{no tiene solución algebraica} en el caso general.
+No existe una fórmula cerrada del tipo $x = \text{fórmula}(r, k, \beta)$. Esto significa que
+$F^{-1}(r)$ debe obtenerse \textbf{numéricamente}, lo cual hace que la transformada inversa
+directa sea costosa computacionalmente.
+
+Cuando $k$ no es entero, las opciones son:
+
+\begin{itemize}
+    \item \textbf{Métodos numéricos} para invertir $F(x)$ iterativamente (bisección, Newton-Raphson).
+    \item \textbf{Algoritmos especializados} como el de Cheng (1977), basado en el método de
+    rechazo, que es el más usado en la práctica para $k > 1$.
+\end{itemize}
+
+Cuando $k$ es un entero positivo, existe un camino alternativo muy elegante. Se puede
+demostrar que si:
+
+\begin{equation}
+    X_1, X_2, \ldots, X_k \sim \mathrm{Exponencial}(\lambda) \quad \text{independientes}
+\end{equation}
+
+entonces su suma:
+
+\begin{equation}
+    X = X_1 + X_2 + \cdots + X_k \sim \mathrm{Gamma}\!\left(k,\, \beta = \tfrac{1}{\lambda}\right)
+\end{equation}
+
+A esto se le conoce como \textbf{distribución de Erlang}. Aplicando la transformada inversa de
+cada exponencial (que sí tiene forma cerrada):
+
+\begin{equation}
+    X = -\frac{1}{\lambda}\sum_{i=1}^{k} \ln(r_i) = -\frac{1}{\lambda}\ln\!\left(\prod_{i=1}^{k} r_i\right)
+\end{equation}
+
+
+\subsubsection{Distribución Normal}
+
+Dada la función de densidad $f(x)$ de la distribución Normal:
+
+\begin{equation}
+    f(x) = \frac{1}{\sigma\sqrt{2\pi}}\, e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2},
+    \quad -\infty < x < \infty
+\end{equation}
+
+con función de distribución acumulada $F(x)$:
+
+\begin{equation}
+    F(x) = \int_{-\infty}^{x} \frac{1}{\sigma\sqrt{2\pi}}\, e^{-\frac{1}{2}\left(\frac{t-\mu}{\sigma}\right)^2} dt
+\end{equation}
+
+Al igual que la Gamma, esta integral no tiene forma cerrada. Se expresa en términos de la
+función error:
+
+\begin{equation}
+    F(x) = \frac{1}{2}\left[1 + \mathrm{erf}\!\left(\frac{x - \mu}{\sigma\sqrt{2}}\right)\right]
+\end{equation}
+
+Por lo tanto $F^{-1}(r)$ tampoco tiene forma algebraica directa, y el camino de la
+transformada inversa pura requeriría métodos numéricos.
+
+Las soluciones a esto son el método de rechazo para la Normal, que opera sobre la normal
+estándar y usa como función envolvente una distribución que es fácil de muestrear
+(típicamente una combinación de uniformes y exponenciales), y el \textbf{Método de la suma de
+uniformes} (Teorema Central del Límite).
+
+El Teorema Central del Límite establece que la suma de muchas variables aleatorias
+independientes con cualquier distribución tiende a una normal. Entonces, si sumamos $K$
+uniformes$(0,1)$:
+
+\begin{equation}
+    S = r_1 + r_2 + \cdots + r_K
+\end{equation}
+
+para $K$ suficientemente grande, $S$ se comporta aproximadamente como una normal.
+
+Cada $r_i \sim \mathrm{Uniforme}(0,1)$ tiene:
+
+\begin{equation}
+    \theta = \frac{a + b}{2} = \frac{1}{2}, \qquad \sigma = \frac{b - a}{\sqrt{12}} = \frac{1}{\sqrt{12}}
+\end{equation}
+
+Por el TLC, la suma de $K$ de ellas tiene:
+
+\begin{equation}
+    E\!\left(\sum r_i\right) = \frac{K}{2}, \qquad \mathrm{Var}\!\left(\sum r_i\right) = \frac{K}{12}
+\end{equation}
+
+Estandarizando (restando la media y dividiendo por el desvío):
+
+\begin{equation}
+    z = \frac{\displaystyle\sum_{i=1}^{K} r_i - K/2}{\sqrt{K/12}}
+\end{equation}
+
+Este $z$ es aproximadamente $N(0,1)$, y luego $x = \mu + \sigma z$ da cualquier normal deseada.
+
+Por definición $z$ es un valor de variable aleatoria con distribución normal estándar que se
+puede escribir de la forma:
+
+\begin{equation}
+    z = \frac{x - \mu_x}{\sigma_x}
+\end{equation}
+
+Igualando las últimas dos ecuaciones obtenemos:
+
+\begin{equation}
+    \frac{x - \mu_x}{\sigma_x} = \frac{\displaystyle\sum_{i=1}^{K} r_i - K/2}{\sqrt{K/12}}
+\end{equation}
+
+y resolviendo para $x$, se tiene que:
+
+\begin{equation}
+    x = \sigma_x \left(\frac{12}{K}\right)^{1/2} \!\left(\sum_{i=1}^{K} r_i - \frac{K}{2}\right) + \mu_x
+\end{equation}
+
+Así se pueden generar valores aleatorios con distribución normal con promedio $\mu_x$ y
+desvío $\sigma_x$ a partir de $K$ valores generados por una distribución uniforme.
+
+
+\subsubsection{Distribución Pascal}
+
+Dada la función de densidad $f(x)$ de la distribución Pascal:
+
+\begin{equation}
+    P(X = x) = \binom{x + r - 1}{r - 1} p^r (1-p)^x
+\end{equation}
+
+con función de distribución acumulada $F(x)$:
+
+\begin{equation}
+    F(x) = P(X \leq x) = \sum_{k=s}^{x} \binom{k - 1}{s - 1} p^s (1-p)^{k-s}
+\end{equation}
+
+Como $F(x)$ es discreta, no se puede despejar $x$ algebraicamente. En su lugar, dado
+$r \sim \mathrm{Uniforme}(0,1)$, se busca el menor $x$ tal que $F(x) \geq r$:
+
+\begin{equation}
+    F(x-1) < r \leq F(x)
+\end{equation}
+
+Es decir, se recorre la función acumulada de izquierda a derecha hasta que supera a $r$ por
+primera vez. Su algoritmo es el siguiente:
+
+\begin{enumerate}
+    \item Comenzar en $x = s$ (el mínimo posible).
+    \item Calcular $P(X = x)$ con la fórmula.
+    \item Acumular $F(x) = F(x-1) + P(X = x)$.
+    \item Si $F(x) \geq r$, devolver $x$ como valor generado.
+    \item Si no, incrementar $x = x + 1$ y volver al paso 2.
+\end{enumerate}
+
+
+\subsubsection{Distribución Binomial}
+
+Dada la función de densidad $f(x)$ de la distribución Binomial:
+
+\begin{equation}
+    P[X = x] = \binom{n}{x} p^x (1-p)^{n-x}
+\end{equation}
+
+con función de distribución acumulada $F(x)$:
+
+\begin{equation}
+    F(x) = \sum_{k=0}^{x} \binom{n}{k} p^k (1-p)^{n-k}
+\end{equation}
+
+Tomamos $r \sim U(0,1)$. Como $F(x)$ es discreta, la función inversa $F^{-1}(x)$ se obtiene
+por iteración (búsqueda). Se aplica la misma regla que en la Pascal: se define como el
+menor valor entero $x$ que cumple la condición $F(x) \geq r$:
+
+\begin{equation}
+    F(x-1) < r \leq F(x)
+\end{equation}
+
+El algoritmo es el siguiente:
+
+\begin{enumerate}
+    \item Generar $r \sim \mathrm{Uniforme}(0,1)$.
+    \item Iniciar en $x = 0$ con $F(x) = 0$.
+    \item En cada paso sumar $P(X = x)$ a $F(x)$.
+    \item Si $F(x) \geq r$, devolver $x$.
+    \item Si no, incrementar $x$ y repetir desde el paso 3.
+\end{enumerate}
+
+
+\subsubsection{Distribución Hipergeométrica}
+
+Dada la función de densidad $f(x)$ de la distribución Hipergeométrica:
+
+\begin{equation}
+    P(X = x) = \frac{\dbinom{K}{x}\dbinom{N-K}{n-x}}{\dbinom{N}{n}},
+    \quad x = \max(0, n + K - N), \ldots, \min(n, K)
+\end{equation}
+
+con función de distribución acumulada $F(x)$:
+
+\begin{equation}
+    F(x) = \sum_{k=x_{\min}}^{x} \frac{\dbinom{K}{k}\dbinom{N-K}{n-k}}{\dbinom{N}{n}}
+\end{equation}
+
+Tomamos $r \sim \mathrm{Uniforme}(0,1)$. Como $F(x)$ es discreta, se aplica la misma regla
+que en Binomial y Pascal:
+
+\begin{equation}
+    F(x-1) < r \leq F(x)
+\end{equation}
+
+La búsqueda termina en $x = \min(n, K)$ como máximo, ya que $F(\min(n,K)) = 1 \geq r$
+siempre. El algoritmo es el siguiente:
+
+\begin{enumerate}
+    \item Generar $r \sim \mathrm{Uniforme}(0,1)$.
+    \item Calcular $x_{\min} = \max(0, n + K - N)$ e iniciar con $F(x) = 0$.
+    \item En cada paso sumar $P(X = x)$ a $F(x)$.
+    \item Si $F(x) \geq r$, devolver $x$.
+    \item Si no, incrementar $x$ y repetir desde el paso 3.
+\end{enumerate}
+
+
+\subsubsection{Distribución de Poisson}
+
+Dada la función de densidad $f(x)$ de la distribución de Poisson:
+
+\begin{equation}
+    P(X = x) = \frac{e^{-\lambda}\,\lambda^x}{x!}, \quad x = 0, 1, 2, \ldots
+\end{equation}
+
+con función de distribución acumulada $F(x)$:
+
+\begin{equation}
+    F(x) = \sum_{k=0}^{x} \frac{e^{-\lambda}\,\lambda^k}{k!}
+\end{equation}
+
+Tomamos $r \sim \mathrm{Uniforme}(0,1)$. Como $F(x)$ es discreta, se aplica la misma regla
+que en las distribuciones discretas anteriores. El algoritmo es el siguiente:
+
+\begin{enumerate}
+    \item Generar $r \sim \mathrm{Uniforme}(0,1)$.
+    \item Iniciar en $x = 0$ con $F(x) = 0$.
+    \item En cada paso sumar $P(X = x)$ a $F(x)$.
+    \item Si $F(x) \geq r$, devolver $x$.
+    \item Si no, incrementar $x$ y repetir desde el paso 3.
+\end{enumerate}
+
+
+\subsubsection{Distribución Empírica Discreta}
+
+Dada la función de densidad $f(x)$ de la distribución Empírica Discreta:
+
+\begin{equation}
+    P(X = x_i) = p_i, \quad i = 1, 2, \ldots, n
+\end{equation}
+
+con la condición de que:
+
+\begin{equation}
+    \sum_{i=1}^{n} p_i = 1, \quad p_i \geq 0
+\end{equation}
+
+con función de distribución acumulada $F(x)$:
+
+\begin{equation}
+    F(x_i) = \sum_{k=1}^{i} p_k
+\end{equation}
+
+Tomamos $r \sim \mathrm{Uniforme}(0,1)$. Se aplica la misma regla que en todas las
+discretas anteriores. El algoritmo es el siguiente:
+
+\begin{enumerate}
+    \item Generar $r \sim \mathrm{Uniforme}(0,1)$.
+    \item Iniciar en $i = 1$ con $F = 0$.
+    \item En cada paso sumar $p_i$ a $F$.
+    \item Si $F \geq r$, devolver $x_i$.
+    \item Si no, incrementar $i$ y repetir desde el paso 3.
+\end{enumerate}
+
+
+\subsection{Método de rechazo (deducción matemática)}
+
+El objetivo es generar una variable aleatoria $X$ que siga una función de densidad de
+probabilidad objetivo $f(x)$.
+
+Si $f(x)$ es una función acotada y $x$ tiene además un rango finito con $a \leq x \leq b$,
+entonces se puede utilizar la técnica de rechazos para generar los valores de variables
+aleatorios. La aplicación de esta técnica requiere que proceda de acuerdo con las
+siguientes etapas:
+
+\begin{enumerate}
+    \item Normalizar el rango de $f$ mediante un factor de escala $c$ tal que
+          $c \cdot f(x) \leq 1$, $a \leq x \leq b$.
+    \item Definir a $x$ como una función lineal de $r$:
+          \begin{equation}
+              x = a + (b - a)\,r
+          \end{equation}
+    \item Generar parejas de números aleatorios $(r_1, r_2)$.
+    \item Siempre que se encuentre una pareja de números aleatorios que satisfagan la
+          relación
+          \begin{equation}
+              r_2 \leq c \cdot f\!\left[a + (b-a)\,r_1\right]
+          \end{equation}
+          dicho par será aceptado y se utilizará $x = a + (b-a)\cdot r_1$ como el valor
+          generado de la variable aleatoria.
+\end{enumerate}
+
+La teoría sobre la que se apoya este método se basa en el hecho ya conocido relativo a la
+probabilidad de que $r$ sea menor o igual a $c \cdot f(x)$:
+
+\begin{equation}
+    P\!\left[r \leq c \cdot f(x)\right] = c \cdot f(x)
+\end{equation}
+
+En consecuencia, si $x$ se elige al azar dentro del rango $(a, b)$ de acuerdo con la ecuación
+$x = a + (b-a)r$ y en el caso de que $r > c \cdot f(x)$ se rechaza, la función de densidad
+de probabilidad de los valores de $x$ aceptados deberá ser igual a $f(x)$.
+
+Tocher ha demostrado que la esperanza matemática del número de intentos que se
+realizan, antes de encontrar una pareja exitosa es igual a $1/c$. Esto implica que para
+ciertas funciones de densidad de probabilidad este método puede resultar sumamente
+ineficaz.
+
+
+\subsubsection{Distribución de Probabilidad Uniforme}
+
+Para aplicar el método de rechazo a la distribución uniforme continua, partimos de su
+función de densidad de probabilidad objetivo, la cual está definida en el intervalo cerrado
+$[a, b]$:
+
+\begin{equation}
+    f(x) = \frac{1}{b - a} \quad \forall\, x \in [a, b]
+\end{equation}
+
+\begin{enumerate}
+    \item Buscamos un factor de escala $c$ tal que el máximo de la curva escalada sea
+          menor o igual a 1: $c \cdot f(x) \leq 1$.
+
+          Sustituyendo la función de densidad: $c \cdot \dfrac{1}{b-a} \leq 1$.
+
+          Para optimizar el algoritmo y hacer que el ``techo'' sea exactamente 1,
+          despejamos el factor de escala óptimo:
+          \begin{equation}
+              c = b - a
+          \end{equation}
+
+          Si comprobamos la función escalada con este valor de $c$, obtenemos:
+          \begin{equation}
+              c \cdot f(x) = (b - a) \cdot \frac{1}{b - a} = 1
+          \end{equation}
+
+    \item Mapeamos el primer número pseudoaleatorio $r_1$ al rango deseado:
+          \begin{equation}
+              x = a + (b - a) \cdot r_1
+          \end{equation}
+
+    \item La pareja de números pseudoaleatorios $(r_1, r_2)$ será aceptada si se cumple
+          la relación $r_2 \leq c \cdot f(x)$. Reemplazando por los valores obtenidos en el
+          primer paso, la condición se reduce a:
+          \begin{equation}
+              r_2 \leq 1
+          \end{equation}
+\end{enumerate}
+
+Dado que por definición cualquier número pseudoaleatorio $r_2$ generado por la computadora
+pertenece al intervalo $[0, 1)$, la inecuación se cumplirá en el 100\,\% de los casos.
+
+Esta deducción demuestra matemáticamente que aplicar el método de rechazo para
+generar valores de una distribución uniforme resulta en una redundancia donde no se
+rechaza a ningún candidato. La eficiencia del algoritmo es máxima, comprobando
+empíricamente el teorema de Tocher.
+
+
+\subsubsection{Distribución Exponencial}
+
+Para aplicar el método de rechazo a la distribución exponencial continua, partimos de su
+función de densidad de probabilidad objetivo. Dado que la técnica de rechazos requiere que
+la variable tenga un rango finito $[a, b]$, definimos obligatoriamente el límite inferior $a = 0$
+(ya que no existen ocurrencias negativas) y truncamos la cola infinita en un límite superior
+$b$ lo suficientemente grande para contener la mayor parte de la probabilidad:
+
+\begin{equation}
+    f(x) = \lambda\, e^{-\lambda x} \quad \forall\, x \in [0, b]
+\end{equation}
+
+\begin{enumerate}
+    \item Buscamos un factor de escala $c$ tal que el máximo de la curva escalada sea
+          menor o igual a 1: $c \cdot f(x) \leq 1$.
+
+          Como la función exponencial decrece monotónamente, su valor máximo absoluto
+          se encuentra siempre en el límite inferior, es decir, cuando $x = 0$:
+          \begin{equation}
+              f(0) = \lambda\, e^{-\lambda \cdot 0} = \lambda
+          \end{equation}
+
+          Para optimizar el algoritmo y hacer que el ``techo'' superior sea exactamente 1,
+          determinamos que el factor de escala óptimo es:
+          \begin{equation}
+              c = \frac{1}{\lambda}
+          \end{equation}
+
+          Si comprobamos la función escalada con este valor de $c$, obtenemos la
+          simplificación matemática clave de este método:
+          \begin{equation}
+              c \cdot f(x) = \frac{1}{\lambda} \cdot \lambda\, e^{-\lambda x} = e^{-\lambda x}
+          \end{equation}
+
+    \item Mapeamos el primer número pseudoaleatorio $r_1$ al rango finito que
+          establecimos. Sabiendo que $a = 0$, la ecuación general se reduce a:
+          \begin{equation}
+              x = b \cdot r_1
+          \end{equation}
+
+    \item Siempre que se encuentre una pareja de números pseudoaleatorios $(r_1, r_2)$
+          que satisfaga la relación $r_2 \leq c \cdot f(x)$, dicho par será aceptado.
+          Reemplazando por la función normalizada obtenida en el primer paso, la condición
+          final queda definida como:
+          \begin{equation}
+              r_2 \leq e^{-\lambda x}
+          \end{equation}
+
+          O expresado en función exclusivamente de la pareja de pseudoaleatorios
+          generada:
+          \begin{equation}
+              r_2 \leq e^{-\lambda(b \cdot r_1)}
+          \end{equation}
+\end{enumerate}
+
+A diferencia de lo demostrado con la distribución uniforme, aquí la inecuación no se
+cumplirá en todos los casos. A medida que el candidato generado $r_1$ acerque la
+coordenada $x$ hacia el límite $b$, el valor del techo $e^{-\lambda x}$ decaerá rápidamente
+asintóticamente hacia cero, aumentando de forma exponencial la probabilidad de que el
+número pseudoaleatorio $r_2$ sea mayor y, por ende, rechazado.
+
+Esto ilustra el postulado de Tocher, demostrando que la ineficacia del método de rechazo
+aumenta drásticamente cuando el área de la caja delimitadora es significativamente mayor
+que el área bajo la curva de la función de densidad acotada.
+
+
+\subsubsection{Distribución de Probabilidad Normal}
+
+Para aplicar el método de rechazo a la distribución normal, partimos de su función de
+densidad de probabilidad objetivo. Dado que esta distribución se define en un rango infinito
+$(-\infty, \infty)$, para su implementación mediante esta técnica hay que truncar la
+distribución en un intervalo finito $[a, b]$ lo suficientemente amplio para asegurar que la
+masa de probabilidad fuera de ese rango sea despreciable:
+
+\begin{equation}
+    f(z) = \frac{1}{\sqrt{2\pi}}\, e^{-z^2/2}
+\end{equation}
+
+\begin{enumerate}
+    \item Buscamos un factor de escala $c$ tal que el máximo de la curva escalada sea
+          menor o igual a 1: $c \cdot f(x) \leq 1$.
+
+          Como el valor máximo de la función normal estándar ocurre en la media ($z = 0$)
+          y es aproximadamente $0{,}3989$, el factor de escala óptimo para que el ``techo''
+          de la función sea exactamente 1 es:
+          \begin{equation}
+              c = \sqrt{2\pi} \approx 2{,}5066
+          \end{equation}
+
+    \item Se genera un primer número pseudoaleatorio $r_1 \sim U(0,1)$ y se proyecta
+          linealmente al rango de interés $[a, b]$ para obtener un valor candidato $z$:
+          \begin{equation}
+              z = a + (b - a)\,r_1
+          \end{equation}
+
+    \item Se genera un segundo número pseudoaleatorio $r_2 \sim U(0,1)$. La pareja de
+          números $(r_1, r_2)$ es aceptada si se satisface la relación de la función objetivo
+          escalada:
+          \begin{equation}
+              r_2 \leq c \cdot f(z)
+          \end{equation}
+
+          Sustituyendo los valores de la distribución normal, la condición de aceptación se
+          simplifica:
+          \begin{equation}
+              r_2 \leq e^{-z^2/2}
+          \end{equation}
+
+    \item Si la inecuación se cumple, el par es aceptado y se usa $z$ como el valor generado
+          de la variable aleatoria. Si no, el candidato se rechaza y se repite el procedimiento
+          desde el paso 2 hasta obtener un valor válido.
+\end{enumerate}
+
+
+\subsection{Código Método Rechazo}
+
+\subsubsection{Distribución de Probabilidad Uniforme}
+
+% Insertar código Python del método de rechazo para la distribución uniforme.
+
+\subsubsection{Distribución de Probabilidad Normal}
+
+% Insertar código Python del método de rechazo para la distribución normal.
+
+
+
+
+\section{Gráficas}
+\label{sec:graficas}
+
+Se usaron diagramas de dispersión para ver el comportamiento de los generadores
+basados en el método de rechazo (Uniforme, Normal).
+
+% Insertar gráficas correspondientes.
+
+
+
+
+\section{Discusión}
+\label{sec:discusion}
+
+% Insertar discusión de los resultados obtenidos.
+
+
+
+
+\section{Conclusiones}
+\label{sec:conclusiones}
+
+% Insertar conclusiones del trabajo.
+
+
+
+
+\nocite{*}
+
+\bibliographystyle{unsrturl}
+\bibliography{references}
+
+\end{document}
