@@ -3,97 +3,6 @@ import numpy as np
 import random
 import math
 
-
-
-# Distribucion uniforme
-# f(x) =1/b-a para a <= x <= b
-'''
-def uniforme(a=0, b=1, candidatos_totales=500):
-
-
-    # Definimos los límites (rango finito a <= x <= b)
-    
-
-    # Aquí vamos a ir guardando los números que pasen la prueba
-    dist_uniforme_rechazo = []
-
-    for _ in range(candidatos_totales):
-        
-        # 1. Generamos la coordenada paso a paso
-        r1 = random.random()  
-        r2 = random.random()  
-        
-        # 2. Transformamos r1 para que caiga en nuestro rango de 0 a 1
-        x_candidato = a + (b - a) * r1
-        
-        # 3. Definimos la altura del techo de la curva
-        techo = 1.0
-        
-        # 4. El Filtro (Criterio de Aceptación/Rechazo)
-        if r2 <= techo:
-            dist_uniforme_rechazo.append((x_candidato, r1))
-        else:
-            pass
-
-  
-
-
-def distribucion_normal(a = -5, b = 5, candidatos_totales=500):
-    dist_normal_rechazo = []
-
-    for _ in range(candidatos_totales):
-        # Generamos un número aleatorio de la distribución normal
-        r_1 = random.random()  # Candidato (eje X)
-        r_2 = random.random()  # Juez (eje Y)
-
-        x_candidato = a + (b - a) * r_1
-
-        techo_en_x = math.exp(-0.5 * (x_candidato ** 2))
-            
-        # 5. El Filtro (Criterio de Aceptación/Rechazo)
-        if r_2 <= techo_en_x:
-            dist_normal_rechazo.append(x_candidato)
-        else:
-            pass
-        
-    print(f"De {candidatos_totales} intentos, se aceptaron {len(dist_normal_rechazo)} números normales. Porcentaje de aceptación: {len(dist_normal_rechazo) / candidatos_totales * 100:.2f}%")
-
- ''' 
-def distribucion_exponencial(lambd, candidatos_totales=500):
-    a=0
-    b=10
-    dist_exponencial_rechazo = []
-
-    for _ in range(candidatos_totales):
-
-        r_1 = random.random()
-        r_2 = random.random()
-
-        x_candidato = a + (b - a) * r_1
-
-        techo_en_x = (1/lambd)* lambd * math.exp(-lambd * x_candidato)
-
-        if r_2 <= techo_en_x:
-            dist_exponencial_rechazo.append(x_candidato)
-        else:
-            pass
-
-    print(f"De {candidatos_totales} intentos, se aceptaron {len(dist_exponencial_rechazo)} números exponenciales. Porcentaje de aceptación: {len(dist_exponencial_rechazo) / candidatos_totales * 100:.2f}%")
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
 def grafico_uniforme_rechazo(a=0, b=10, candidatos_totales=500):
     # Listas separadas para guardar las coordenadas de los buenos y los malos
     aceptados_x = []
@@ -105,7 +14,7 @@ def grafico_uniforme_rechazo(a=0, b=10, candidatos_totales=500):
     for _ in range(candidatos_totales):
         r1 = random.random()  # Eje X (0 a 1)
         
-        dardo_y = random.random() 
+        r2 = random.random() 
         
         # Transformamos r1 al rango [a, b]
         x_candidato = a + (b - a) * r1
@@ -114,12 +23,14 @@ def grafico_uniforme_rechazo(a=0, b=10, candidatos_totales=500):
         techo = 1.0
         
         # Filtro de Aceptación/Rechazo
-        if dardo_y <= techo:
+        if r2 <= techo:
             aceptados_x.append(x_candidato)
-            aceptados_y.append(dardo_y)
+            aceptados_y.append(r2)
         else:
             rechazados_x.append(x_candidato)
-            rechazados_y.append(dardo_y)
+            rechazados_y.append(r2)
+
+    print(f"De {candidatos_totales} intentos, se aceptaron {len(aceptados_x)} números uniformes. Porcentaje de aceptación: {len(aceptados_x) / candidatos_totales * 100:.2f}%")
 
     # --- GRÁFICO ---
     plt.figure(figsize=(10, 6))
@@ -170,7 +81,7 @@ def grafico_normal_rechazo(a=-5, b=5, candidatos_totales=500):
             rechazados_x.append(x_candidato)
             rechazados_y.append(r2) 
 
-
+    print(f"De {candidatos_totales} intentos, se aceptaron {len(aceptados_x)} números normales. Porcentaje de aceptación: {len(aceptados_x) / candidatos_totales * 100:.2f}%")
 
     # --- GRÁFICO ---
     plt.figure(figsize=(10, 6))
@@ -198,6 +109,23 @@ def grafico_normal_rechazo(a=-5, b=5, candidatos_totales=500):
     plt.show()
 
 grafico_normal_rechazo()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -256,22 +184,136 @@ grafico_exponencial_rechazo()
 
 
 
+def poisson_inversa(lamda=3, cantidad=1000):
+    dist_poisson = []
+    
+    for _ in range(cantidad):
+        R = random.random()
+        x = 0
+        
+        probabilidad = math.exp(-lamda)
+        suma_acumulada = probabilidad
+        
+        while R > suma_acumulada:
+            x += 1
+            probabilidad = probabilidad * (lamda / x)
+            suma_acumulada += probabilidad
+            
+        dist_poisson.append(x)
+        
+    datos_generados = dist_poisson
+    
+    valores_unicos, conteos = np.unique(datos_generados, return_counts=True)
+    frecuencias = conteos / cantidad 
+    
+    # --- GRÁFICO ---
+    plt.figure(figsize=(10, 6))
+    
+    plt.bar(valores_unicos, frecuencias, color='lightgreen', edgecolor='black', alpha=0.7, label='Generados (Empírica)')
+    
+    x_teorica = np.arange(0, max(valores_unicos) + 1)
+    y_teorica = [(math.exp(-lamda) * (lamda ** k)) / math.factorial(k) for k in x_teorica]
+    plt.stem(x_teorica, y_teorica, linefmt='red', markerfmt='ro', basefmt=' ', label='Fórmula Teórica')
+    
+    # Estética
+    plt.title(f'Testeo de Generador Poisson (λ={lamda})', fontsize=14)
+    plt.xlabel('Número de Ocurrencias (k)', fontsize=12)
+    plt.ylabel('Probabilidad P(X=k)', fontsize=12)
+    
+    plt.xticks(x_teorica)
+    plt.grid(axis='y', linestyle='--', alpha=0.5)
+    plt.legend()
+    plt.show()
+
+poisson_inversa(lamda=3, cantidad=1000)
 
 
+def binomial_inversa(n=10, p=0.5, cantidad=1000):
+    dist_binomial = []
+    
+    for _ in range(cantidad):
+        R = random.random()
+        x = 0
+        
+        probabilidad = (math.comb(n, x) * (p ** x) * ((1 - p) ** (n - x)))
+        suma_acumulada = probabilidad
+        
+        while R > suma_acumulada:
+            x += 1
+            if x > n:  
+                break
+            probabilidad = (math.comb(n, x) * (p ** x) * ((1 - p) ** (n - x)))
+            suma_acumulada += probabilidad
+            
+        dist_binomial.append(x)
+        
+    datos_generados = dist_binomial
+    
+    valores_unicos, conteos = np.unique(datos_generados, return_counts=True)
+    frecuencias = conteos / cantidad 
+    
+    # --- GRÁFICO ---
+    plt.figure(figsize=(10, 6))
+    
+    plt.bar(valores_unicos, frecuencias, color='lightblue', edgecolor='black', alpha=0.7, label='Generados (Empírica)')
+    
+    x_teorica = np.arange(0, n + 1)
+    y_teorica = [math.comb(n, k) * (p ** k) * ((1 - p) ** (n - k)) for k in x_teorica]
+    plt.stem(x_teorica, y_teorica, linefmt='red', markerfmt='ro', basefmt=' ', label='Fórmula Teórica')
+    
+    plt.title(f'Testeo de Generador Binomial (n={n}, p={p})', fontsize=14)
+    plt.xlabel('Número de Éxitos (k)', fontsize=12)
+    plt.ylabel('Probabilidad P(X=k)', fontsize=12)
+    
+    plt.xticks(x_teorica) 
+    plt.grid(axis='y', linestyle='--', alpha=0.5)
+    plt.legend()
+    plt.show()
+
+binomial_inversa(n=10, p=0.5, cantidad=1000)
 
 
+def empirica_discreta_inversa(valores, probabilidades, cantidad=1000):
+    if not math.isclose(sum(probabilidades), 1.0):
+        print("Error: Las probabilidades no suman 1. Revisá tu lista.")
+        return
 
+    dist_empirica = []
+    
+    for _ in range(cantidad):
+        R = random.random()
+        suma_acumulada = 0.0
+        
+        for i in range(len(valores)):
+            suma_acumulada += probabilidades[i]
+            
+            if R <= suma_acumulada:
+                dist_empirica.append(valores[i])
+                break 
+                
+    # --- TESTEO VISUAL ---
+    valores_unicos, conteos = np.unique(dist_empirica, return_counts=True)
+    frecuencias = conteos / cantidad 
+    
+    plt.figure(figsize=(10, 6))
+    
+    plt.bar(valores_unicos, frecuencias, color='lightgreen', edgecolor='black', alpha=0.7, label='Generados (Empírica)')
+    
+    plt.stem(valores, probabilidades, linefmt='red', markerfmt='ro', basefmt=' ', label='Probabilidades Teóricas')
+    
+    plt.title('Testeo de Generador: Empírica Discreta', fontsize=14)
+    plt.xlabel('Valores Posibles (X)', fontsize=12)
+    plt.ylabel('Probabilidad P(X)', fontsize=12)
+    plt.xticks(valores)
+    plt.grid(axis='y', linestyle='--', alpha=0.5)
+    plt.legend()
+    plt.show()
 
+    return dist_empirica
 
-
-
-
-
-
-
-
-
-
+mis_valores = [0, 1, 2, 3] 
+mis_probabilidades = [0.40, 0.35, 0.20, 0.05] 
+empirica_discreta_inversa(mis_valores, mis_probabilidades, cantidad=1000)
 
 
 
