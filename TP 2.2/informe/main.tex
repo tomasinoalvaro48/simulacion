@@ -19,6 +19,7 @@
 \usepackage{subcaption}
 \crefname{table}{cuadro}{cuadros}
 \Crefname{table}{Cuadro}{Cuadros}
+\graphicspath{{./images/}{./images/graficos/}}
 
 
 \title{TP 2.2 - GENERADORES PSEUDOALEATORIOS DE DISTINTAS DISTRIBUCIONES DE PROBABILIDAD}
@@ -1134,41 +1135,167 @@ masa de probabilidad fuera de ese rango sea despreciable:
 
 \subsubsection{Distribución de Probabilidad Uniforme}
 
-% Insertar código Python del método de rechazo para la distribución uniforme.
+\begin{verbatim}
+#Definicion de varibles
+a=0
+b=10
+candidatos_totales=500
+aceptados_x = []
+aceptados_y = []
+
+rechazados_x = []
+rechazados_y = []
+
+for _ in range(candidatos_totales):
+    r1 = random.random() # Eje X (0 a 1)
+    
+    r2 = random.random()
+    
+    # Transformamos r1 al rango [a, b]
+    x_candidato = a + (b - a) * r1
+    
+    # El techo de la uniforme escalada es constante en 1.0
+    techo = 1.0
+    
+    # Filtro de Aceptación/Rechazo
+    if r2 <= techo:
+        aceptados_x.append(x_candidato)
+        aceptados_y.append(r2)
+    else:
+        rechazados_x.append(x_candidato)
+        rechazados_y.append(r2)
+
+print(f"De {candidatos_totales} intentos, se aceptaron
+{len(aceptados_x)} números uniformes. Porcentaje de aceptación:
+{len(aceptados_x) / candidatos_totales * 100:.2f}%")
+\end{verbatim}
 
 \subsubsection{Distribución de Probabilidad Normal}
 
-% Insertar código Python del método de rechazo para la distribución normal.
+\begin{verbatim}
+#Definicion de varibles
+a=-5
+b=5
+candidatos_totales=500
+aceptados_x = []
+aceptados_y = []
+
+rechazados_x = []
+rechazados_y = []
+
+for _ in range(candidatos_totales):
+    r1 = random.random()
+    r2 = random.random()
+    x_candidato = a + (b - a) * r1
+    techo = math.exp(-0.5 * (x_candidato ** 2))
+    if r2 <= techo:
+        aceptados_x.append(x_candidato)
+        aceptados_y.append(r2)
+    else:
+        rechazados_x.append(x_candidato)
+        rechazados_y.append(r2)
+
+print(f"De {candidatos_totales} intentos, se aceptaron
+{len(aceptados_x)} números normales. Porcentaje de aceptación:
+{len(aceptados_x) / candidatos_totales * 100:.2f}%")
+\end{verbatim}
 
 
 
+\section{Resultados}
+\label{sec:resultados}
 
-\section{Gráficas}
-\label{sec:graficas}
+\subsection{Método de Rechazo}
 
 Se usaron diagramas de dispersión para ver el comportamiento de los generadores
-basados en el método de rechazo (Uniforme, Normal).
+basados en el método de rechazo (Uniforme, Exponencial y Normal). Los puntos verdes
+representan los valores aceptados que satisfacen la condición de aceptación $r_2 \leq \text{techo}$, y
+los puntos rojos representan los valores rechazados.
 
-% Insertar gráficas correspondientes.
+\textbf{Distribución uniforme:} El gráfico muestra una aceptación total, ya que el ``techo'' definido
+coincide con el límite superior de la función, eliminando los rechazos.
 
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.6\textwidth]{imagen1.png}
+  \caption{Método de Rechazo - Uniforme}
+\end{figure}
 
+\textbf{Distribución normal:} Los puntos aceptados muestran una campana de Gauss. La densidad
+de puntos rojos en las zonas de baja probabilidad confirma que funciona el filtro de
+aceptación/rechazo según la teoría de Tocher.
 
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.6\textwidth]{imagen2.png}
+  \caption{Método de Rechazo - Normal}
+\end{figure}
 
-\section{Discusión}
-\label{sec:discusion}
+\textbf{Distribución exponencial:} Los puntos aceptados muestran una curva decreciente. La
+densidad de puntos rojos en las zonas de baja probabilidad confirma que funciona el filtro
+de aceptación/rechazo según la teoría de Tocher.
 
-% Insertar discusión de los resultados obtenidos.
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.6\textwidth]{imagen3.png}
+  \caption{Método de Rechazo - Exponencial}
+\end{figure}
 
+\subsection{Transformada Inversa}
 
+Para las distribuciones discretas (Poisson, Binomial y Empírica) se usaron histogramas de
+frecuencia. En los 3 casos, las barras de los valores generados muestran una convergencia
+precisa con los puntos de la fórmula teórica.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.6\textwidth]{imagen4.png}
+  \caption{Testeo de generador - Poisson}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.6\textwidth]{imagen5.png}
+  \caption{Testeo de generador - Binomial}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.6\textwidth]{imagen6.png}
+  \caption{Testeo de generador - Empírica discreta}
+\end{figure}
 
 
 \section{Conclusiones}
 \label{sec:conclusiones}
 
-% Insertar conclusiones del trabajo.
+Este trabajo permitió profundizar en la generación de variables estocásticas, demostrando
+que es posible modelar una gran variedad de fenómenos reales a partir de un generador de
+números pseudoaleatorios uniformes $(0,1)$ previamente validado.
 
+A través de la implementación de los métodos propuestos por Naylor, concluimos:
 
+El Método de la Transformada Inversa es el más simple y eficiente cuando la función
+acumulada puede invertirse fácilmente. Sin embargo, cuando esto no ocurre, como sucede
+con las distribuciones Gamma o Normal, el Método de Rechazo y las aproximaciones
+basadas en el Teorema del Límite Central resultan buenas alternativas para generar
+muestras que representen correctamente la distribución buscada.
 
+Se comprobó empíricamente el teorema de Tocher, observando que la eficiencia del método
+de rechazo depende directamente del factor de escala $(c)$. En una distribución uniforme
+prácticamente todos los valores son aceptados, mientras que en distribuciones como la
+Normal o la Exponencial es necesario descartar algunos candidatos, especialmente en las
+colas de la distribución, lo que hace que el proceso requiera más tiempo de cálculo.
+
+El análisis visual mediante histogramas y scatter plots, complementado con pruebas de
+bondad de ajuste $\chi^2$, fue muy útil para verificar que los algoritmos no solo generen números
+al azar, sino que estos sigan el comportamiento esperado de cada distribución.
+
+En conclusión, la generación de variables aleatorias con distribuciones específicas es una
+herramienta fundamental para la simulación. Estas técnicas permiten representar el
+comportamiento de sistemas reales y obtener resultados estadísticamente confiables sin
+tener que realizar experimentos directamente sobre la realidad, lo que reduce costos y
+facilita el análisis de distintos problemas.
 
 \nocite{*}
 
