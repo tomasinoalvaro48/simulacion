@@ -1,5 +1,6 @@
 import math
 import random
+import matplotlib.pyplot as plt
 
 # Constantes de Estado del Servidor
 BUSY = 1
@@ -53,7 +54,11 @@ def initialize(mean_interarrival):
         
         # Estadísticas de arribos y bloqueos (para M/M/1/K)
         'num_custs_arrived': 0,
-        'num_custs_blocked': 0
+        'num_custs_blocked': 0,
+
+        # Historial de métricas en el tiempo (para graficar evolución temporal)
+        # Cada entrada: (sim_time, L, L_q, W, W_q)
+        'history': []
     }
     return state
 
@@ -154,13 +159,18 @@ def depart(state, mean_service):
 
 
 # ----------------- Función Principal de Simulación -----------------
+
+# Cada cuántos clientes retrasados se captura un snapshot de métricas
+HISTORY_INTERVAL = 100
+
 def run_simulation(mean_interarrival, mean_service, num_delays_required, queue_limit, seed):
     # Inicializa el generador de números aleatorios para esta corrida
     random.seed(seed)
     
     # Inicializa el estado del sistema
     state = initialize(mean_interarrival)
-    
+    last_snapshot = 0  # Número de clientes retrasados en el último snapshot
+
     # Ciclo principal de simulación
     while state['num_custs_delayed'] < num_delays_required:
         # Determina el tipo del siguiente evento
@@ -177,6 +187,18 @@ def run_simulation(mean_interarrival, mean_service, num_delays_required, queue_l
             arrive(state, mean_interarrival, mean_service, queue_limit)
         elif next_event_type == 2:
             depart(state, mean_service)
+
+        # Captura snapshot de métricas cada HISTORY_INTERVAL clientes retrasados
+        nd = state['num_custs_delayed']
+        if nd > 0 and nd - last_snapshot >= HISTORY_INTERVAL:
+            t = state['sim_time']
+            utilization = state['area_server_status'] / t
+            L_q = state['area_num_in_q'] / t
+            L   = L_q + utilization
+            W_q = state['total_of_delays'] / nd
+            W   = state['total_time_in_system'] / nd
+            state['history'].append((t, L, L_q, W, W_q))
+            last_snapshot = nd
             
     return state
 
@@ -261,6 +283,54 @@ def print_report(metrics, queue_limit, file=None):
 
 
 
+# ----------------- Gráficos de evolución temporal -----------------
+def plot_metrics(history, queue_limit):
+    """
+    Genera dos subgráficos con la evolución de las métricas de rendimiento
+    a lo largo del tiempo de simulación:
+      - Subplot 1: Promedio de clientes en cola (Lq) y en el sistema (L)
+      - Subplot 2: Tiempo promedio en sistema (W) y en cola (Wq)
+    """
+    if not history:
+        print("No hay datos de historial para graficar.")
+        return
+
+    times = [h[0] for h in history]
+    L_vals  = [h[1] for h in history]
+    Lq_vals = [h[2] for h in history]
+    W_vals  = [h[3] for h in history]
+    Wq_vals = [h[4] for h in history]
+
+    title_suffix = f"M/M/1/{queue_limit}" if queue_limit != float('inf') else "M/M/1"
+
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 7), sharex=True)
+    fig.suptitle(f"Evolución temporal de métricas — Modelo {title_suffix}", fontsize=13, fontweight='bold')
+
+    # --- Subplot 1: L y Lq ---
+    ax1.plot(times, Lq_vals, color='deeppink',  linewidth=1.5, label='Promedio de clientes en cola (Lq)')
+    ax1.plot(times, L_vals,  color='dodgerblue', linewidth=1.5, label='Promedio de clientes en sistema (L)')
+    ax1.axhline(0, color='gray', linewidth=0.5, linestyle='--')
+    ax1.set_ylabel('Clientes')
+    ax1.legend(loc='upper right', fontsize=8)
+    ax1.grid(True, linestyle='--', alpha=0.5)
+    ax1.set_title('Clientes promedio en cola y en sistema')
+
+    # --- Subplot 2: W y Wq ---
+    ax2.plot(times, W_vals,  color='deeppink',  linewidth=1.5, label='Tiempo promedio en sistema (W)')
+    ax2.plot(times, Wq_vals, color='orange',     linewidth=1.5, label='Tiempo promedio en cola (Wq)')
+    ax2.axhline(0, color='gray', linewidth=0.5, linestyle='--')
+    ax2.set_ylabel('Minutos')
+    ax2.set_xlabel('Tiempo de simulación (minutos)')
+    ax2.legend(loc='upper right', fontsize=8)
+    ax2.grid(True, linestyle='--', alpha=0.5)
+    ax2.set_title('Tiempos promedio en sistema y en cola')
+
+    plt.tight_layout()
+    plt.savefig('mm1_metricas_tiempo.png', dpi=150)
+    plt.show()
+    print("Gráfico guardado en 'mm1_metricas_tiempo.png'.")
+
+
 # ------------- Simulación ------------- 
 def main():
     # Simulación Principal
@@ -308,6 +378,10 @@ def main():
         for cap, met in comparison_results:
             outfile.write(f"  {cap:<10d} | {met['arrived']:<10d} | {met['blocked']:<10d} | {met['prob_blocking']:<15.6f} | {met['utilization']:<12.4f} | {met['L_q']:<8.4f}\n")
         outfile.write("=" * 80 + "\n")
+
+    # Gráfico de evolución temporal con la corrida principal
+    print("\nGenerando gráficos de evolución temporal...")
+    plot_metrics(state_main['history'], QUEUE_LIMIT)
 
 if __name__ == '__main__':
     main()
