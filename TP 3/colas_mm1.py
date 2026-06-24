@@ -1,3 +1,4 @@
+import datetime
 import math
 import random
 import matplotlib.pyplot as plt
@@ -13,7 +14,7 @@ MEAN_SERVICE = 0.8 # Tiempo promedio de servicio (minutos)
 NUM_DELAYS_REQUIRED = 10000 # Cantidad de clientes a procesar (que completan retraso e inician servicio)
 QUEUE_LIMIT = float('inf') # Límite de la cola (cantidad de clientes que pueden estar en cola) M/M/1/K - float('inf') para M/M/1
 
-RANDOM_SEED = 42 # Semilla de numeros aleatorios
+RANDOM_SEED = datetime.datetime.now().microsecond # Semilla de numeros aleatorios
 OUTPUT_FILE = "mm1.out" # Nombre del archivo de salida para el reporte
 
 
@@ -258,7 +259,6 @@ def print_report(metrics, queue_limit, file=None):
     print_both(f"  Tiempo promedio de servicio (1/mu):       {MEAN_SERVICE:.3f} minutos")
     print_both(f"  Clientes requeridos en simulación:        {NUM_DELAYS_REQUIRED}")
     print_both(f"  Límite de la cola (K):                    {queue_limit if queue_limit != float('inf') else 'Infinito (M/M/1)'}")
-    print_both(f"  Semilla aleatoria:                        {RANDOM_SEED}")
     print_both("-" * 60)
     print_both(f"Medidas de Rendimiento:")
     print_both(f"  Tiempo de simulación transcurrido:        {metrics['sim_time']:.3f} minutos")
@@ -333,55 +333,57 @@ def plot_metrics(history, queue_limit):
 
 # ------------- Simulación ------------- 
 def main():
-    # Simulación Principal
-    print("Ejecutando simulación principal...")
-    state_main = run_simulation(MEAN_INTERARRIVAL, MEAN_SERVICE, NUM_DELAYS_REQUIRED, QUEUE_LIMIT, RANDOM_SEED)
-    metrics_main = calculate_metrics(state_main)
-    
-    # Escribir reporte en archivo mm1.out y mostrar por pantalla
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as outfile:
-        print_report(metrics_main, QUEUE_LIMIT, outfile)
+    for i in range(10):
+        print(f"Corrida {i+1}:")
+        # Simulación Principal
+        print("Ejecutando simulación principal...")
+        state_main = run_simulation(MEAN_INTERARRIVAL, MEAN_SERVICE, NUM_DELAYS_REQUIRED, QUEUE_LIMIT, RANDOM_SEED+i)
+        metrics_main = calculate_metrics(state_main)
         
-    print(f"Reporte detallado guardado en '{OUTPUT_FILE}'.\n")
-    
-    # Simulación de Comparación (Denegación de servicio con cola finita de tamaño: 0, 2, 5, 10, 50)
-    print("Ejecutando comparación de denegación de servicio para colas finitas K = [0, 2, 5, 10, 50]...")
-    capacities = [0, 2, 5, 10, 50]
-    comparison_results = []
-    
-    for cap in capacities:
-        state_cap = run_simulation(MEAN_INTERARRIVAL, MEAN_SERVICE, NUM_DELAYS_REQUIRED, cap, RANDOM_SEED)
-        metrics_cap = calculate_metrics(state_cap)
-        comparison_results.append((cap, metrics_cap))
+        # Escribir reporte en archivo mm1.out y mostrar por pantalla
+        with open(OUTPUT_FILE, "w", encoding="utf-8") as outfile:
+            print_report(metrics_main, QUEUE_LIMIT, outfile)
+            
+        print(f"Reporte detallado guardado en '{OUTPUT_FILE}'.\n")
         
-    # Tabla comparativa
-    print("\n" + "=" * 80)
-    print("  TABLA COMPARATIVA: EFECTO DEL TAMAÑO DE COLA (K) SOBRE LA DENEGACIÓN DE SERVICIO")
-    print("=" * 80)
-    print(f"  Parámetros: Interarribo={MEAN_INTERARRIVAL:.2f} min | Servicio={MEAN_SERVICE:.2f} min | Clientes={NUM_DELAYS_REQUIRED}")
-    print("-" * 80)
-    print(f" {'Cola (K)':<10} | {'Arribos':<10} | {'Bloqueados':<10} | {'P(Denegación)':<15} | {'Utilización':<12} | {'Lq':<8}")
-    print("-" * 80)
-    for cap, met in comparison_results:
-        print(f" {cap:<10d} | {met['arrived']:<10d} | {met['blocked']:<10d} | {met['prob_blocking']:<15.6f} | {met['utilization']:<12.4f} | {met['L_q']:<8.4f}")
-    print("=" * 80)
-    
-    # Archivo de salida
-    with open(OUTPUT_FILE, "a", encoding="utf-8") as outfile:
-        outfile.write("\n" + "=" * 80 + "\n")
-        outfile.write("  TABLA COMPARATIVA: EFECTO DEL TAMAÑO DE COLA (K) SOBRE LA DENEGACIÓN DE SERVICIO\n")
-        outfile.write("=" * 80 + "\n")
-        outfile.write(f"  Parámetros: Interarribo={MEAN_INTERARRIVAL:.2f} min | Servicio={MEAN_SERVICE:.2f} min | Clientes={NUM_DELAYS_REQUIRED}\n")
-        outfile.write("-" * 80 + "\n")
-        outfile.write(f"  {'Cola (K)':<10} | {'Arribos':<10} | {'Bloqueados':<10} | {'P(Denegación)':<15} | {'Utilización':<12} | {'Lq':<8}\n")
-        outfile.write("-" * 80 + "\n")
+        # Simulación de Comparación (Denegación de servicio con cola finita de tamaño: 0, 2, 5, 10, 50)
+        print("Ejecutando comparación de denegación de servicio para colas finitas K = [0, 2, 5, 10, 50]...")
+        capacities = [0, 2, 5, 10, 50]
+        comparison_results = []
+        
+        for cap in capacities:
+            state_cap = run_simulation(MEAN_INTERARRIVAL, MEAN_SERVICE, NUM_DELAYS_REQUIRED, cap, RANDOM_SEED+i)
+            metrics_cap = calculate_metrics(state_cap)
+            comparison_results.append((cap, metrics_cap))
+            
+        # Tabla comparativa
+        print("\n" + "=" * 80)
+        print("  TABLA COMPARATIVA: EFECTO DEL TAMAÑO DE COLA (K) SOBRE LA DENEGACIÓN DE SERVICIO")
+        print("=" * 80)
+        print(f"  Parámetros: Interarribo={MEAN_INTERARRIVAL:.2f} min | Servicio={MEAN_SERVICE:.2f} min | Clientes={NUM_DELAYS_REQUIRED}")
+        print("-" * 80)
+        print(f" {'Cola (K)':<10} | {'Arribos':<10} | {'Bloqueados':<10} | {'P(Denegación)':<15} | {'Utilización':<12} | {'Lq':<8}")
+        print("-" * 80)
         for cap, met in comparison_results:
-            outfile.write(f"  {cap:<10d} | {met['arrived']:<10d} | {met['blocked']:<10d} | {met['prob_blocking']:<15.6f} | {met['utilization']:<12.4f} | {met['L_q']:<8.4f}\n")
-        outfile.write("=" * 80 + "\n")
+            print(f" {cap:<10d} | {met['arrived']:<10d} | {met['blocked']:<10d} | {met['prob_blocking']:<15.6f} | {met['utilization']:<12.4f} | {met['L_q']:<8.4f}")
+        print("=" * 80)
+        
+        # Archivo de salida
+        with open(OUTPUT_FILE, "a", encoding="utf-8") as outfile:
+            outfile.write("\n" + "=" * 80 + "\n")
+            outfile.write("  TABLA COMPARATIVA: EFECTO DEL TAMAÑO DE COLA (K) SOBRE LA DENEGACIÓN DE SERVICIO\n")
+            outfile.write("=" * 80 + "\n")
+            outfile.write(f"  Parámetros: Interarribo={MEAN_INTERARRIVAL:.2f} min | Servicio={MEAN_SERVICE:.2f} min | Clientes={NUM_DELAYS_REQUIRED}\n")
+            outfile.write("-" * 80 + "\n")
+            outfile.write(f"  {'Cola (K)':<10} | {'Arribos':<10} | {'Bloqueados':<10} | {'P(Denegación)':<15} | {'Utilización':<12} | {'Lq':<8}\n")
+            outfile.write("-" * 80 + "\n")
+            for cap, met in comparison_results:
+                outfile.write(f"  {cap:<10d} | {met['arrived']:<10d} | {met['blocked']:<10d} | {met['prob_blocking']:<15.6f} | {met['utilization']:<12.4f} | {met['L_q']:<8.4f}\n")
+            outfile.write("=" * 80 + "\n")
 
-    # Gráfico de evolución temporal con la corrida principal
-    print("\nGenerando gráficos de evolución temporal...")
-    plot_metrics(state_main['history'], QUEUE_LIMIT)
+        # Gráfico de evolución temporal con la corrida principal
+        print("\nGenerando gráficos de evolución temporal...")
+        plot_metrics(state_main['history'], QUEUE_LIMIT)
 
 if __name__ == '__main__':
     main()
