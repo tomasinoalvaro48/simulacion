@@ -85,9 +85,81 @@ Aunque existen fórmulas para resolver estos problemas, la simulación computaci
 \label{sec:marco}
 
 \subsection{Modelo M/M/1}
+El modelo M/M/1 representa un sistema de colas con un único servidor, donde los tiempos entre arribos de los clientes y los tiempos de servicios se modelan como variables aleatorias independientes de distribución exponencial. La letra M hace referencia a la propiedad "Markoviana" o de falta de memoria (\textit{memoryless}) de la distribución exponencial, que significa que el estado futuro del sistema solo depende del estado actual y no de su historia pasada.
 
-\subsection{Modelo de Inventario}
+Este sistema se define por tres componentes: proceso de llegada (\textit{arrival process}), mecanismo de servicio (\textit{service mechanism}) y disciplina de la cola (\textit{queue discipline}). Se asume que los clientes llegan uno a la vez y, si encuentran al servidor ocupado, se incorporan a una única cola que suele seguir una disciplina FIFO (first-in, first-out), donde el primer cliente en llegar es el primero en ser atendido.
 
+\subsubsection{Parámetros del sistema}
+\textbf{Tasa de arribos (\textit{arrival rate}):} Es el recíproco del tiempo promedio entre llegadas ($E(A)$: \textit{mean interarrival time}).
+\begin{equation}
+\lambda = 1/E(A)
+\end{equation}
+
+\textbf{Tasa de servicio (\textit{service rate}):} Es el recíproco del tiempo de servicio promedio por cliente ($E(S)$: \textit{mean service time}).
+\begin{equation}
+\omega = 1/E(S)
+\end{equation}
+
+\textbf{Factor de utilización (\textit{utilization factor}):} Representa qué tan cargado está el servidor y para un sistema de un solo servidor se calcula como:
+\begin{equation}
+\rho = \lambda / \omega
+\end{equation}
+
+\subsubsection{Condición de estabilidad y estado estacionario}
+Un aspecto crítico de la simulación es determinar si el sistema alcanza un estado estacionario, es decir, un punto en el que las características estadísticas del modelo se vuelven constantes tras un periodo de funcionamiento prolongado. Para que estas medidas de rendimiento existan y sean finitas en un modelo M/M/1, se tiene que cumplir la condición de estabilidad $\rho < 1$. Si no se cumple, la cola crecería indefinidamente.
+
+También incorporamos el análisis del \textbf{modelo M/M/1/K (cola finita)}, que tiene una capacidad de sistema limitada a $k$ clientes (servidor + cola). A diferencia del sistema infinito, este modelo siempre alcanza un estado estable, aunque $\lambda \geq \omega$, ya que los clientes excedentes son rechazados por el mecanismo de denegación de servicio. Este rechazo impide que la cola crezca indefinidamente, estabilizando el flujo de salida al nivel de la tasa de servicio.
+
+\subsubsection{Medidas de rendimiento}
+Las medidas de rendimiento que se esperan obtener son:
+\begin{itemize}
+    \item \textbf{L:} Número promedio de clientes en el sistema (incluyendo al que está en servicio).
+    \item \textbf{Q:} Número promedio de clientes en la cola.
+    \item \textbf{w:} Tiempo promedio de espera en el sistema (espera en cola más tiempo de servicio).
+    \item \textbf{d:} Retraso promedio en la cola.
+\end{itemize}
+
+Estas medidas se relacionan por las ecuaciones de conservación (\textit{conservation equations}):
+\begin{equation}
+Q = \lambda d \quad \text{y} \quad L = \lambda w
+\end{equation}
+
+En el caso del modelo M/M/1 en estado estacionario, el número promedio de clientes en el sistema se puede calcular directamente como $L = \rho / (1 - \rho)$. El tiempo total en el sistema se vincula con el retraso en la cola por la expresión $w = d + E(S)$.
+
+También se consideran las medidas probabilísticas:
+\begin{itemize}
+    \item \textbf{Probabilidad de encontrar n clientes en cola ($P_n$):} Para un sistema M/M/1 infinito, se define por la expresión analítica $P_n = (1 - \rho)\rho^n$.
+    \item \textbf{Probabilidad de denegación de servicio (Bloqueo):} Se calcula como $P_k$, donde $k$ representa la capacidad máxima del sistema. Esta probabilidad indica la fracción de tiempo que el sistema permanece lleno, y por lo tanto la probabilidad de que un cliente que llega sea rechazado. En este informe, se analiza este comportamiento variando el tamaño de la cola en 0, 2, 5, 10 y 50 lugares.
+\end{itemize}
+
+\subsection{Modelo de inventario}
+El estudio de los sistemas de inventario tiene como objetivo determinar políticas de pedido óptimas para un producto específico, buscando satisfacer la demanda de los clientes mientras se minimizan los costos totales de operación. Estos sistemas se modelan como procesos estocásticos y dinámicos, donde el nivel de inventario cambia instantáneamente ante la ocurrencia de eventos discretos, como la llegada de una demanda o la recepción de un pedido.
+
+\subsubsection{Política estacionaria (s, S) (\textit{stationary policy})}
+El nivel de inventario se revisa en intervalos de tiempo fijos. Si el nivel de inventario actual ($I$) es menor al punto de reorden ($s$), se emite un pedido por una cantidad $Z = S - I$ para alcanzar el nivel de objetivo $S$. Si el inventario es mayor o igual a $s$, no se hace ningún pedido en ese periodo.
+
+\subsubsection{Componentes del costo}
+Para evaluar la eficiencia de una política de inventario, las categorías de costos que conforman el costo total (\textit{total cost}) son:
+\begin{itemize}
+    \item \textbf{Costo de pedido (\textit{ordering cost}):} Es el gasto incurrido al solicitar suministros. Se compone de un costo fijo de preparación o configuración ($K$) y un costo incremental proporcional a la cantidad de unidades solicitadas ($i \cdot z$).
+    \item \textbf{Costo de mantenimiento (\textit{holding cost}):} Representa el costo de capital, almacenamiento y seguros por mantener productos en stock.
+    \item \textbf{Costo de faltante (\textit{shortage cost}):} Es la penalización económica por no poder satisfacer la demanda de un cliente, lo que suele traducirse en ventas perdidas o pedidos pendientes (\textit{backlog}).
+\end{itemize}
+
+\subsubsection{Tipos de eventos y variables de estado}
+El sistema se rige por la interacción de 4 tipos de eventos: llegada de un pedido del proveedor, demanda de un cliente, fin de la simulación y evaluación periódica del inventario.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1\textwidth]{imagen1.png}
+\end{figure}
+
+Las variables de estado son: el nivel de inventario ($I(t)$: \textit{inventory level}), la cantidad de pedidos pendientes de entrega (\textit{the amount of an outstanding order from the company to the supplier}) y el tiempo del último evento (\textit{the time of the last event}).
+
+Un factor clave en la dinámica es el retraso de entrega (\textit{delivery lag} o \textit{lead time}), que es el tiempo aleatorio que transcurre desde que se emite una orden hasta que los productos ingresan efectivamente al inventario.
+
+\subsubsection{Objetivo de la simulación}
+Como los componentes del costo suelen reaccionar de forma opuesta ante cambios en los parámetros $s$ y $S$, la simulación permite estimar el costo total promedio esperado (\textit{expected average total cost}) para distintas configuraciones, y así identificar la política más económica.
 
 
 
@@ -98,22 +170,282 @@ Aunque existen fórmulas para resolver estos problemas, la simulación computaci
 \subsection{Python}
 
 \subsubsection{Modelo de Colas MM1}
+En este modelo de simulación de colas M/M/1 y M/M/1/K, el comportamiento del sistema puede modificarse mediante distintos parámetros de entrada. La variación de estos parámetros permite representar diferentes escenarios y analizar cómo afectan al rendimiento del sistema, tales como la congestión de la cola, los tiempos de espera, la utilización del servidor y la probabilidad de rechazo de clientes.
+
+\paragraph{3.1.1.1 Definir Parámetros de Entrada}
+En este modelo de simulación de colas M/M/1 y M/M/1/K, el comportamiento del sistema puede modificarse mediante distintos parámetros de entrada. La variación de estos parámetros permite representar diferentes escenarios. Los parámetros que se pueden modificar son los siguientes:
+\begin{itemize}
+    \item El tiempo promedio entre arribos (\textit{MEAN\_INTERARRIVAL}): 1/$\lambda$
+    \item El tiempo promedio de servicio (\textit{MEAN\_SERVICE}): 1/$\mu$
+    \item Cantidad de clientes a procesar (\textit{NUM\_DELAYS\_REQUIRED})
+    \item Tamaño máximo de la cola (\textit{QUEUE\_LIMIT})
+\end{itemize}
+
+\paragraph{3.1.1.2 Generar variables aleatorias}
+En MM1, las distribuciones suelen ser exponenciales, por lo que es importante generar aleatoriedad. Para esto, vamos a usar la biblioteca estándar de Python \textit{random}. Los valores aleatorios del sistema se generan exclusivamente mediante la función:
+
+\begin{verbatim}
+random.expovariate(1.0 / mean)
+\end{verbatim}
+
+Esta función produce variables aleatorias con distribución exponencial, que en este modelo representan el Tiempo entre arribos de clientes (\textit{MEAN\_INTERARRIVAL}) y el Tiempo de servicio del servidor (\textit{MEAN\_SERVICE}). Ambos procesos se modelan como variables independientes.
+
+En este código, la semilla se define como:
+\begin{verbatim}
+RANDOM_SEED = datetime.datetime.now().microsecond
+\end{verbatim}
+
+El uso de una semilla dinámica transforma la simulación en un experimento donde se puede Analizar variabilidad de resultados, Evaluar estabilidad estadística de las métricas y Detectar sensibilidad del sistema al azar.
+
+\paragraph{3.1.1.3 Modelar eventos}
+Los eventos se modelaron mediante el enfoque clásico de simulación de eventos discretos. Es decir, el reloj de simulación no avanza continuamente, sino que salta directamente al instante del próximo evento.
+
+Solo hay dos tipos de eventos representados en el código:
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|l|}
+\hline
+\textbf{Evento} & \textbf{Código} & \textbf{Significado} \\ \hline
+Arribo & 1 & Llega un cliente al sistema \\ \hline
+Salida & 2 & Termina el servicio de un cliente \\ \hline
+\end{tabular}
+\end{table}
+
+En el código:
+\begin{verbatim}
+'time_next_event': {
+    1: expon(mean_interarrival),  # próximo arribo
+    2: float('inf')               # próxima salida
+}
+\end{verbatim}
+
+La próxima salida tiene tiempo infinito por default ya que si no hay clientes que se están atendiendo en el servidor, no hay un tiempo de salida definido. Cada evento tiene asociado un instante futuro. En nuestro código se calcula así:
+
+\begin{verbatim}
+state['time_next_event'][1] = state['sim_time'] + expon(mean_interarrival)
+\end{verbatim}
+
+Esto significa que el próximo arribo ocurrirá dentro de un tiempo exponencial. Si el reloj actual vale 10 min y se genera un interarribo de 0.7 min:
+\begin{itemize}
+    \item t = 10
+    \item interarribo = 0.7
+    \item => próximo arribo = 10.7
+\end{itemize}
+
+La selección del siguiente evento se realiza mediante la función \textit{timing(state)}. Donde, entre otras cosas, esta busca el evento más cercano en el tiempo:
+\begin{verbatim}
+for event_type, event_time in state['time_next_event'].items():
+    if event_time < min_time:
+        min_time = event_time
+        next_event_type = event_type
+\end{verbatim}
+
+Para modelar los arribos se programó la función \textit{arrive(...)}. Al ocurrir un arribo se agenda el próximo arribo y se verifica el estado del servidor. Si el servidor está libre:
+\begin{verbatim}
+if state['server_status'] == IDLE
+\end{verbatim}
+El cliente entra directamente al servicio y se programa su salida:
+\begin{verbatim}
+state['time_next_event'][2] = state['sim_time'] + service_time
+\end{verbatim}
+
+Si el servidor está ocupado:
+\begin{verbatim}
+if state['server_status'] == BUSY
+\end{verbatim}
+si hay espacio en cola, se agrega a la cola. Si la cola está llena, se bloquea la llegada.
+
+Para modelar las salidas se programó la función \textit{depart(...)}. Cuando termina un servicio, si no hay clientes esperando (cola vacía) el servidor pasa a estado ocioso y se elimina el próximo evento de salida (se programa la próxima salida para que sea en tiempo infinito):
+\begin{verbatim}
+# Verifica si la cola está vacía
+if state['num_in_q'] == 0:
+    # La cola está vacía, el servidor pasa a estar inactivo y se desprograma la salida
+    state['server_status'] = IDLE
+    state['time_next_event'][2] = float('inf')
+\end{verbatim}
+
+Si hay clientes esperando (cola no vacía) Se toma el primer cliente, se calcula cuánto esperó, se genera un nuevo tiempo de servicio y se agenda la próxima salida:
+\begin{verbatim}
+else:
+    # La cola no está vacía, se saca al primer cliente de la cola
+    state['num_in_q'] -= 1
+    arrival_time = state['time_arrival'].pop(0)
+    # Calcula el retraso de este cliente y acumula
+    delay = state['sim_time'] - arrival_time
+    state['total_of_delays'] += delay
+    state['num_custs_delayed'] += 1
+    # Genera el tiempo de servicio y programa salida
+    service_time = expon(mean_service)
+    state['time_next_event'][2] = state['sim_time'] + service_time
+    # Acumula tiempo en el sistema (retraso en cola + tiempo de servicio)
+    state['total_time_in_system'] += delay + service_time
+\end{verbatim}
+
+\paragraph{3.1.1.4 Métricas a evaluar}
+A partir de esto vamos a ir recolectando las métricas de las 10 corridas exigidas y con el barrido de parámetros correspondiente. Las métricas basadas en promedios temporales utilizan el método de áreas. Antes de procesar cada evento, la función update\_time\_avg\_stats() calcula el tiempo transcurrido desde el evento anterior.
+
+Una vez finalizada una de esas 10 simulaciones, las métricas de rendimiento se calculan en la función calculate\_metrics(state), utilizando los acumuladores estadísticos actualizados durante la ejecución de los eventos de arribo y salida. Las métricas calculadas son:
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1\textwidth]{imagen2.png}
+\end{figure}
+
+En el código:
+\begin{verbatim}
+utilization = state['area_server_status'] / sim_time
+\end{verbatim}
+Donde la variable \textit{area\_server\_status} acumula el área bajo la curva del estado del servidor (1 cuando está ocupado y 0 cuando está libre).
+
+\begin{verbatim}
+L_q = state['area_num_in_q'] / sim_time
+\end{verbatim}
+La variable \textit{area\_num\_in\_q} almacena el área bajo la curva del tamaño de la cola.
+
+\begin{verbatim}
+L = L_q + utilization
+\end{verbatim}
+Se aprovecha que, en un sistema con un único servidor, la cantidad promedio de clientes en servicio coincide con la utilización del servidor.
+
+\begin{verbatim}
+W_q = state['total_of_delays'] / num_delayed
+\end{verbatim}
+La variable \textit{total\_of\_delays} acumula todos los retrasos sufridos por los clientes antes de iniciar servicio.
+
+\begin{verbatim}
+W = state['total_time_in_system'] / num_delayed
+\end{verbatim}
+La variable \textit{total\_time\_in\_system} acumula, para cada cliente, la suma del tiempo de espera más su tiempo de servicio.
+
+\begin{verbatim}
+for n, time_spent in state['time_in_q_state'].items():
+      prob_n_in_q[n] = time_spent / sim_time
+\end{verbatim}
+Donde \textit{prob\_n\_in\_q} es la probabilidad de encontrar n clientes en cola. La estructura \textit{time\_in\_q\_state} almacena el tiempo acumulado que el sistema permaneció en cada estado de cola.
+
+Probabilidad de denegación de servicio: Esta métrica es relevante cuando la cola tiene capacidad finita (K). Mide la proporción de clientes que fueron rechazados por encontrar la cola completa.
+\begin{verbatim}
+prob_blocking = blocked / arrived
+\end{verbatim}
+Si la cola es infinita (modelo M/M/1), esta probabilidad es igual a cero porque ningún cliente puede ser rechazado.
+
+Una vez terminadas las corridas, para graficar los resultados se utiliza la biblioteca matplotlib.
 
 \subsubsection{Modelo de Inventario}
+La simulación permite representar el comportamiento dinámico de un sistema sometido a demanda aleatoria, tiempos de entrega variables y diferentes componentes de costo.
+
+Tiene tres componentes fundamentales de costo: costo de ordenamiento, costo de mantenimiento de inventario y costo por faltantes. El desempeño de cada política se evalúa a través de múltiples réplicas independientes, lo que permite obtener resultados estadísticamente más robustos y reducir la influencia de la variabilidad aleatoria inherente al sistema.
+
+De manera simple, el código de este modelo se basa en lo siguiente:
+\begin{itemize}
+    \item Se revisa el inventario cada cierto período
+    \item Si el stock cae por debajo del Punto de Reorden → Se hace un pedido
+    \item El pedido llega tras un tiempo (que puede ser fijo o aleatorio)
+\end{itemize}
+
+\paragraph{3.1.2.1 Definición de Parámetros}
+El sistema inicia con un conjunto de parámetros que describen el comportamiento del inventario. Estos son:
+\begin{itemize}
+    \item Inventario inicial (\textit{INITIAL\_INV\_LEVEL}).
+    \item Horizonte de simulación (NUM\_MONTHS).
+    \item Promedio de llegada de demandas (MEAN\_INTERDEMAND).
+    \item Tamaño de la demanda (PROB\_DISTRIB\_DEMAND): La demanda puede tomar valores discretos entre 1 y 4 unidades. La distribución acumulada utilizada genera probabilidades equivalentes a:
+\end{itemize}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Demanda} & \textbf{Probabilidad} \\ \hline
+1 & 1/6 \\ \hline
+2 & 1/3 \\ \hline
+3 & 1/3 \\ \hline
+4 & 1/6 \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{itemize}
+    \item Costo de ordenamiento (SETUP\_COST): Representa el costo fijo asociado a realizar un pedido.
+    \item Costo variable por unidad solicitada (INCREMENTAL\_COST).
+    \item Costo de mantenimiento (HOLDING\_COST): Corresponde al costo de almacenar una unidad durante un mes.
+    \item Costo de faltante (SHORTAGE\_COST): Penaliza la falta de inventario cuando la demanda supera las existencias disponibles.
+\end{itemize}
+
+\paragraph{3.1.2.2 Generación de Variables Aleatorias}
+El comportamiento estocástico del sistema se modela mediante dos distribuciones probabilísticas. Para cada período, es decir, por cada mes, se reciben los pedidos pendientes que llegan en ese mes y se genera una demanda aleatoria para ese mes.
+
+Para generar tiempos entre demandas se utiliza una distribución exponencial:
+\begin{verbatim}
+random.expovariate(1.0 / mean)
+\end{verbatim}
+Esta distribución es adecuada para representar procesos de llegadas aleatorias independientes.
+
+Para generar tiempos de entrega de pedidos se utiliza una distribución Uniforme:
+\begin{verbatim}
+random.uniform(a,b)
+\end{verbatim}
+Donde el tiempo de entrega puede variar entre 0.5 y 1.0 meses:
+\begin{verbatim}
+MINLAG = 0.5
+MAXLAG = 1.0
+\end{verbatim}
+
+\paragraph{3.1.2.3 Métricas a evaluar}
+Al finalizar cada réplica, el programa calcula una serie de métricas que permiten cuantificar los costos asociados a la gestión del inventario y comparar objetivamente las diferentes políticas (s,S).
+
+Dado que el modelo es estocástico, una sola ejecución no es suficiente para obtener conclusiones confiables. Por ello se realizan diez réplicas independientes para cada política. Para cada métrica se calculan el promedio, que representa el comportamiento esperado de la política, y el desvío, que mide la dispersión de los resultados obtenidos entre las distintas réplicas.
+
+\begin{verbatim}
+statistics.mean(values)
+statistics.stdev(values)
+\end{verbatim}
+
+A través de los costos de ordenamiento, mantenimiento y faltantes, el modelo cuantifica los distintos compromisos asociados a la gestión del stock. La combinación de estos componentes en el costo total promedio, junto con el análisis de la variabilidad entre réplicas, permite identificar la política (s,S) más eficiente y económicamente conveniente para el sistema estudiado.
+
+
+
 
 \subsection{AnyLogic}
 
+Para la implementación de los modelos en AnyLogic, se adoptó un enfoque de modelado centrado en procesos (\textit{Process-Centric Modeling}). Este paradigma permite representar la dinámica del sistema mediante un flujo lógico de entidades a través de una red de bloques predefinidos, lo que facilita el seguimiento de estados y la recolección de estadísticas en tiempo real. [1]
+
 \subsubsection{Implementación del Modelo M/M/1 y M/M/1/K}
+El sistema de colas se construyó usando la \textit{Process Modeling Library} (PML), traduciendo los componentes teóricos de la fila de espera en bloques funcionales. Estructura del modelo: [1]
+
+\begin{itemize}
+    \item \textbf{Generación de arribos:} Se usó un bloque \textit{Source}, configurado para generar entidades siguiendo una distribución exponencial con tasa $\lambda$. [2]
+    \item \textbf{Gestión de cola:} Se usó un bloque \textit{Queue}. Para los experimentos de cola finita (M/M/1/K), se usó la propiedad \textit{Maximum capacity} con los valores requeridos (0, 2, 5, 10 y 50). Las entidades rechazadas por falta de espacio se derivaron a un bloque \textit{Sink} secundario para calcular la probabilidad de denegación de servicio. [2]
+    \item \textbf{Mecanismo de servicio:} Se usó un bloque \textit{Delay} para representar el tiempo de atención, parametrizado con una distribución exponencial de tasa $\omega$. [2]
+    \item \textbf{Captura de datos:} Se usaron bloques \textit{TimeMeasureStart} y \textit{TimeMeasureEnd} para registrar el tiempo promedio en el sistema (W) y en cola (Wq). Para las medidas de longitud (L, Lq), se usaron objetos \textit{Statistics} de la paleta de análisis, capturando de forma continua el número de entidades presentes en los bloques respectivos. [3]
+\end{itemize}
 
 \subsubsection{Implementación del Modelo de Inventario}
+El modelo de inventario se desarrolló combinando bloques de procesos con lógica de eventos cíclicos para representar la política estacionaria (s, S). [3]
+
+Se definió una variable de estado para el nivel de inventario físico (I). Un evento programado hace una revisión periódica al inicio de cada mes. Si $I < s$, se genera una entidad “orden” que atraviesa un bloque \textit{Delay} que representa el retraso de entrega (\textit{delivery lag}) estocástico. Al terminar este retraso, la entidad actualiza la variable de stock. Los costos de mantenimiento y faltante se calcularon por el \textit{promedio temporal} del inventario positivo y negativo, respectivamente, usando la capacidad de integración estadística de AnyLogic. [4]
 
 \subsubsection{IU y experimentación}
+Se construyó una interfaz en la ventana \textit{Main} que incluye controles tipo \textit{Slider} y campos de entrada de datos. Estos permiten cambiar las tasas de arribo y los puntos de reorden en tiempo real, actualizando instantáneamente los gráficos de salida (histogramas y diagramas de dispersión). [5]
+
+Se configuraron experimentos de simulación para ejecutar un mínimo de 10 corridas por escenario, asegurando que los resultados representen la convergencia de los estadísticos y no una fluctuación aleatoria aislada. [5]
 
 
 
 \subsection{Parámetros elegidos para el modelo de Inventario}
 
+\textbf{Duración de la simulación (NUM\_MONTHS):} se estableció una duración de 120 meses (10 años). Esta longitud es suficiente para que las estimaciones de costo converjan y disminuya la varianza entre réplicas.
 
+\textbf{Tiempo promedio entre demandas (MEAN\_INTERDEMAND):} se usó un valor de 0,1 meses, que es igual a 10 pedidos por mes aprox. Este es el valor estándar que se usa en el modelo clásico de Law \& Kelton.
+
+\textbf{Tamaño de la demanda (PROB\_DISTRIB\_DEMAND):} se configuró una distribución discreta simétrica para demandas entre 1 y 4 unidades (con probabilidades 1/6, 1/3, 1/3 y 1/6). Esto resulta en una media de 2,5 unidades por pedido aprox, representando la variabilidad típica de una demanda intermitente.
+
+\textbf{Retraso de entrega (MINLAG y MAXLAG):} se definió un retraso uniforme entre 0,5 y 1 meses. Esto permite simular proveedores con tiempos de entrega moderadamente variables, donde los pedidos pueden llegar en el mismo mes de la orden o el mes siguiente.
+
+\textbf{Políticas de pedido (s, S):} se eligieron 9 políticas que cubren combinaciones de puntos de reorden bajos, medios y altos con distintos niveles objetivo. Esta variedad permite analizar la relación y el equilibrio (frontera de Pareto) entre el costo de ordenamiento y el costo de faltante.
+
+\textbf{Número de réplicas (NUM\_REPLICATIONS):} se hicieron mínimo de 10 corridas independientes por cada experimento. Esta cantidad es fundamental para poder calcular intervalos de confianza del 95\% y ver la variabilidad estocástica inherente al modelo.
+
+Para el modelo MM1, los parámetros de tasa de arribo ($\lambda$) se variaron al 25\%, 50\%, 75\%, 100\% y 125\% respecto a la tasa de servicio ($\omega$).
 
 
 
@@ -123,26 +455,376 @@ Aunque existen fórmulas para resolver estos problemas, la simulación computaci
 
 \subsection{Análisis del Modelo M/M/1}
 
+La salida de una corrida de nuestro programa.
+
+\begin{verbatim}
+============================================================
+REPORTE DE SIMULACIÓN - MODELO DE COLA M/M/1
+============================================================
+Parámetros de Entrada:
+Tiempo promedio entre arribos (1/lambda): 1.000 minutos
+Tiempo promedio de servicio (1/mu):       0.800 minutos
+Clientes requeridos en simulación:        10000
+Límite de la cola (K):                    Infinito (M/M/1)
+------------------------------------------------------------
+Medidas de Rendimiento:
+Tiempo de simulación transcurrido:        10044.780 minutos
+Clientes que iniciaron servicio:          10000
+Clientes arribados en total:              10005
+Clientes bloqueados:                      0
+------------------------------------------------------------
+1. Promedio de clientes en el sistema (L): 3.9742
+2. Promedio de clientes en cola (Lq):      3.1722
+3. Tiempo promedio en el sistema (W):      3.9917 minutos
+4. Tiempo promedio en cola (Wq):           3.1861 minutos
+5. Utilización del servidor (Rho):         0.8020
+6. Probabilidad de denegación de servicio: 0.0000 (0.00%)
+------------------------------------------------------------
+\end{verbatim}
+
 \subsubsection{Evolución Temporal y Estabilización}
 
-\subsubsection{Sensibilidad ante la tasa de arribo}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1\textwidth]{imagen3.png}
+  \caption{Evolución temporal de métricas - Modelo MM1}
+\end{figure}
+
+Se generaron gráficos de evolución temporal, usando la función \textit{plot\_metrics} de Python, para ver la convergencia de los estadísticos. En los gráficos se distinguen 2 fases:
+
+\begin{itemize}
+    \item \textbf{Periodo transitorio:} al inicio de la simulación (tiempos bajos), se ven fluctuaciones significativas en el número promedio de clientes (L, Lq) y los tiempos de espera (W, Wq).
+    \item \textbf{Estado estacionario:} a medida que el tiempo de la simulación avanza y se procesa el número requerido de clientes (\textit{NUM\_DELAYS\_REQUIRED = 10000}), las curvas de las métricas tienden a estabilizarse en valores constantes. Esta convergencia confirma que el sistema alcanzó el estado estable, permitiendo que los resultados de la simulación sean comparables con los valores teóricos calculados con las fórmulas de Little ($L = \lambda W$).
+\end{itemize}
+
+\textbf{Time Plots (Evolución Temporal y Estabilización) - AnyLogic} \\
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{imagen4.png}
+  \caption{Evolución temporal y estabilización - AnyLogic}
+\end{figure}
+
+En estos gráficos, se ve la evolución de las métricas L (clientes) y W (tiempo) en AnyLogic. Permite distinguir el período transitorio inicial (0-20 unidades de tiempo) y la posterior convergencia hacia el estado estacionario. La estabilidad que se ve en los valores promedios (L=0,5 , W=1) valida la capacidad del modelo para representar el comportamiento de largo plazo del sistema.
+
+\textbf{Scatter Plot (Sensibilidad ante la tasa de arribo) - AnyLogic} \\
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{imagen5.png}
+  \caption{Sensibilidad ante la tasa de arribo - AnyLogic}
+\end{figure}
+
+Para cumplir con el requerimiento de variar la tasa de arribo entre el 25\% y 125\% de la tasa de servicio, se fueron variando los parámetros en AnyLogic. En el gráfico se ve la recolección de muestras para cada escenario. Este análisis permite comparar cómo el sistema responde al aumento de carga, viendo la transición de un sistema fluido (25\%-75\%) hacia uno saturado o inestable (100\%-125\%) en el caso de colas infinitas.
+
+\subsubsection{Sensibilidad ante la tasa de arribo ($\lambda$)}
+
+Se hicieron experimentos variando la tasa de arribo al 25\%, 50\%, 75\%, 100\% y 125\% respecto a la tasa de servicio ($\omega$).
+
+Primero se utilizaron los siguientes valores, donde la tasa de servicio corresponde a un 25\% de la tasa de arribo:
+
+\begin{verbatim}
+MEAN_INTERARRIVAL = 12 # Tiempo promedio entre arribos (minutos)
+MEAN_SERVICE = 3 # Tiempo promedio de servicio (minutos)
+NUM_DELAYS_REQUIRED = 10000 # Cantidad de clientes a procesar 
+                            # (que completan retraso e inician servicio)
+QUEUE_LIMIT = float('inf') # Límite de la cola (cantidad de clientes 
+                           # que pueden estar en cola) M/M/1/K - float('inf') para M/M/1
+\end{verbatim}
+
+Que dieron el siguiente resultado en una corrida:
+
+\begin{verbatim}
+============================================================
+REPORTE DE SIMULACIÓN - MODELO DE COLA M/M/1
+============================================================
+Parámetros de Entrada:
+Tiempo promedio entre arribos (1/lambda): 12.000 minutos
+Tiempo promedio de servicio (1/mu):       3.000 minutos
+Clientes requeridos en simulación:        10000
+Límite de la cola (K):                    Infinito (M/M/1)
+------------------------------------------------------------
+1. Promedio de clientes en el sistema (L): 0.3226
+2. Promedio de clientes en cola (Lq):      0.0762
+3. Tiempo promedio en el sistema (W):      3.8939 minutos
+4. Tiempo promedio en cola (Wq):           0.9197 minutos
+5. Utilización del servidor (Rho):         0.2464
+------------------------------------------------------------
+7. Probabilidad de encontrar n clientes en cola (P(Nq = n)):
+n =  0: Probabilidad = 0.9415 (94.15%)
+n =  1: Probabilidad = 0.0451 ( 4.51%)
+n =  2: Probabilidad = 0.0102 ( 1.02%)
+n =  3: Probabilidad = 0.0025 ( 0.25%)
+n =  4: Probabilidad = 0.0006 ( 0.06%)
+n =  5: Probabilidad = 0.0001 ( 0.01%)
+n =  6: Probabilidad = 0.0000 ( 0.00%)
+n =  7: Probabilidad = 0.0000 ( 0.00%)
+============================================================
+\end{verbatim}
+
+Luego se utilizaron los siguientes valores, donde la tasa de servicio corresponde a un 50\% y un 75\% respectivamente de la tasa de arribo:
+
+\begin{verbatim}
+MEAN_INTERARRIVAL = 6 # Tiempo promedio entre arribos (minutos)
+MEAN_SERVICE = 3 # Tiempo promedio de servicio (minutos)
+NUM_DELAYS_REQUIRED = 10000 # Cantidad de clientes a procesar 
+                            # (que completan retraso e inician servicio)
+QUEUE_LIMIT = float('inf') # Límite de la cola (cantidad de clientes 
+                           # que pueden estar en cola) M/M/1/K - float('inf') para M/M/1
+\end{verbatim}
+
+\begin{verbatim}
+MEAN_INTERARRIVAL = 4 # Tiempo promedio entre arribos (minutos)
+MEAN_SERVICE = 3 # Tiempo promedio de servicio (minutos)
+NUM_DELAYS_REQUIRED = 10000 # Cantidad de clientes a procesar 
+                            # (que completan retraso e inician servicio)
+QUEUE_LIMIT = float('inf') # Límite de la cola (cantidad de clientes 
+                           # que pueden estar en cola) M/M/1/K - float('inf') para M/M/1
+\end{verbatim}
+
+Que dieron los siguientes resultado en una corrida:
+
+\begin{verbatim}
+============================================================
+REPORTE DE SIMULACIÓN - MODELO DE COLA M/M/1
+============================================================
+Parámetros de Entrada:
+Tiempo promedio entre arribos (1/lambda): 6.000 minutos
+Tiempo promedio de servicio (1/mu):       3.000 minutos
+Clientes requeridos en simulación:        10000
+Límite de la cola (K):                    Infinito (M/M/1)
+------------------------------------------------------------
+Medidas de Rendimiento:
+Tiempo de simulación transcurrido:        59335.333 minutos
+------------------------------------------------------------
+1. Promedio de clientes en el sistema (L): 1.0314
+2. Promedio de clientes en cola (Lq):      0.5235
+3. Tiempo promedio en el sistema (W):      6.1196 minutos
+4. Tiempo promedio en cola (Wq):           3.1061 minutos
+5. Utilización del servidor (Rho):         0.5079
+------------------------------------------------------------
+7. Probabilidad de encontrar n clientes en cola (P(Nq = n)):
+n =  0: Probabilidad = 0.7406 (74.06%)
+n =  1: Probabilidad = 0.1288 (12.88%)
+n =  2: Probabilidad = 0.0650 ( 6.50%)
+n =  3: Probabilidad = 0.0321 ( 3.21%)
+n =  4: Probabilidad = 0.0162 ( 1.62%)
+n =  5: Probabilidad = 0.0097 ( 0.97%)
+n =  6: Probabilidad = 0.0039 ( 0.39%)
+n =  7: Probabilidad = 0.0014 ( 0.14%)
+n =  8: Probabilidad = 0.0009 ( 0.09%)
+n =  9: Probabilidad = 0.0006 ( 0.06%)
+n = 10: Probabilidad = 0.0004 ( 0.04%)
+n = 11: Probabilidad = 0.0004 ( 0.04%)
+n = 12: Probabilidad = 0.0001 ( 0.01%)
+n = 13: Probabilidad = 0.0000 ( 0.00%)
+============================================================
+\end{verbatim}
+
+\begin{verbatim}
+============================================================
+REPORTE DE SIMULACIÓN - MODELO DE COLA M/M/1
+============================================================
+Parámetros de Entrada:
+Tiempo promedio entre arribos (1/lambda): 4.000 minutos
+Tiempo promedio de servicio (1/mu):       3.000 minutos
+Clientes requeridos en simulación:        10000
+Límite de la cola (K):                    Infinito (M/M/1)
+------------------------------------------------------------
+Medidas de Rendimiento:
+Tiempo de simulación transcurrido:        40028.803 minutos
+------------------------------------------------------------
+1. Promedio de clientes en el sistema (L): 3.0077
+2. Promedio de clientes en cola (Lq):      2.2604
+3. Tiempo promedio en el sistema (W):      12.0394 minutos
+4. Tiempo promedio en cola (Wq):           9.0477 minutos
+5. Utilización del servidor (Rho):         0.7473
+------------------------------------------------------------
+7. Probabilidad de encontrar n clientes en cola (P(Nq = n)):
+n =  0: Probabilidad = 0.4436 (44.36%)
+n =  1: Probabilidad = 0.1368 (13.68%)
+n =  2: Probabilidad = 0.0958 ( 9.58%)
+n =  3: Probabilidad = 0.0742 ( 7.42%)
+n =  4: Probabilidad = 0.0625 ( 6.25%)
+n =  5: Probabilidad = 0.0488 ( 4.88%)
+n =  6: Probabilidad = 0.0363 ( 3.63%)
+n =  7: Probabilidad = 0.0265 ( 2.65%)
+n =  8: Probabilidad = 0.0197 ( 1.97%)
+n =  9: Probabilidad = 0.0156 ( 1.56%)
+n = 10: Probabilidad = 0.0118 ( 1.18%)
+n = 11: Probabilidad = 0.0062 ( 0.62%)
+n = 12: Probabilidad = 0.0053 ( 0.53%)
+n = 13: Probabilidad = 0.0039 ( 0.39%)
+n = 14: Probabilidad = 0.0031 ( 0.31%)
+============================================================
+\end{verbatim}
+
+Para casos donde $\rho < 1$ (25\% a 75\%), el sistema es estable y los tiempos de espera crecen de forma proporcional a la carga. En el 100\% ($\lambda = \omega$), se ve una tendencia hacia el infinito en la longitud de la cola en sistemas MM1 infinitos. Pero en la simulación el tiempo finito de ejecución muestra una cola que crece continuamente sin estabilizarse, confirmando la \textbf{inestabilidad} del modelo bajo saturación total.
+
+Para un 100\% ($\lambda = \omega$):
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{imagen6.png}
+  \caption{Evolución temporal de métricas - Modelo MM1}
+\end{figure}
+
+\begin{verbatim}
+============================================================
+REPORTE DE SIMULACIÓN - MODELO DE COLA M/M/1
+============================================================
+Parámetros de Entrada:
+Tiempo promedio entre arribos (1/lambda): 3.000 minutos
+Tiempo promedio de servicio (1/mu):       3.000 minutos
+Clientes requeridos en simulación:        10000
+Límite de la cola (K):                    Infinito (M/M/1)
+------------------------------------------------------------
+Medidas de Rendimiento:
+Tiempo de simulación transcurrido:        30585.481 minutos
+------------------------------------------------------------
+1. Promedio de clientes en el sistema (L): 53.8815
+2. Promedio de clientes en cola (Lq):      52.8916
+3. Tiempo promedio en el sistema (W):      154.4522 minutos
+4. Tiempo promedio en cola (Wq):           151.4238 minutos
+5. Utilización del servidor (Rho):         0.9899
+6. Probabilidad de denegación de servicio: 0.0000 (0.00%)
+------------------------------------------------------------
+7. Probabilidad de encontrar n clientes en cola (P(Nq = n)):
+n =  0: Probabilidad = 0.0200 ( 2.00%)
+n =  1: Probabilidad = 0.0093 ( 0.93%)
+n =  2: Probabilidad = 0.0095 ( 0.95%)
+n =  3: Probabilidad = 0.0103 ( 1.03%)
+n =  4: Probabilidad = 0.0102 ( 1.02%)
+n =  5: Probabilidad = 0.0124 ( 1.24%)
+\end{verbatim}
+
+Donde vemos una clara distorsión de las salidas, afirmando que el sistema es inestable.
+
+
+
 
 \subsubsection{Análisis de cola finita (M/M/1/K) y Denegación de servicio}
+Para la cola finita ($K \in \{0,2,5,10,50\}$), se evaluó el impacto del límite de capacidad sobre la probabilidad de denegación de servicio.
 
-\subsubsection{Probabilidad de encontrar n clientes en cola}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{imagen7.png}
+  \caption{Evolución temporal de métricas - Modelo M/M/1/2}
+\end{figure}
+
+TABLA COMPARATIVA: EFECTO DEL TAMAÑO DE COLA (K) SOBRE LA DENEGACIÓN DE SERVICIO
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|c|l|c|l|}
+\hline
+\textbf{Cola (K)} & \textbf{Arribos} & \textbf{Bloqueados} & \textbf{P(Denegación)} & \textbf{Utilización} & \textbf{Lq} \\ \hline
+0 & 18172 & 8172 & 0.449703 & 0.4456 & 0.0000 \\ \hline
+2 & 12140 & 2140 & 0.176277 & 0.6536 & 0.5597 \\ \hline
+5 & 10766 & 766 & 0.071150 & 0.7575 & 1.4841 \\ \hline
+10 & 10267 & 259 & 0.025226 & 0.7944 & 2.5609 \\ \hline
+50 & 10005 & 0 & 0.000000 & 0.8020 & 3.1722 \\ \hline
+\end{tabular}
+\end{table}
+
+Los resultados (que se ven en la tabla generada por el script de Python) muestran que a menor tamaño de cola ($K$) mayor cantidad de clientes bloqueados (\texttt{num\_custs\_blocked}).
+
+A diferencia del modelo infinito, incluso con tasas de arribo del 125\% ($\rho > 1$), los modelos MM1K alcanzan un estado estable. Esto pasa porque el mecanismo de rechazo de clientes limita el uso real del servidor y evita el crecimiento indefinido de la cola de espera.
+
+\subsubsection{Probabilidad de encontrar $n$ clientes en cola}
+Usando \textit{time\_in\_q\_state} en el código Python, se calculó la fracción de tiempo que el sistema permaneció con exactamente $n$ clientes esperando. Los resultados muestran que para un sistema estable, la probabilidad disminuye exponencialmente cuando $n$ aumenta, siguiendo la distribución teórica $P_n = (1-\rho)\rho^n$ para el sistema total.
+
 
 
 \subsection{Análisis del Modelo de Inventario}
 
+Se hizo una simulación con una duración de 120 meses. Para cada una de las 9 políticas elegidas (que varían desde un punto de reorden $s=20$ hasta $s=60$, y niveles de inventario objetivo $S$ de hasta 100 unidades), se ejecutaron 10 réplicas independientes usando semillas aleatorias distintas. Esto permite calcular el promedio de los costos y su desvío estándar.
+
+Con la función \textit{calculate\_metrics(state)} de Python, se analizaron los componentes que integran el Costo Total Promedio Mensual:
+
+\begin{itemize}
+    \item \textbf{Costo de ordenamiento (\textit{avg\_ordering\_cost}):} representa el gasto por hacer pedidos al proveedor. Incluye un costo fijo de preparación ($SETUP\_COST = 32.0$) y un costo variable por unidad ($INCREMENTAL\_COST = 3.0$). Al aumentar el valor de $S$ para un mismo $s$, la frecuencia de los pedidos disminuye, y disminuye el \textit{avg\_ordering\_cost}.
+    \item \textbf{Costo de mantenimiento (\textit{avg\_holding\_cost}):} Se calcula multiplicando el costo unitario ($HOLDING\_COST = 1.0$) por el promedio temporal del inventario positivo (\textit{area\_holding}). Las políticas con valores de $s$ y $S$ más altos mantienen niveles de stock físico más alto.
+    \item \textbf{Costo de faltante (\textit{avg\_shortage\_cost}):} Penaliza el inventario negativo o backlog ($SHORTAGE\_COST = 5.0$). Al aumentar el punto de reorden $s$, disminuye el área de faltantes, asegurando que el pedido se haga antes de agotar las existencias.
+\end{itemize}
+
+El script genera una tabla resumen comparativa de políticas que muestra los promedios de las 10 réplicas para cada configuración. El criterio de selección usado es la minimización del Costo Total Promedio Mensual (\textit{total\_cost\_mean} en Python y \textit{datosCostoTotal} en AnyLogic).
+
+La comparación de los resultados permite ver cuál de las 9 combinaciones de (s,S) es la política más eficiente para las condiciones de demanda ($MEAN\_INTERDEMAND = 0.1$ y $NUM\_VALUES\_DEMAND = 4$) y retraso de entrega analizadas ($MINLAG = 0.5$ y $MAXLAG = 1.0$). Esta política va a ser la que logra el costo total más bajo.
+
+\paragraph{Time Plot (Nivel de Inventario) - AnyLogic}
+
+Este gráfico representa la evolución dinámica del stock físico en el depósito durante una corrida individual de 120 meses. Se ve como el nivel de inventario (\textit{inventoryLevel}) desciende de forma escalonada por la llegada de demandas discretas (entre 1 y 4 unidades) que siguen un proceso de Poisson con una tasa de 10 pedidos por mes. Cada vez que la curva cae por debajo del punto de reorden $s=20$, el evento mensual de revisión (\textit{inventoryReview}) dispara una orden de compra hacia el bloque \textit{orderSource}.
+
+La gráfica muestra tramos donde el inventario entra en valores negativos (alrededor de -20). Esto pasa durante el retraso de entrega (lead time) de entre 0,5 y 1 meses, representando el backlog o pedidos pendientes que generan el costo de faltante (\textit{statsNegativeInv}). Al terminar el retraso en el bloque \textit{deliveryDelay}, el stock salta instantáneamente hasta alcanzar el nivel objetivo $S=60$, reiniciando el ciclo.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.4\textwidth]{imagen8.png}
+  \caption{Nivel de Inventario - AnyLogic}
+\end{figure}
+
+\paragraph{Histograma de Costo Total - AnyLogic}
+
+El histograma muestra los resultados de 10 réplicas independientes (“10 samples”). El costo total promedio obtenido es de 116,494 (\textit{Mean}). Este valor integra el costo de ordenamiento promedio, el de mantenimiento y el de faltante, calculados mediante promedios temporales continuos (áreas bajo la curva).
+
+La dispersión de las barras entre los valores de 112,5 y 122,1 muestra como la aleatoriedad en el tamaño de la demanda y en los tiempos de entrega afecta el costo operativo mensual. La concentración de las muestras alrededor de la media valida la robustez del modelo y la convergencia al estado estable tras el periodo transitorio inicial.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{imagen9.png}
+  \caption{Costo Total - AnyLogic}
+\end{figure}
+
 \subsubsection{Comparativa entre valor teórico, Python y AnyLogic}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Política (s,S)} & \textbf{Valor teórico} & \textbf{Python} & \textbf{AnyLogic} \\ \hline
+(20, 40) & 126,61 & 124,6153 & 116,283 \\ \hline
+(20, 60) & 122,74 & 117,9460 & 116,494 \\ \hline
+(20, 80) & 123,86 & 121,5325 & 121,402 \\ \hline
+(20, 100) & 125,32 & 127,3081 & 128,039 \\ \hline
+(40, 60) & 126,37 & 125,6530 & 130,804 \\ \hline
+(40, 80) & 125,46 & 124,6290 & 131,718 \\ \hline
+(40, 100) & 132,34 & 131,1686 & 136,664 \\ \hline
+(60, 80) & 150,02 & 143,5591 & 152,275 \\ \hline
+(60, 100) & 143,20 & 143,8565 & 152,293 \\ \hline
+\end{tabular}
+\end{table}
+
+
 
 \section{Discusión}
 \label{sec:discusion}
 
 
+El desarrollo de este trabajo práctico permitió validar la importancia de la simulación computacional para analizar sistemas estocásticos, contrastando los resultados teóricos matemáticos con implementaciones prácticas en Python y modelos visuales en AnyLogic. A partir de la recolección y análisis de las métricas de rendimiento, se destacan los siguientes puntos fundamentales:
+
+\subsection{Comportamiento del Sistema de Colas y la Condición de Estabilidad}
+En el análisis del modelo M/M/1, los experimentos demostraron empíricamente que cuando el sistema opera bajo una condición de estabilidad (con tasas de arribo variando entre el 25\% y el 75\% respecto a la de servicio), los tiempos de espera crecen de forma proporcional a la carga y las métricas logran converger hacia valores constantes. Sin embargo, el fenómeno más destacable ocurrió al forzar el sistema al límite de su capacidad (100\%, donde $\lambda = \mu$). En este escenario, la simulación confirmó la inestabilidad inherente de una cola infinita: la longitud de la cola creció de forma continua sin llegar nunca a estabilizarse, generando una clara distorsión en las salidas del sistema. [1]
+
+\subsection{Contraste Analítico frente a la Simulación (Teoría vs. Python vs. AnyLogic)}
+Al observar la tabla comparativa final de costos de inventario, se verifica una notable coherencia general entre las tres fuentes de datos evaluadas. Las ligeras discrepancias numéricas detectadas —por ejemplo, para la política $(20, 40)$, donde el valor matemático teórico es de 126,61, mientras que Python arrojó 124,6153 y AnyLogic 116,283— son completamente esperables. \textbf{Estas diferencias no indican errores de modelado}, sino que son el reflejo directo de la naturaleza del muestreo estocástico. A diferencia de los modelos teóricos que calculan expectativas matemáticas cerradas para un tiempo infinito, tanto Python como AnyLogic evalúan una muestra temporal finita (120 meses) que está inevitablemente afectada por el azar de la demanda y el lead time. En conclusión, la simulación probó ser una herramienta superior para apreciar no solo el costo esperado, sino también la variabilidad y el riesgo que se presentan en el mundo real. [2]
+
+
 \section{Conclusiones}
 \label{sec:conclusiones}
 
+
+Comparando el valor teórico esperado, la programación en Python y el modelo en AnyLogic, se tienen las siguientes conclusiones:
+
+Tanto los scripts de Python como los flujos de procesos en AnyLogic son coherentes con los modelos matemáticos de Law y Kelton. Las diferencias ligeras que hay son intrínsecas a la naturaleza aleatoria de los sistemas y al uso de una duración finita (120 meses), a diferencia de las fórmulas teóricas que asumen un estado estable ideal de tiempo infinito.
+
+La condición de estabilidad ($\rho < 1$) es el factor determinante en el rendimiento de las colas infinitas. Se observó cómo al alcanzar la saturación (100\%), el sistema se vuelve inestable, mientras que la implementación de colas finitas (M/M/1/K) actúa como regulador y estabiliza el sistema a costa de la denegación de servicio.
+
+El análisis de las 9 políticas (s, S) demostró que la simulación permite identificar el punto de equilibrio óptimo entre los costos de ordenamiento, mantenimiento y faltante. La política (20, 60) es la más eficiente para las condiciones dadas, logrando minimizar el Costo Total Promedio Mensual frente a la variabilidad de la demanda y el lead time del proveedor.
+
+La ejecución de mínimo 10 replicaciones independientes por experimento se hizo para disminuir el impacto de la variabilidad estocástica. Usar histogramas y diagramas de dispersión permitió confirmar que los promedios obtenidos no son fluctuaciones aisladas, sino estimaciones robustas que tienden a la normalidad según el Teorema Central del Límite.
+
+En definitiva, la integración de estas herramientas permite obtener resultados numéricos precisos, comprender el comportamiento dinámico y los riesgos de los sistemas reales antes de su implementación física, facilitando tomar decisiones basadas en evidencia estadística.
 
 
 \nocite{*}
