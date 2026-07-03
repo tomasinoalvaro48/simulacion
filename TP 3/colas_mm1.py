@@ -17,7 +17,7 @@ QUEUE_LIMIT = float('inf') # Límite de la cola (cantidad de clientes que pueden
 RANDOM_SEED = datetime.datetime.now().microsecond # Semilla de numeros aleatorios
 OUTPUT_FILE = "mm1.out" # Nombre del archivo de salida para el reporte
 
-
+CORRIDAS = 1 # Cantidad de corridas de simulación
 
 
 
@@ -333,7 +333,7 @@ def plot_metrics(history, queue_limit):
 
 # ------------- Simulación ------------- 
 def main():
-    for i in range(10):
+    for i in range(CORRIDAS):
         print(f"Corrida {i+1}:")
         # Simulación Principal
         print("Ejecutando simulación principal...")
