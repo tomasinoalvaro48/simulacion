@@ -1,0 +1,153 @@
+\documentclass{article}
+
+\usepackage{arxiv}
+
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+\crefname{table}{cuadro}{cuadros}
+\Crefname{table}{Cuadro}{Cuadros}
+\graphicspath{{./images/}{./images/graficos/}}
+
+
+\title{TP 3 - SIMULACIÓN DE UN MODELO MM1 E INVENTARIO}
+
+
+\author{
+    Alvaro Tomasino \\
+    Ingeniería en Sistemas de Información\\
+    Universidad Tecnológica Nacional - FRRO\\
+    Zeballos 1341, S2000, Argentina\\
+    \texttt{atomasino08@gmail.com} \\
+\And
+    Juan Bautista Martinelli \\
+    Ingeniería en Sistemas de Información\\
+    Universidad Tecnológica Nacional - FRRO\\
+    Zeballos 1341, S2000, Argentina\\
+    \texttt{martinellij4@gmail.com} \\
+\And
+    Tomás Aguilera \\
+    Ingeniería en Sistemas de Información\\
+    Universidad Tecnológica Nacional - FRRO\\
+    Zeballos 1341, S2000, Argentina\\
+    \texttt{tomas.aguilera.27@gmail.com} \\
+\And
+    Melina Aronson \\
+    Ingeniería en Sistemas de Información\\
+    Universidad Tecnológica Nacional - FRRO\\
+    Zeballos 1341, S2000, Argentina\\
+    \texttt{melinaaronson@gmail.com} \\
+}
+
+
+
+
+\begin{document}
+
+\maketitle
+
+
+
+
+\begin{abstract}
+El objetivo de este informe es medir qué tan bien funcionan el sistema de colas M/M/1 y el modelo de inventario bajo distintas situaciones, comparando los cálculos matemáticos con programas en Python y modelos en AnyLogic.
+\end{abstract}
+
+\keywords{Simulación \and Modelo MM1 \and Modelo de Inventario \and AnyLogic}
+
+
+
+
+\section{Introducción}
+
+En cualquier negocio, manejar bien las filas de espera y el stock de productos es fundamental para no perder dinero ni tiempo. La teoría de colas nos da herramientas para entender sistemas donde la gente llega y espera ser atendida. El modelo M/M/1 permite predecir, por ejemplo, cuánto tiempo va a estar un cliente en una fila antes de irse.
+
+Por otro lado, los modelos de inventario sirven para controlar el stock, buscando un equilibrio entre el costo de pedir mercadería, mantenerla guardada y el problema de quedarse sin nada para vender.
+
+Aunque existen fórmulas para resolver estos problemas, la simulación computacional es mejor para ver cómo se comportan estos sistemas en el tiempo y con cambios inesperados. En este informe, vamos a comparar los resultados teóricos con los obtenidos en Python y AnyLogic. La idea es probar distintos escenarios para ver si las herramientas de simulación coinciden con la matemática.
+
+
+
+
+\section{Marco teórico y fórmulas}
+\label{sec:marco}
+
+\subsection{Modelo M/M/1}
+
+\subsection{Modelo de Inventario}
+
+
+
+
+
+\section{Metodología}
+\label{sec:metodologia}
+
+\subsection{Python}
+
+\subsubsection{Modelo de Colas MM1}
+
+\subsubsection{Modelo de Inventario}
+
+\subsection{AnyLogic}
+
+\subsubsection{Implementación del Modelo M/M/1 y M/M/1/K}
+
+\subsubsection{Implementación del Modelo de Inventario}
+
+\subsubsection{IU y experimentación}
+
+
+
+\subsection{Parámetros elegidos para el modelo de Inventario}
+
+
+
+
+
+
+\section{Resultados}
+\label{sec:resultados}
+
+\subsection{Análisis del Modelo M/M/1}
+
+\subsubsection{Evolución Temporal y Estabilización}
+
+\subsubsection{Sensibilidad ante la tasa de arribo}
+
+\subsubsection{Análisis de cola finita (M/M/1/K) y Denegación de servicio}
+
+\subsubsection{Probabilidad de encontrar n clientes en cola}
+
+
+\subsection{Análisis del Modelo de Inventario}
+
+\subsubsection{Comparativa entre valor teórico, Python y AnyLogic}
+
+\section{Discusión}
+\label{sec:discusion}
+
+
+\section{Conclusiones}
+\label{sec:conclusiones}
+
+
+
+\nocite{*}
+
+\bibliographystyle{unsrturl}
+\bibliography{references}
+
+\end{document}
